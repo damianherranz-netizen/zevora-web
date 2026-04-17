@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FisioIA — Registro de clínica</title>
+<meta name="description" content="Activa FisioIA en tu clínica. 2 meses gratis con el código BIENVENIDA2M-FISIO.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0B1F3A;--navy-mid:#1B3B6F;--green:#00C896;--green-soft:#4ADE80;
+  --white:#ffffff;--bg:#F8FAFC;--bg2:#EEF2F7;--border:#E2E8F0;
+  --border-green:rgba(0,200,150,0.25);--text:#0B1F3A;--muted:#64748B;
+  --grad-green:linear-gradient(135deg,#00C896 0%,#4ADE80 100%);
+  --shadow-sm:0 2px 8px rgba(11,31,58,0.06);--shadow-md:0 8px 32px rgba(11,31,58,0.1);
+  --shadow-lg:0 24px 64px rgba(11,31,58,0.12);
+  --font:'Sora',sans-serif;--font-body:'DM Sans',sans-serif;
+  --red:#EF4444;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 6%;background:#0a0a0a;border-bottom:1px solid rgba(255,255,255,0.08)}
+.nav-logo{display:flex;align-items:center;gap:10px}
+.nav-logo img{height:30px;width:auto}
+.nav-logo-text{font-family:var(--font);font-size:1.1rem;font-weight:800;color:white}
+.nav-logo-text span{color:var(--green)}
+.nav-back{font-size:0.85rem;color:rgba(255,255,255,0.5);text-decoration:none;transition:color 0.2s;display:flex;align-items:center;gap:6px}
+.nav-back:hover{color:var(--green)}
+
+.page{max-width:1000px;margin:0 auto;padding:3rem 2rem 5rem;display:grid;grid-template-columns:1fr 360px;gap:3rem;align-items:start}
+
+/* FORMULARIO */
+.form-card{background:white;border:1px solid var(--border);border-radius:20px;padding:2.5rem;box-shadow:var(--shadow-md)}
+.form-title{font-family:var(--font);font-size:1.5rem;font-weight:800;color:var(--navy);margin-bottom:0.4rem}
+.form-subtitle{font-size:0.9rem;color:var(--muted);margin-bottom:2rem;line-height:1.6}
+
+.form-section{margin-bottom:1.8rem}
+.form-section-title{font-family:var(--font);font-size:0.78rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--green);margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border)}
+
+.form-group{margin-bottom:1rem}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+label{display:block;font-size:0.82rem;font-weight:600;color:var(--navy);margin-bottom:0.4rem}
+label .req{color:var(--red)}
+input[type=text],input[type=email],input[type=tel],input[type=number],select,textarea{
+  width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;
+  font-size:0.9rem;font-family:var(--font-body);color:var(--text);background:var(--bg);
+  transition:border-color 0.2s,box-shadow 0.2s;outline:none;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(0,200,150,0.1);background:white}
+input.error,select.error{border-color:var(--red)}
+.field-hint{font-size:0.75rem;color:var(--muted);margin-top:4px}
+.field-error{font-size:0.75rem;color:var(--red);margin-top:4px;display:none}
+
+/* HORARIO BUILDER */
+.horario-dia{display:grid;grid-template-columns:90px 36px 1fr;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.horario-dia:last-child{border-bottom:none}
+.dia-nombre{font-size:0.85rem;font-weight:600;color:var(--navy)}
+.dia-toggle{width:36px;height:20px;background:#CBD5E1;border-radius:10px;position:relative;cursor:pointer;flex-shrink:0;transition:background 0.2s;border:none;outline:none}
+.dia-toggle::after{content:'';position:absolute;width:14px;height:14px;background:white;border-radius:50%;top:3px;left:3px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+.dia-toggle.on{background:var(--green)}
+.dia-toggle.on::after{left:19px}
+.dia-horas{display:flex;align-items:center;gap:6px}
+.dia-horas.oculto{opacity:0.3;pointer-events:none}
+.dia-horas input[type=time]{width:90px;padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:0.82rem;font-family:var(--font-body);color:var(--text);background:var(--bg)}
+.dia-horas input[type=time]:focus{border-color:var(--green);outline:none}
+.dia-sep{font-size:0.78rem;color:var(--muted)}
+.dia-cerrado{font-size:0.78rem;color:var(--muted);font-style:italic;display:none}
+.horario-container{background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;margin-top:4px}
+
+/* TOGGLE MUTUAS */
+.toggle-group{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all 0.2s;margin-bottom:1rem}
+.toggle-group:hover{border-color:var(--green)}
+.toggle-group.active{border-color:var(--green);background:rgba(0,200,150,0.05)}
+.toggle-switch{width:40px;height:22px;background:#CBD5E1;border-radius:11px;position:relative;transition:background 0.2s;flex-shrink:0}
+.toggle-switch::after{content:'';position:absolute;width:16px;height:16px;background:white;border-radius:50%;top:3px;left:3px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+.toggle-group.active .toggle-switch{background:var(--green)}
+.toggle-group.active .toggle-switch::after{left:21px}
+.toggle-label{font-size:0.88rem;font-weight:600;color:var(--navy)}
+.toggle-desc{font-size:0.78rem;color:var(--muted);margin-top:1px}
+
+.mutuas-grid{display:none;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem}
+.mutuas-grid.visible{display:grid}
+.mutua-check{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;transition:all 0.15s;font-size:0.82rem;font-weight:500;color:var(--muted)}
+.mutua-check input{display:none}
+.mutua-check.selected{border-color:var(--green);background:rgba(0,200,150,0.08);color:var(--navy)}
+.mutua-check::before{content:'○';font-size:14px;color:#CBD5E1;transition:all 0.15s}
+.mutua-check.selected::before{content:'✓';color:var(--green)}
+
+/* CÓDIGO PROMO */
+.promo-wrapper{display:flex;gap:8px}
+.promo-wrapper input{flex:1}
+.btn-promo{background:var(--navy);color:white;border:none;border-radius:8px;padding:10px 18px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;transition:background 0.2s}
+.btn-promo:hover{background:var(--navy-mid)}
+.promo-ok{font-size:0.82rem;color:#00A07A;font-weight:600;margin-top:6px;display:none}
+.promo-ok::before{content:'✓ '}
+.promo-err{font-size:0.82rem;color:var(--red);margin-top:6px;display:none}
+
+/* BOTÓN SUBMIT */
+.btn-submit{width:100%;background:var(--grad-green);color:var(--navy);border:none;border-radius:10px;padding:16px;font-size:1rem;font-weight:800;cursor:pointer;font-family:var(--font);transition:all 0.25s;margin-top:1.5rem;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 20px rgba(0,200,150,0.3)}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,200,150,0.4)}
+.btn-submit:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+.form-legal{font-size:0.72rem;color:var(--muted);text-align:center;margin-top:1rem;line-height:1.6}
+.form-legal a{color:var(--green);text-decoration:none}
+
+/* SIDEBAR */
+.sidebar-card{position:sticky;top:2rem}
+.precio-box{background:white;border:2px solid var(--border-green);border-radius:16px;padding:1.8rem;box-shadow:var(--shadow-lg);margin-bottom:1.5rem;position:relative;overflow:hidden}
+.precio-box::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--grad-green)}
+.precio-badge{display:inline-block;background:rgba(0,200,150,0.1);border:1px solid var(--border-green);border-radius:100px;padding:4px 12px;font-size:0.72rem;font-weight:700;color:#00A07A;margin-bottom:1rem;text-transform:uppercase;letter-spacing:0.06em}
+.precio-old{font-size:1rem;color:var(--muted);text-decoration:line-through;margin-bottom:0.25rem}
+.precio-big{font-family:var(--font);font-size:2.8rem;font-weight:800;color:var(--navy);line-height:1}
+.precio-big span{font-size:1rem;font-weight:400;color:var(--muted)}
+.oferta-box{background:rgba(0,200,150,0.08);border:1px solid var(--border-green);border-radius:8px;padding:10px 14px;font-size:0.82rem;color:#00A07A;font-weight:600;margin:1rem 0}
+.precio-feats{list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:1rem}
+.precio-feats li{font-size:0.82rem;color:var(--text);display:flex;align-items:flex-start;gap:8px;line-height:1.4}
+.precio-feats li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;margin-top:1px}
+
+.seguridad-card{background:var(--navy);border-radius:12px;padding:1.2rem;text-align:center}
+.seguridad-card p{font-size:0.78rem;color:rgba(255,255,255,0.6);line-height:1.6;margin-top:0.5rem}
+.seguridad-icons{display:flex;justify-content:center;gap:1.5rem;margin-top:0.8rem}
+.seg-icon{font-size:1.2rem}
+
+/* LOADER */
+.loader-overlay{position:fixed;inset:0;background:rgba(11,31,58,0.85);backdrop-filter:blur(6px);z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column;gap:1rem}
+.loader-overlay.active{display:flex}
+.loader-spinner{width:48px;height:48px;border:4px solid rgba(255,255,255,0.2);border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{font-family:var(--font);font-size:1rem;font-weight:600;color:white}
+
+@media(max-width:800px){
+  .page{grid-template-columns:1fr;padding:1.5rem 1rem 4rem}
+  .sidebar-card{position:static}
+  .form-row{grid-template-columns:1fr}
+  .mutuas-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <img src="fisioia-logo-dark.png" alt="FisioIA" onerror="this.style.display='none'">
+    <div class="nav-logo-text">Fisio<span>IA</span></div>
+  </div>
+  <a href="fisioia.html" class="nav-back">← Volver a la web</a>
+</nav>
+
+<div class="page">
+
+  <!-- FORMULARIO -->
+  <div class="form-card">
+    <div class="form-title">Activa FisioIA en tu clínica</div>
+    <div class="form-subtitle">Rellena los datos de tu clínica. En menos de 10 minutos tu sistema estará activo y gestionando citas automáticamente.</div>
+
+    <form id="registro-form" novalidate>
+
+      <!-- DATOS DE LA CLÍNICA -->
+      <div class="form-section">
+        <div class="form-section-title">Datos de la clínica</div>
+
+        <div class="form-group">
+          <label>Nombre de la clínica <span class="req">*</span></label>
+          <input type="text" id="nombre_clinica" placeholder="Ej: Clínica Fisio Madrid" required>
+          <div class="field-error" id="err-nombre">El nombre de la clínica es obligatorio</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="tel" id="telefono" placeholder="+34 600 000 000">
+          </div>
+          <div class="form-group">
+            <label>WhatsApp (para citas) <span class="req">*</span></label>
+            <input type="tel" id="whatsapp" placeholder="+34 600 000 000" required>
+            <div class="field-hint">Número donde el agente IA recibirá los mensajes</div>
+            <div class="field-error" id="err-whatsapp">El WhatsApp es obligatorio</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Email de contacto <span class="req">*</span></label>
+          <input type="email" id="email" placeholder="fisio@tuclinica.com" required>
+          <div class="field-error" id="err-email">Introduce un email válido</div>
+        </div>
+      </div>
+
+      <!-- CONFIGURACIÓN OPERATIVA -->
+      <div class="form-section">
+        <div class="form-section-title">Configuración operativa</div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Número de fisioterapeutas</label>
+            <select id="num_fisioterapeutas">
+              <option value="1">1 fisioterapeuta</option>
+              <option value="2">2 fisioterapeutas</option>
+              <option value="3">3 fisioterapeutas</option>
+              <option value="4">4 fisioterapeutas</option>
+              <option value="5">5 o más</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Duración de sesión (minutos)</label>
+            <select id="duracion_sesion">
+              <option value="30">30 minutos</option>
+              <option value="45">45 minutos</option>
+              <option value="60" selected>60 minutos</option>
+              <option value="90">90 minutos</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Precio por sesión (€)</label>
+          <input type="number" id="precio_sesion" value="45" min="10" max="500" style="max-width:180px">
+        </div>
+
+        <div class="form-group">
+          <label>Horario semanal de la clínica</label>
+          <div class="field-hint" style="margin-bottom:8px">Activa los días que atiendes y configura la hora de entrada y salida. El sistema solo ofrecerá citas en estos horarios.</div>
+          <div class="horario-container" id="horario-builder"></div>
+        </div>
+      </div>
+
+      <!-- MUTUAS Y ASEGURADORAS -->
+      <div class="form-section">
+        <div class="form-section-title">Mutuas y aseguradoras</div>
+
+        <div class="toggle-group" id="toggle-mutuas" onclick="toggleMutuas()">
+          <div class="toggle-switch"></div>
+          <div>
+            <div class="toggle-label">¿Trabajas con mutuas o aseguradoras privadas?</div>
+            <div class="toggle-desc">Activar permite generar partes automáticos para cada aseguradora</div>
+          </div>
+        </div>
+
+        <div class="mutuas-grid" id="mutuas-grid">
+          <div class="mutua-check" onclick="toggleMutua(this,'Adeslas')"><input type="checkbox" value="Adeslas">Adeslas</div>
+          <div class="mutua-check" onclick="toggleMutua(this,'Sanitas')"><input type="checkbox" value="Sanitas">Sanitas</div>
+          <div class="mutua-check" onclick="toggleMutua(this,'Asisa')"><input type="checkbox" value="Asisa">Asisa</div>
+          <div class="mutua-check" onclick="toggleMutua(this,'Mapfre')"><input type="checkbox" value="Mapfre">Mapfre Salud</div>
+          <div class="mutua-check" onclick="toggleMutua(this,'DKV')"><input type="checkbox" value="DKV">DKV</div>
+          <div class="mutua-check" onclick="toggleMutua(this,'AXA')"><input type="checkbox" value="AXA">AXA Salud</div>
+        </div>
+      </div>
+
+      <!-- CÓDIGO PROMOCIONAL -->
+      <div class="form-section">
+        <div class="form-section-title">Código promocional</div>
+        <div class="form-group">
+          <label>Código (opcional)</label>
+          <div class="promo-wrapper">
+            <input type="text" id="cupon" placeholder="BIENVENIDA2M-FISIO" style="text-transform:uppercase">
+            <button type="button" class="btn-promo" onclick="aplicarCupon()">Aplicar</button>
+          </div>
+          <div class="promo-ok" id="promo-ok">Código aplicado — 2 meses gratis</div>
+          <div class="promo-err" id="promo-err">Código no válido</div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit" id="btn-submit">
+        <span id="btn-text">Empezar — 39,99€/mes</span>
+      </button>
+
+      <p class="form-legal">
+        Al continuar aceptas los <a href="https://damianherranz-netizen.github.io/reservaia-legal/" target="_blank">Términos de Servicio</a>
+        y la <a href="https://damianherranz-netizen.github.io/reservaia-legal/" target="_blank">Política de Privacidad</a> de FisioIA.<br>
+        El pago se procesa de forma segura a través de Stripe.
+      </p>
+
+    </form>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar-card">
+    <div class="precio-box">
+      <div class="precio-badge">Plan Base — Todo incluido</div>
+      <div class="precio-old">59,99€/mes</div>
+      <div class="precio-big">39,99€ <span>/ mes</span></div>
+      <div class="oferta-box">🎉 2 meses gratis con código <strong>BIENVENIDA2M-FISIO</strong></div>
+      <ul class="precio-feats">
+        <li>Agente IA en WhatsApp 24 horas</li>
+        <li>Gestión completa de citas y agenda</li>
+        <li>Facturas particulares con 1 clic</li>
+        <li>Partes automáticos para mutuas</li>
+        <li>Memoria clínica de cada paciente</li>
+        <li>Gestión de bonos configurable</li>
+        <li>Google Calendar por fisioterapeuta</li>
+        <li>Briefing diario automático</li>
+        <li>Recordatorios anti no-show</li>
+        <li>Multi-fisioterapeuta incluido</li>
+        <li>Sin permanencia — cancela cuando quieras</li>
+        <li>Activo en 10 minutos</li>
+      </ul>
+    </div>
+
+    <div class="seguridad-card">
+      <div class="seguridad-icons">
+        <span class="seg-icon">🔒</span>
+        <span class="seg-icon">💳</span>
+        <span class="seg-icon">✅</span>
+      </div>
+      <p>Pago seguro con Stripe · Datos cifrados · Sin compromiso de permanencia · Cancela cuando quieras</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- LOADER -->
+<div class="loader-overlay" id="loader">
+  <div class="loader-spinner"></div>
+  <div class="loader-text">Preparando tu acceso a FisioIA...</div>
+</div>
+
+<script>
+var trabajaMutuas = false;
+var mutuasSeleccionadas = [];
+var cuponAplicado = '';
+
+var PRICE_ID = 'price_1TM4oeIXXcxLuQ8InGfAuCur';
+var SUPABASE_URL = 'https://epkqgsodpctnlkeclndf.supabase.co';
+var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVwa3Fnc29kcGN0bmxrZWNsbmRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMTMzMjksImV4cCI6MjA5MTY4OTMyOX0.MCkWgWj8z4K4LPYt708NovaIDKZBCHkjQigCV9E9o_E';
+var CODIGOS_VALIDOS = ['BIENVENIDA2M-FISIO'];
+
+var DIAS_CONFIG = [
+  {id:'lunes',     label:'Lunes',     activo:true,  ini:'09:00', fin:'20:00'},
+  {id:'martes',    label:'Martes',    activo:true,  ini:'09:00', fin:'20:00'},
+  {id:'miercoles', label:'Miércoles', activo:true,  ini:'09:00', fin:'20:00'},
+  {id:'jueves',    label:'Jueves',    activo:true,  ini:'09:00', fin:'20:00'},
+  {id:'viernes',   label:'Viernes',   activo:true,  ini:'09:00', fin:'14:00'},
+  {id:'sabado',    label:'Sábado',    activo:false, ini:'09:00', fin:'13:00'},
+  {id:'domingo',   label:'Domingo',   activo:false, ini:'09:00', fin:'13:00'}
+];
+
+function initHorarioBuilder() {
+  var container = document.getElementById('horario-builder');
+  if (!container) return;
+
+  var out = '';
+  for (var i = 0; i < DIAS_CONFIG.length; i++) {
+    var d = DIAS_CONFIG[i];
+    out += '<div class="horario-dia" id="row-' + d.id + '">';
+    out += '<div class="dia-nombre">' + d.label + '</div>';
+    out += '<button type="button" class="dia-toggle ' + (d.activo ? 'on' : '') + '" data-dia="' + d.id + '" id="toggle-' + d.id + '"></button>';
+    out += '<div class="dia-horas ' + (d.activo ? '' : 'oculto') + '" id="horas-' + d.id + '">';
+    out += '<input type="time" class="time-ini" data-dia="' + d.id + '" id="ini-' + d.id + '" value="' + d.ini + '">';
+    out += '<span class="dia-sep">hasta</span>';
+    out += '<input type="time" class="time-fin" data-dia="' + d.id + '" id="fin-' + d.id + '" value="' + d.fin + '">';
+    out += '</div></div>';
+  }
+  container.innerHTML = out;
+
+  // Event listeners (evita problemas con onclick inline)
+  container.querySelectorAll('.dia-toggle').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      toggleDia(this.getAttribute('data-dia'));
+    });
+  });
+  container.querySelectorAll('.time-ini').forEach(function(input) {
+    input.addEventListener('change', function() {
+      actualizarHorario(this.getAttribute('data-dia'), 'ini', this.value);
+    });
+  });
+  container.querySelectorAll('.time-fin').forEach(function(input) {
+    input.addEventListener('change', function() {
+      actualizarHorario(this.getAttribute('data-dia'), 'fin', this.value);
+    });
+  });
+}
+
+function toggleDia(diaId) {
+  for (var i = 0; i < DIAS_CONFIG.length; i++) {
+    if (DIAS_CONFIG[i].id === diaId) {
+      DIAS_CONFIG[i].activo = !DIAS_CONFIG[i].activo;
+      var btn = document.getElementById('toggle-' + diaId);
+      var div = document.getElementById('horas-' + diaId);
+      if (DIAS_CONFIG[i].activo) {
+        btn.classList.add('on');
+        div.classList.remove('oculto');
+      } else {
+        btn.classList.remove('on');
+        div.classList.add('oculto');
+      }
+      break;
+    }
+  }
+}
+
+function actualizarHorario(diaId, campo, valor) {
+  for (var i = 0; i < DIAS_CONFIG.length; i++) {
+    if (DIAS_CONFIG[i].id === diaId) {
+      DIAS_CONFIG[i][campo] = valor;
+      break;
+    }
+  }
+}
+
+function getHorarioJSON() {
+  var h = {};
+  for (var i = 0; i < DIAS_CONFIG.length; i++) {
+    var d = DIAS_CONFIG[i];
+    h[d.id] = { activo: d.activo, inicio: d.ini, fin: d.fin };
+  }
+  return JSON.stringify(h);
+}
+
+function toggleMutuas() {
+  trabajaMutuas = !trabajaMutuas;
+  document.getElementById('toggle-mutuas').classList.toggle('active', trabajaMutuas);
+  document.getElementById('mutuas-grid').classList.toggle('visible', trabajaMutuas);
+}
+
+function toggleMutua(el, nombre) {
+  el.classList.toggle('selected');
+  var cb = el.querySelector('input');
+  cb.checked = !cb.checked;
+  if (cb.checked) {
+    if (mutuasSeleccionadas.indexOf(nombre) === -1) mutuasSeleccionadas.push(nombre);
+  } else {
+    mutuasSeleccionadas = mutuasSeleccionadas.filter(function(m) { return m !== nombre; });
+  }
+}
+
+function aplicarCupon() {
+  var codigo = document.getElementById('cupon').value.trim().toUpperCase();
+  var ok = document.getElementById('promo-ok');
+  var err = document.getElementById('promo-err');
+  var btn = document.getElementById('btn-text');
+  ok.style.display = 'none';
+  err.style.display = 'none';
+  if (CODIGOS_VALIDOS.indexOf(codigo) !== -1) {
+    cuponAplicado = codigo;
+    ok.style.display = 'block';
+    btn.textContent = 'Empezar — 2 meses gratis';
+  } else {
+    cuponAplicado = '';
+    err.style.display = 'block';
+    btn.textContent = 'Empezar — 39,99€/mes';
+  }
+}
+
+function mostrarError(id, show) {
+  document.getElementById(id).style.display = show ? 'block' : 'none';
+}
+
+function validar() {
+  var ok = true;
+  var nombre = document.getElementById('nombre_clinica').value.trim();
+  var email = document.getElementById('email').value.trim();
+  var whatsapp = document.getElementById('whatsapp').value.trim();
+  var reEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!nombre) {
+    mostrarError('err-nombre', true);
+    document.getElementById('nombre_clinica').classList.add('error');
+    ok = false;
+  } else {
+    mostrarError('err-nombre', false);
+    document.getElementById('nombre_clinica').classList.remove('error');
+  }
+  if (!email || !reEmail.test(email)) {
+    mostrarError('err-email', true);
+    document.getElementById('email').classList.add('error');
+    ok = false;
+  } else {
+    mostrarError('err-email', false);
+    document.getElementById('email').classList.remove('error');
+  }
+  if (!whatsapp) {
+    mostrarError('err-whatsapp', true);
+    document.getElementById('whatsapp').classList.add('error');
+    ok = false;
+  } else {
+    mostrarError('err-whatsapp', false);
+    document.getElementById('whatsapp').classList.remove('error');
+  }
+  return ok;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  initHorarioBuilder();
+
+  var params = new URLSearchParams(window.location.search);
+  var c = params.get('cupon');
+  if (c) {
+    document.getElementById('cupon').value = c.toUpperCase();
+    aplicarCupon();
+  }
+
+  document.getElementById('registro-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (!validar()) return;
+
+    var loader = document.getElementById('loader');
+    var btn = document.getElementById('btn-submit');
+    loader.classList.add('active');
+    btn.disabled = true;
+
+    var payload = {
+      price_id: PRICE_ID,
+      nombre_clinica: document.getElementById('nombre_clinica').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      telefono: document.getElementById('telefono').value.trim(),
+      whatsapp: document.getElementById('whatsapp').value.trim(),
+      num_fisioterapeutas: document.getElementById('num_fisioterapeutas').value,
+      duracion_sesion: document.getElementById('duracion_sesion').value,
+      precio_sesion: document.getElementById('precio_sesion').value,
+      trabaja_mutuas: trabajaMutuas ? 'true' : 'false',
+      aseguradoras: mutuasSeleccionadas.join(','),
+      cupon: cuponAplicado,
+      horario_semanal: getHorarioJSON()
+    };
+
+    fetch(SUPABASE_URL + '/functions/v1/crear-sesion-suscripcion', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + SUPABASE_ANON
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        loader.classList.remove('active');
+        btn.disabled = false;
+        alert('Ha ocurrido un error. Por favor escríbenos a fisioia@zevorasystems.com');
+      }
+    })
+    .catch(function() {
+      loader.classList.remove('active');
+      btn.disabled = false;
+      alert('Error de conexión. Por favor inténtalo de nuevo.');
+    });
+  });
+});
+</script>
+
+
+<div style="text-align:center;margin-top:20px;padding:14px;font-size:11px;color:rgba(255,255,255,0.3)">
+  Al registrarte aceptas nuestra 
+  <a href="/politica-privacidad.pdf" target="_blank" style="color:#00C896;text-decoration:none">Política de Privacidad</a> 
+  y los términos del servicio.<br>
+  © 2026 ZEVORA Systems · hola@zevorasystems.com
+</div>
+
+</body>
+</html>
