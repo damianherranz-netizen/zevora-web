@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PsicoIA — Acceso</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --navy:#1A0A2E;--navy-dark:#120720;--green:#5B2C8D;--green2:#7B4BAD;
+  --surface:#111827;--surface2:#1A2535;--surface3:#1F2D40;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --text:#F0F4F8;--muted:#64748B;--muted2:#94A3B8;--red:#EF4444;
+  --font:'Plus Jakarta Sans',sans-serif;
+}
+body{font-family:var(--font);background:var(--surface);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.bg-blob{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0;}
+.blob1{width:400px;height:400px;background:rgba(91,44,141,0.08);top:-100px;right:10%;}
+.blob2{width:300px;height:300px;background:rgba(26,10,46,0.8);bottom:-50px;left:5%;}
+.login-box{position:relative;z-index:1;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:40px;width:100%;max-width:420px;box-shadow:0 24px 80px rgba(0,0,0,0.4);}
+.logo-area{text-align:center;margin-bottom:32px;}
+.brand{font-size:28px;font-weight:900;color:var(--text);}
+.brand span{color:var(--green);}
+.sub{font-size:10px;color:var(--muted2);letter-spacing:2px;text-transform:uppercase;margin-top:4px;font-weight:600;}
+.tagline{font-size:13px;color:var(--muted2);margin-top:12px;}
+.form-group{margin-bottom:16px;}
+.form-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);display:block;margin-bottom:6px;}
+.form-input{width:100%;background:var(--surface3);border:1.5px solid var(--border2);border-radius:10px;padding:12px 16px;font-size:14px;color:var(--text);font-family:var(--font);outline:none;transition:border-color 0.2s;}
+.form-input:focus{border-color:var(--green);}
+.form-input::placeholder{color:var(--muted);}
+.btn-green{width:100%;background:var(--green);color:#fff;border:none;padding:14px;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:var(--font);transition:all 0.2s;display:block;}
+.btn-green:hover{background:var(--green2);}
+.btn-green:disabled{opacity:0.6;cursor:not-allowed;}
+.btn-dark{width:100%;background:var(--navy);color:white;border:1px solid var(--border2);padding:12px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);margin-top:8px;display:block;}
+.btn-dark:hover{background:var(--navy-dark);}
+.btn-dark:disabled{opacity:0.6;cursor:not-allowed;}
+.error-msg{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--red);margin-bottom:16px;display:none;}
+.error-msg.show{display:block;}
+.success-msg{background:rgba(91,44,141,0.1);border:1px solid rgba(91,44,141,0.2);border-radius:8px;padding:10px 14px;font-size:12px;color:#C9A8E8;margin-top:12px;display:none;}
+.success-msg.show{display:block;}
+.divider{height:1px;background:var(--border);margin:24px 0;}
+.back-link{text-align:center;font-size:12px;color:var(--muted2);}
+.back-link a{color:var(--green);text-decoration:none;font-weight:600;}
+.recovery-toggle{text-align:center;margin-top:14px;}
+.recovery-toggle button{font-size:12px;color:var(--muted2);background:none;border:none;cursor:pointer;font-family:var(--font);transition:color 0.2s;padding:0;}
+.recovery-toggle button:hover{color:var(--green);}
+.recovery-box{display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);}
+.recovery-box.open{display:block;}
+.recovery-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:12px;}
+.change-pw-box{display:none;margin-top:12px;padding-top:16px;border-top:1px solid var(--border);}
+.change-pw-box.open{display:block;}
+.change-pw-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:12px;}
+</style>
+</head>
+<body>
+<div class="bg-blob blob1"></div>
+<div class="bg-blob blob2"></div>
+<div class="login-box">
+  <div class="logo-area">
+    <div class="brand">Psico<span>IA</span></div>
+    <div class="sub">by ZEVORA Systems</div>
+    <div class="tagline">Accede a tu panel de consulta</div>
+  </div>
+  <div class="error-msg" id="error-msg">Email o contraseña incorrectos.</div>
+  <form id="login-form">
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input type="email" class="form-input" id="login-email" placeholder="tu@consulta.com" required autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contraseña</label>
+      <input type="password" class="form-input" id="login-password" placeholder="Tu contraseña" required autocomplete="current-password">
+    </div>
+    <button type="submit" class="btn-green" id="btn-login">Entrar al dashboard →</button>
+  </form>
+  <div class="recovery-toggle">
+    <button onclick="toggleRecovery()">¿Olvidaste tu contraseña?</button>
+  </div>
+  <div class="recovery-box" id="recovery-box">
+    <div class="recovery-title">Recuperar acceso</div>
+    <div class="form-group">
+      <label class="form-label">Tu email de acceso</label>
+      <input type="email" class="form-input" id="recovery-email" placeholder="tu@consulta.com">
+    </div>
+    <button class="btn-dark" id="btn-recovery" onclick="enviarRecovery()">Enviar enlace de recuperación</button>
+  </div>
+  <div class="success-msg" id="recovery-ok">✓ Email enviado. Revisa tu bandeja de entrada y haz clic en el enlace.</div>
+  <div class="recovery-toggle" style="margin-top:8px">
+    <button onclick="toggleChangePw()">Cambiar contraseña</button>
+  </div>
+  <div class="change-pw-box" id="change-pw-box">
+    <div class="change-pw-title">Cambiar contraseña</div>
+    <div class="form-group">
+      <label class="form-label">Contraseña actual</label>
+      <input type="password" class="form-input" id="pw-actual" placeholder="Tu contraseña actual">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nueva contraseña</label>
+      <input type="password" class="form-input" id="pw-nueva" placeholder="Mínimo 8 caracteres">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Repetir nueva contraseña</label>
+      <input type="password" class="form-input" id="pw-nueva2" placeholder="Repite la nueva contraseña">
+    </div>
+    <button class="btn-dark" id="btn-change-pw" onclick="cambiarPassword()">Cambiar contraseña</button>
+  </div>
+  <div class="success-msg" id="pw-ok">✓ Contraseña cambiada correctamente.</div>
+  <div class="error-msg" id="pw-error" style="margin-top:10px">Error al cambiar la contraseña.</div>
+
+  <div class="divider"></div>
+  <div class="back-link">¿Aún no tienes cuenta? <a href="registro-psicoia.html">Registrarse →</a></div>
+</div>
+<script>
+var SUPABASE_URL  = 'https://wqbmznfsprgiofptoepr.supabase.co';
+var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxYm16bmZzcHJnaW9mcHRvZXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0Njg1OTMsImV4cCI6MjA5MjA0NDU5M30.8U63oSAdBB4UhcainuMO55QP93OaopRD5L3HLCCArV0';
+var SESSION_KEY  = 'psicoia';
+var META_ID_KEY  = 'consulta_id';
+var REDIRECT_URL = 'dashboard-psicoia.html';
+var BTN_LABEL    = 'Entrar al dashboard →';
+
+var enviandoLogin = false;
+
+document.getElementById('login-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  if (enviandoLogin) return;
+  enviandoLogin = true;
+  var email    = document.getElementById('login-email').value.trim();
+  var password = document.getElementById('login-password').value;
+  var btn      = document.getElementById('btn-login');
+  var errorMsg = document.getElementById('error-msg');
+  btn.disabled = true;
+  btn.textContent = 'Entrando...';
+  errorMsg.classList.remove('show');
+  try {
+    var res = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON },
+      body: JSON.stringify({ email: email, password: password })
+    });
+    var data = await res.json();
+    if (data.access_token) {
+      sessionStorage.setItem(SESSION_KEY + '_token', data.access_token);
+      sessionStorage.setItem(SESSION_KEY + '_email', email);
+      sessionStorage.setItem(SESSION_KEY + '_user', JSON.stringify(data.user));
+      var meta = data.user.user_metadata;
+      if (meta && meta[META_ID_KEY]) {
+        sessionStorage.setItem(SESSION_KEY + '_' + META_ID_KEY, meta[META_ID_KEY]);
+      }
+      window.location.href = REDIRECT_URL;
+    } else {
+      errorMsg.classList.add('show');
+      btn.disabled = false;
+      btn.textContent = BTN_LABEL;
+      enviandoLogin = false;
+    }
+  } catch(err) {
+    errorMsg.textContent = 'Error de conexión. Por favor inténtalo de nuevo.';
+    errorMsg.classList.add('show');
+    btn.disabled = false;
+    btn.textContent = BTN_LABEL;
+    enviandoLogin = false;
+  }
+});
+
+function toggleRecovery() {
+  var box = document.getElementById('recovery-box');
+  box.classList.toggle('open');
+}
+
+async function enviarRecovery() {
+  var email = document.getElementById('recovery-email').value.trim();
+  if (!email) { alert('Introduce tu email'); return; }
+  var btn = document.getElementById('btn-recovery');
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+  try {
+    await fetch(SUPABASE_URL + '/auth/v1/recover', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON },
+      body: JSON.stringify({ email: email })
+    });
+  } catch(e) {}
+  document.getElementById('recovery-box').classList.remove('open');
+  document.getElementById('recovery-ok').classList.add('show');
+  btn.disabled = false;
+  btn.textContent = 'Enviar enlace de recuperación';
+}
+
+function toggleChangePw() {
+  var box = document.getElementById('change-pw-box');
+  box.classList.toggle('open');
+  var rec = document.getElementById('recovery-box');
+  if (rec) rec.classList.remove('open');
+}
+
+async function cambiarPassword() {
+  var actual = document.getElementById('pw-actual').value;
+  var nueva  = document.getElementById('pw-nueva').value;
+  var nueva2 = document.getElementById('pw-nueva2').value;
+  var ok  = document.getElementById('pw-ok');
+  var err = document.getElementById('pw-error');
+  ok.classList.remove('show');
+  err.classList.remove('show');
+  if (!actual || !nueva || !nueva2) { err.textContent = 'Rellena todos los campos.'; err.classList.add('show'); return; }
+  if (nueva.length < 8) { err.textContent = 'La nueva contraseña debe tener al menos 8 caracteres.'; err.classList.add('show'); return; }
+  if (nueva !== nueva2) { err.textContent = 'Las contraseñas nuevas no coinciden.'; err.classList.add('show'); return; }
+  var btn = document.getElementById('btn-change-pw');
+  btn.disabled = true; btn.textContent = 'Cambiando...';
+  try {
+    var res = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON },
+      body: JSON.stringify({ email: document.getElementById('login-email').value || sessionStorage.getItem(SESSION_KEY + '_email') || '', password: actual })
+    });
+    var data = await res.json();
+    if (!data.access_token) { err.textContent = 'La contraseña actual es incorrecta.'; err.classList.add('show'); btn.disabled = false; btn.textContent = 'Cambiar contraseña'; return; }
+    var res2 = await fetch(SUPABASE_URL + '/auth/v1/user', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + data.access_token },
+      body: JSON.stringify({ password: nueva })
+    });
+    var data2 = await res2.json();
+    if (data2.id || data2.email) {
+      document.getElementById('change-pw-box').classList.remove('open');
+      ok.classList.add('show');
+      document.getElementById('pw-actual').value = '';
+      document.getElementById('pw-nueva').value  = '';
+      document.getElementById('pw-nueva2').value = '';
+    } else {
+      err.textContent = 'Error al cambiar la contraseña. Inténtalo de nuevo.';
+      err.classList.add('show');
+    }
+  } catch(e) {
+    err.textContent = 'Error de conexión.';
+    err.classList.add('show');
+  }
+  btn.disabled = false; btn.textContent = 'Cambiar contraseña';
+}
+</script>
+
+<div style="text-align:center;padding:12px;font-size:10px;color:rgba(255,255,255,0.25)"><a href="/politica-privacidad.pdf" target="_blank" style="color:rgba(255,255,255,0.3);text-decoration:none">Política de Privacidad</a> · © 2026 ZEVORA Systems</div>
+</body>
+</html>
