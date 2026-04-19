@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReservIA — Sistema de reservas con IA para restaurantes</title>
+<meta name="description" content="Olvídate del libro de reservas. ReservIA gestiona las reservas de tu restaurante por WhatsApp con IA.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,600;1,700;1,800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --wine:#7B1A2C;--wine2:#9B2A3E;--wine3:#4D0E1A;
+  --amber:#C4882A;--amber2:#E0A040;--amber-dim:rgba(196,136,42,0.12);
+  --cream:#FAF5EE;--cream2:#F2E8DB;--cream3:#EDE0CE;
+  --dark:#1C0E09;--dark2:#2E1A10;
+  --white:#FFFFFF;
+  --border:rgba(124,42,60,0.13);--border-amber:rgba(196,136,42,0.28);
+  --text:#2C1810;--muted:#7A6355;--muted-light:#A89080;
+  --grad-amber:linear-gradient(135deg,#C4882A 0%,#E0A040 100%);
+  --grad-wine:linear-gradient(135deg,#7B1A2C 0%,#9B2A3E 100%);
+  --grad-dark:linear-gradient(135deg,#1C0E09 0%,#2E1A10 100%);
+  --shadow-sm:0 2px 8px rgba(28,14,9,0.07);--shadow-md:0 8px 32px rgba(28,14,9,0.12);
+  --shadow-lg:0 24px 64px rgba(28,14,9,0.16);
+  --font:'Playfair Display',Georgia,serif;--font-body:'DM Sans',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--cream);color:var(--text);overflow-x:hidden;line-height:1.6}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 6%;background:rgba(28,14,9,0.97);backdrop-filter:blur(20px);border-bottom:1px solid rgba(196,136,42,0.15)}
+.nav-logo{font-family:var(--font);font-size:1.3rem;font-weight:800;color:white;letter-spacing:-0.5px}
+.nav-logo span{color:var(--amber2)}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{font-size:0.88rem;color:rgba(255,255,255,0.65);text-decoration:none;transition:color 0.2s;font-family:var(--font-body)}
+.nav-links a:hover{color:var(--amber2)}
+.nav-cta{background:var(--grad-amber);color:var(--dark);border:none;border-radius:8px;padding:10px 22px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:var(--font-body);text-decoration:none;transition:all 0.2s;box-shadow:0 4px 16px rgba(196,136,42,0.3)}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(196,136,42,0.4)}
+
+/* GRID BG */
+.grid-bg{background-image:linear-gradient(rgba(124,42,60,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,42,60,0.04) 1px,transparent 1px);background-size:60px 60px}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;padding:8rem 6% 5rem;position:relative;overflow:hidden;background:linear-gradient(155deg,#FAF5EE 0%,#F5EBD8 45%,#EDE0CE 100%)}
+.hero-blob{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none}
+.hero-blob-1{width:500px;height:500px;background:rgba(196,136,42,0.1);top:-80px;right:3%}
+.hero-blob-2{width:380px;height:380px;background:rgba(123,26,44,0.07);bottom:-60px;left:8%}
+.hero-inner{position:relative;z-index:1;max-width:1100px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(196,136,42,0.1);border:1px solid var(--border-amber);border-radius:100px;padding:6px 16px;font-size:0.72rem;font-weight:600;color:var(--amber);margin-bottom:1.5rem;letter-spacing:0.08em;text-transform:uppercase;font-family:var(--font-body)}
+.badge-dot{width:6px;height:6px;background:var(--amber);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(196,136,42,0.5)}50%{box-shadow:0 0 0 6px rgba(196,136,42,0)}}
+h1{font-family:var(--font);font-size:clamp(2.2rem,4vw,3.5rem);font-weight:800;line-height:1.08;letter-spacing:-0.02em;margin-bottom:1.5rem;color:var(--dark)}
+h1 .accent{color:var(--wine)}
+h1 .accent-gold{color:var(--amber)}
+.hero-sub{font-size:1rem;color:var(--muted);max-width:480px;margin-bottom:2.5rem;font-weight:300;line-height:1.85}
+.hero-actions{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;margin-bottom:2.5rem}
+.btn-primary{background:var(--grad-wine);color:white;border:none;border-radius:8px;padding:14px 28px;font-size:0.92rem;font-weight:700;cursor:pointer;font-family:var(--font-body);text-decoration:none;transition:all 0.25s;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(123,26,44,0.28)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(123,26,44,0.38)}
+.btn-secondary{background:white;color:var(--dark);border:1px solid var(--border);border-radius:8px;padding:14px 28px;font-size:0.92rem;font-weight:500;cursor:pointer;font-family:var(--font-body);text-decoration:none;transition:all 0.25s;display:inline-flex;align-items:center;gap:8px}
+.btn-secondary:hover{border-color:var(--amber);color:var(--amber)}
+.hero-stats{display:flex;gap:2rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+.stat-num{font-family:var(--font);font-size:1.7rem;font-weight:800;color:var(--wine)}
+.stat-label{font-size:0.75rem;color:var(--muted);margin-top:2px;font-family:var(--font-body)}
+
+/* PHONE */
+.phone-wrap{display:flex;justify-content:center;align-items:center}
+.phone{width:280px;background:#1a0e08;border-radius:36px;padding:16px;box-shadow:0 40px 80px rgba(28,14,9,0.25),0 0 0 1px rgba(196,136,42,0.15)}
+.phone-notch{width:80px;height:6px;background:#2e1a10;border-radius:3px;margin:0 auto 12px}
+.phone-screen{background:#f0f0f0;border-radius:24px;overflow:hidden}
+.chat-header{background:#25D366;padding:12px 16px;display:flex;align-items:center;gap:10px}
+.chat-avatar{width:36px;height:36px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#25D366;flex-shrink:0}
+.chat-name{font-size:13px;font-weight:600;color:white}
+.chat-status{font-size:11px;color:rgba(255,255,255,0.8)}
+.chat-body{padding:12px;background:#ece5dd;min-height:360px;display:flex;flex-direction:column;gap:8px}
+.msg{max-width:85%;padding:8px 12px;border-radius:12px;font-size:12px;line-height:1.5}
+.msg.bot{background:white;align-self:flex-start;border-bottom-left-radius:2px;color:#333}
+.msg.user{background:#dcf8c6;align-self:flex-end;border-bottom-right-radius:2px;color:#333}
+.msg-time{font-size:10px;color:#999;text-align:right;margin-top:2px}
+
+/* SECTIONS */
+section{padding:6rem 6%}
+.section-inner{max-width:1100px;margin:0 auto}
+.section-label{font-size:0.72rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--amber);margin-bottom:1rem;font-family:var(--font-body)}
+.section-title{font-family:var(--font);font-size:clamp(1.8rem,3vw,2.6rem);font-weight:800;line-height:1.1;letter-spacing:-0.02em;margin-bottom:1rem;color:var(--dark)}
+.section-sub{font-size:1rem;color:var(--muted);max-width:520px;line-height:1.75;font-weight:300;font-family:var(--font-body)}
+
+/* PROBLEMA */
+.problema{background:var(--dark)}
+.problema .section-label{color:var(--amber2)}
+.problema .section-title{color:white}
+.problema .section-sub{color:rgba(255,255,255,0.5)}
+.problema-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem}
+.problema-card{background:rgba(255,255,255,0.04);border:1px solid rgba(196,136,42,0.15);border-radius:14px;padding:1.8rem;transition:border-color 0.2s}
+.problema-card:hover{border-color:rgba(196,136,42,0.35)}
+.problema-card h4{font-family:var(--font);font-size:1rem;font-weight:700;color:white;margin-bottom:0.5rem;margin-top:0.8rem}
+.problema-card p{font-size:0.85rem;color:rgba(255,255,255,0.5);line-height:1.65}
+
+/* STEPS */
+.steps{display:flex;align-items:stretch;gap:0;margin-top:3.5rem}
+.step{flex:1;background:white;border:1px solid var(--border);border-radius:14px;padding:2rem 1.5rem;text-align:center;box-shadow:var(--shadow-sm)}
+.step-arrow{width:50px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--amber);font-size:1.5rem}
+.step-num{width:44px;height:44px;background:var(--amber-dim);border:1px solid var(--border-amber);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font);font-weight:800;font-size:1.1rem;color:var(--amber);margin:0 auto 1rem}
+.step h4{font-family:var(--font);font-size:1rem;font-weight:700;margin-bottom:0.5rem;color:var(--dark)}
+.step p{font-size:0.82rem;color:var(--muted);line-height:1.6}
+
+/* DEMO — IDs y clases funcionales intactos */
+.demo-section{background:var(--cream2)}
+.demo-wrapper{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start;margin-top:3rem}
+.demo-chat{background:var(--cream);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-md)}
+.demo-chat-header{background:#075E54;padding:14px 16px;display:flex;align-items:center;gap:10px}
+.demo-chat-avatar{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:white;flex-shrink:0}
+.demo-chat-name{font-size:14px;font-weight:600;color:white}
+.demo-chat-status{font-size:11px;color:rgba(255,255,255,0.7)}
+.demo-messages{padding:16px;background:#e5ddd5;min-height:320px;max-height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+.demo-msg{max-width:80%;padding:9px 13px;border-radius:10px;font-size:13px;line-height:1.5}
+.demo-msg.bot{background:white;align-self:flex-start;border-bottom-left-radius:2px;color:#333}
+.demo-msg.user{background:#dcf8c6;align-self:flex-end;border-bottom-right-radius:2px;color:#333}
+.demo-msg.typing{background:white;align-self:flex-start;border-bottom-left-radius:2px}
+.demo-input-area{background:#f0f0f0;padding:10px;display:flex;gap:8px;align-items:center}
+.demo-input{flex:1;background:white;border:none;border-radius:20px;padding:10px 16px;font-size:13px;outline:none;font-family:var(--font-body)}
+.demo-send{width:38px;height:38px;background:#25D366;border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s;flex-shrink:0}
+.demo-send:hover{background:#1ea855}
+.demo-send:disabled{background:#ccc;cursor:not-allowed}
+.demo-send svg{width:18px;height:18px;fill:white}
+.demo-right{display:flex;flex-direction:column;gap:1rem}
+.demo-info-card{background:white;border:1px solid var(--border);border-radius:12px;padding:1.2rem}
+.demo-info-card h4{font-family:var(--font);font-size:0.9rem;font-weight:700;color:var(--dark);margin-bottom:0.8rem;letter-spacing:0.02em}
+.demo-chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--amber-dim);border:1px solid var(--border-amber);border-radius:100px;padding:5px 12px;font-size:0.78rem;color:var(--amber);font-weight:500;cursor:pointer;transition:all 0.2s;user-select:none;font-family:var(--font-body)}
+.chip:hover{background:rgba(196,136,42,0.22)}
+.typing-dots span{display:inline-block;width:6px;height:6px;background:#aaa;border-radius:50%;margin:0 2px;animation:bounce 1s infinite}
+.typing-dots span:nth-child(2){animation-delay:0.15s}
+.typing-dots span:nth-child(3){animation-delay:0.3s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+
+.briefing-wrapper{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start;margin-top:3rem}
+.briefing-card{background:white;border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-md)}
+.briefing-header{background:var(--dark);padding:16px 20px;border-bottom:1px solid rgba(196,136,42,0.2)}
+.briefing-header h3{font-family:var(--font);font-size:1rem;font-weight:700;color:white}
+.briefing-header p{font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:2px}
+.briefing-body{padding:16px 20px}
+.b-label{font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--amber);margin-bottom:10px;margin-top:14px;font-family:var(--font-body)}
+.b-label:first-child{margin-top:0}
+.res-item{display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--cream);border-radius:8px;margin-bottom:6px;border:1px solid var(--border)}
+.res-hora{font-family:var(--font);font-size:1rem;font-weight:700;color:var(--dark);min-width:52px}
+.res-info h5{font-size:0.85rem;font-weight:600;color:var(--dark)}
+.res-info p{font-size:0.78rem;color:var(--muted);margin-top:2px}
+.tag{display:inline-block;font-size:0.7rem;font-weight:600;padding:2px 7px;border-radius:4px;margin-top:4px;margin-right:3px}
+.tag.r{background:rgba(220,50,50,0.08);color:#b91c1c}
+.tag.g{background:var(--amber-dim);color:var(--amber)}
+.tag.y{background:rgba(196,136,42,0.1);color:var(--amber)}
+.stat-row{display:flex;gap:8px;margin-top:4px}
+.stat-b{background:var(--cream2);border-radius:6px;padding:6px 10px;text-align:center;flex:1;border:1px solid var(--border)}
+.stat-b .n{font-family:var(--font);font-size:1.2rem;font-weight:800;color:var(--dark)}
+.stat-b .l{font-size:0.68rem;color:var(--muted)}
+.cal-card{background:white;border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-md)}
+.cal-h{background:#4285F4;padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.cal-h h3{font-size:0.95rem;font-weight:600;color:white}
+.cal-h span{font-size:0.78rem;color:rgba(255,255,255,0.8)}
+.cal-body{padding:12px}
+.cal-slot{padding:4px 0;border-bottom:1px solid var(--cream2);display:flex;gap:6px;align-items:flex-start}
+.cal-time{font-size:0.7rem;color:var(--muted);min-width:42px;padding-top:2px}
+.cal-events{flex:1}
+.cal-ev{border-radius:4px;padding:4px 8px;margin-bottom:3px;font-size:0.72rem;font-weight:500}
+.cal-ev.v{background:#e8f5e9;color:#2e7d32;border-left:3px solid #4caf50}
+.cal-ev.b{background:#e3f2fd;color:#1565c0;border-left:3px solid #2196f3}
+.mem-card{background:var(--cream2);border:1px solid var(--border);border-radius:14px;padding:1.5rem}
+.cli-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.cli-row:last-child{border-bottom:none}
+.cli-av{width:40px;height:40px;border-radius:50%;background:var(--grad-wine);display:flex;align-items:center;justify-content:center;font-family:var(--font);font-weight:700;font-size:14px;color:white;flex-shrink:0}
+.cli-nombre{font-weight:600;font-size:0.9rem;color:var(--dark)}
+.cli-data{font-size:0.78rem;color:var(--muted);margin-top:2px}
+.cli-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.ct{font-size:0.68rem;padding:2px 7px;border-radius:4px;font-weight:500}
+.ct.a{background:rgba(220,50,50,0.08);color:#b91c1c}
+.ct.p{background:var(--amber-dim);color:var(--amber)}
+.ct.v{background:rgba(196,136,42,0.12);color:var(--amber)}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem}
+.feat-card{background:white;border:1px solid var(--border);border-radius:14px;padding:1.8rem;transition:all 0.3s;box-shadow:var(--shadow-sm)}
+.feat-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--border-amber)}
+.feat-icon{width:48px;height:48px;background:var(--amber-dim);border:1px solid var(--border-amber);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:1rem}
+.feat-card h4{font-family:var(--font);font-size:1rem;font-weight:700;margin-bottom:0.5rem;color:var(--dark)}
+.feat-card p{font-size:0.85rem;color:var(--muted);line-height:1.65}
+.twilio-section{background:var(--dark2)}
+.twilio-section .section-label{color:var(--amber2)}
+.twilio-section .section-title{color:white}
+.twilio-section .section-sub{color:rgba(255,255,255,0.5)}
+.twilio-card{background:rgba(255,255,255,0.04);border:1px solid rgba(196,136,42,0.2);border-radius:16px;padding:2rem;margin-top:3rem;display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}
+.twilio-price{font-family:var(--font);font-size:2.5rem;font-weight:800;color:var(--amber2)}
+.twilio-price span{font-size:1rem;font-weight:300;color:rgba(255,255,255,0.4)}
+.twilio-features{list-style:none;display:flex;flex-direction:column;gap:8px;margin:1.5rem 0}
+.twilio-features li{font-size:0.88rem;color:rgba(255,255,255,0.7);display:flex;align-items:center;gap:8px}
+.twilio-features li::before{content:'→';color:var(--amber);font-size:0.75rem}
+.twilio-note{font-size:0.78rem;color:rgba(255,255,255,0.35);margin-top:0.5rem;line-height:1.6}
+.twilio-example{background:rgba(0,0,0,0.3);border-radius:12px;padding:1.5rem;border:1px solid rgba(196,136,42,0.1)}
+.twilio-example h4{font-family:var(--font);font-size:0.85rem;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:0.08em;margin-bottom:1rem}
+.twilio-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06)}
+.twilio-row:last-child{border-bottom:none;font-weight:700}
+.twilio-row span:first-child{font-size:0.85rem;color:rgba(255,255,255,0.55)}
+.twilio-row span:last-child{font-size:0.88rem;color:white;font-family:var(--font)}
+.twilio-row.total span{color:var(--amber2)}
+.precio-card{max-width:480px;margin:3rem auto 0;background:white;border:2px solid var(--border-amber);border-radius:20px;padding:2.5rem;text-align:center;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+.precio-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--grad-amber)}
+.precio-badge-top{display:inline-block;background:var(--amber-dim);border:1px solid var(--border-amber);border-radius:100px;padding:5px 14px;font-size:0.75rem;font-weight:700;color:var(--amber);margin-bottom:1.5rem;text-transform:uppercase;letter-spacing:0.06em;font-family:var(--font-body)}
+.precio-big{font-family:var(--font);font-size:3.5rem;font-weight:800;color:var(--dark)}
+.precio-big span{font-size:1.2rem;font-weight:400;color:var(--muted)}
+.precio-old{font-size:1.2rem;color:var(--muted-light);text-decoration:line-through;margin-bottom:0.5rem}
+.precio-feats{list-style:none;text-align:left;margin:2rem 0;display:flex;flex-direction:column;gap:10px}
+.precio-feats li{display:flex;align-items:center;gap:10px;font-size:0.9rem;color:var(--text)}
+.precio-feats li::before{content:'✓';color:var(--wine);font-weight:700;flex-shrink:0}
+.oferta-banner{background:var(--amber-dim);border:1px solid var(--border-amber);border-radius:8px;padding:10px 16px;font-size:0.85rem;color:var(--amber);font-weight:600;margin-bottom:1.5rem}
+.cta-final{background:var(--grad-dark);text-align:center;padding:7rem 6%;position:relative;overflow:hidden}
+.cta-final::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(196,136,42,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(196,136,42,0.04) 1px,transparent 1px);background-size:60px 60px}
+.cta-final h2{font-family:var(--font);font-size:clamp(2rem,4vw,3rem);font-weight:800;color:white;margin-bottom:1rem;letter-spacing:-0.02em;position:relative;z-index:1}
+.cta-final p{color:rgba(255,255,255,0.5);font-size:1rem;margin-bottom:2.5rem;position:relative;z-index:1}
+.cta-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;position:relative;z-index:1}
+.btn-outline-white{background:transparent;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.18);border-radius:8px;padding:14px 28px;font-size:0.92rem;font-weight:500;cursor:pointer;font-family:var(--font-body);text-decoration:none;transition:all 0.25s}
+.btn-outline-white:hover{border-color:var(--amber);color:var(--amber)}
+footer{background:#100800;padding:2rem 6%;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;border-top:1px solid rgba(196,136,42,0.1)}
+.foot-logo{font-family:var(--font);font-size:0.95rem;font-weight:700;color:white}
+.foot-logo span{color:var(--amber2)}
+.foot-links{display:flex;gap:1.5rem}
+.foot-links a{font-size:0.8rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s}
+.foot-links a:hover{color:var(--amber2)}
+
+@media(max-width:900px){
+  .hero-inner,.demo-wrapper,.briefing-wrapper,.twilio-card{grid-template-columns:1fr}
+  .phone-wrap{display:none}
+  .problema-grid,.features-grid{grid-template-columns:1fr}
+  .steps{flex-direction:column}
+  .step-arrow{transform:rotate(90deg);width:100%;height:30px}
+  nav .nav-links{display:none}
+  section{padding:4rem 5%}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Reserv<span>IA</span></div>
+  <ul class="nav-links">
+    <li><a href="#como">Cómo funciona</a></li>
+    <li><a href="#demo">Demo en vivo</a></li>
+    <li><a href="#precio">Precio</a></li>
+  </ul>
+  <a href="https://damianherranz-netizen.github.io/reservaia-legal/registro.html" class="nav-cta">Empezar gratis →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero grid-bg">
+  <div class="hero-blob hero-blob-1"></div>
+  <div class="hero-blob hero-blob-2"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-badge"><div class="badge-dot"></div>Sistema de reservas con IA</div>
+      <h1>Olvídate del<br>libro de reservas.<br>Bienvenido a la <span class="accent">IA.</span></h1>
+      <p class="hero-sub">ReservIA gestiona todas las reservas de tu restaurante por WhatsApp de forma automática, recuerda a cada cliente y sincroniza todo con tu Google Calendar.</p>
+      <div class="hero-actions">
+        <a href="https://damianherranz-netizen.github.io/reservaia-legal/registro.html" class="btn-primary">Empezar — 2 meses gratis →</a>
+        <a href="#demo" class="btn-secondary">Ver demo en vivo</a>
+      </div>
+      <div class="hero-stats">
+        <div><div class="stat-num">24/7</div><div class="stat-label">Sin interrupciones</div></div>
+        <div><div class="stat-num">10'</div><div class="stat-label">Para activarlo</div></div>
+        <div><div class="stat-num">0€</div><div class="stat-label">Por reserva</div></div>
+      </div>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="chat-header">
+            <div class="chat-avatar">EM</div>
+            <div><div class="chat-name">El Mirador ✓</div><div class="chat-status">en línea</div></div>
+          </div>
+          <div class="chat-body">
+            <div class="msg bot">¡Hola! Soy el asistente de El Mirador. ¿En qué puedo ayudarte? 😊<div class="msg-time">20:14</div></div>
+            <div class="msg user">Quiero reservar mañana a las 21h para 4 personas<div class="msg-time">20:14</div></div>
+            <div class="msg bot">¡Perfecto! ¿Me dices tu nombre y si tenéis alguna alergia?<div class="msg-time">20:14</div></div>
+            <div class="msg user">Soy María, una persona es celíaca<div class="msg-time">20:15</div></div>
+            <div class="msg bot">Anotado, María. Confirmo: mañana 21:00, 4 personas, intolerancia al gluten. ¿Todo correcto? ✅<div class="msg-time">20:15</div></div>
+            <div class="msg user">Sí perfecto<div class="msg-time">20:15</div></div>
+            <div class="msg bot">¡Reserva confirmada! Te esperamos mañana a las 21:00. 🍽️<div class="msg-time">20:15</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EL PROBLEMA -->
+<section class="problema">
+  <div class="section-inner">
+    <div class="section-label">El problema</div>
+    <h2 class="section-title">El libro de reservas es del siglo pasado</h2>
+    <p class="section-sub">Cada día los restaurantes pierden reservas, sufren no-shows y desperdician horas en llamadas que podrían automatizarse.</p>
+    <div class="problema-grid">
+      <div class="problema-card"><div style="font-size:2rem">📞</div><h4>Llamadas sin respuesta</h4><p>El teléfono suena durante el servicio. El cliente llama, nadie contesta, va a otro restaurante. Reserva perdida.</p></div>
+      <div class="problema-card"><div style="font-size:2rem">😤</div><h4>No-shows que destrozan el servicio</h4><p>Mesa reservada para 6 personas que no aparecen. Sin señal, sin recordatorio, sin sistema. Solo pérdidas.</p></div>
+      <div class="problema-card"><div style="font-size:2rem">📓</div><h4>Datos que se pierden</h4><p>¿Quién es ese cliente que viene todos los viernes? ¿Qué alergia tiene? El libro de reservas no recuerda nada.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CÓMO FUNCIONA -->
+<section class="grid-bg" id="como" style="background:var(--bg)">
+  <div class="section-inner">
+    <div class="section-label">La solución</div>
+    <h2 class="section-title">Cómo funciona ReservIA</h2>
+    <p class="section-sub">Tres pasos. Completamente automático.</p>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><h4>Cliente escribe por WhatsApp</h4><p>A cualquier hora. El agente responde en segundos, recoge todos los datos y gestiona la reserva.</p></div>
+      <div class="step-arrow">→</div>
+      <div class="step"><div class="step-num">2</div><h4>La IA procesa y confirma</h4><p>Comprueba disponibilidad, recuerda al cliente, pregunta por alergias y confirma automáticamente.</p></div>
+      <div class="step-arrow">→</div>
+      <div class="step"><div class="step-num">3</div><h4>Todo sincronizado</h4><p>La reserva aparece en Calendar, el cliente recibe confirmación por email y el maître tiene el briefing listo.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO EN VIVO -->
+<section class="demo-section" id="demo">
+  <div class="section-inner">
+    <div class="section-label">Demo en vivo</div>
+    <h2 class="section-title">Pruébalo tú mismo</h2>
+    <p class="section-sub">Conversación real con nuestro agente de IA. Escribe como lo haría un cliente.</p>
+    <div class="demo-wrapper">
+      <div>
+        <div class="demo-chat">
+          <div class="demo-chat-header">
+            <div class="demo-chat-avatar">EM</div>
+            <div><div class="demo-chat-name">Restaurante El Mirador</div><div class="demo-chat-status">ReservIA — Agente activo</div></div>
+          </div>
+          <div class="demo-messages" id="demo-messages">
+            <div class="demo-msg bot">¡Hola! Soy el asistente virtual del Restaurante El Mirador. Puedo ayudarte a hacer o cancelar una reserva. ¿En qué te puedo ayudar? 😊</div>
+          </div>
+          <div class="demo-input-area">
+            <input type="text" class="demo-input" id="demo-input" placeholder="Escribe tu mensaje..." maxlength="200">
+            <button class="demo-send" id="demo-send">
+              <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
+          </div>
+        </div>
+        <p style="font-size:0.75rem;color:var(--muted);margin-top:8px;text-align:center;">Esta demo usa IA real pero no crea reservas reales</p>
+      </div>
+      <div class="demo-right">
+        <div class="demo-info-card">
+          <h4>Prueba estas frases</h4>
+          <div class="demo-chips" id="demo-chips">
+            <div class="chip">Quiero reservar para mañana</div>
+            <div class="chip">Mesa para 4 el viernes a las 21h</div>
+            <div class="chip">¿Tenéis mesa para esta noche?</div>
+            <div class="chip">Necesito cancelar mi reserva</div>
+            <div class="chip">Somos celíacos, ¿hay opciones?</div>
+            <div class="chip">Mesa para 2 el sábado</div>
+          </div>
+        </div>
+        <div class="demo-info-card">
+          <h4>Restaurante demo</h4>
+          <div style="font-size:0.82rem;color:var(--muted);line-height:1.8">
+            <div>🍽️ <strong style="color:var(--navy)">El Mirador</strong></div>
+            <div>🕐 Comida: 13:00–16:00</div>
+            <div>🌙 Cena: 20:00–23:00</div>
+            <div>👥 Aforo: 40 personas</div>
+          </div>
+        </div>
+        <div class="demo-info-card" style="background:rgba(0,200,150,0.05);border-color:var(--border-green)">
+          <h4 style="color:#00A07A">Lo que hace la IA</h4>
+          <div style="font-size:0.82rem;color:var(--muted);line-height:1.8">
+            <div>✓ Entiende lenguaje natural</div>
+            <div>✓ Comprueba disponibilidad</div>
+            <div>✓ Pregunta por alergias</div>
+            <div>✓ Confirma todos los datos</div>
+            <div>✓ Recuerda clientes habituales</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BRIEFING -->
+<section class="grid-bg" style="background:var(--bg)">
+  <div class="section-inner">
+    <div class="section-label">Briefing diario</div>
+    <h2 class="section-title">El maître llega preparado</h2>
+    <p class="section-sub">Cada mañana a las 9:00, el equipo recibe el resumen completo del día automáticamente.</p>
+    <div class="briefing-wrapper">
+      <div class="briefing-card">
+        <div class="briefing-header"><h3>📋 Briefing del día — Martes 7 de Abril</h3><p>Restaurante El Mirador · Generado a las 09:00</p></div>
+        <div class="briefing-body">
+          <div class="b-label">RESUMEN</div>
+          <div class="stat-row">
+            <div class="stat-b"><div class="n">28</div><div class="l">Reservas</div></div>
+            <div class="stat-b"><div class="n">76</div><div class="l">Comensales</div></div>
+            <div class="stat-b"><div class="n">90%</div><div class="l">Ocupación</div></div>
+          </div>
+          <div class="b-label">COMIDA — 13:00-16:00</div>
+          <div class="res-item"><div class="res-hora">13:00</div><div class="res-info"><h5>García · 4 pax</h5><p>Mesa terraza habitual</p><span class="tag v">⭐ VIP · 23 visitas</span></div></div>
+          <div class="res-item"><div class="res-hora">13:30</div><div class="res-info"><h5>Martínez · 2 pax</h5><p>Primera visita</p><span class="tag r">⚠ Celíaco</span></div></div>
+          <div class="res-item"><div class="res-hora">14:00</div><div class="res-info"><h5>Rodríguez · 6 pax</h5><p>Cumpleaños</p><span class="tag g">🎂 Cumpleaños</span><span class="tag r">⚠ Marisco</span></div></div>
+          <div class="b-label">CENA — 20:00-23:00</div>
+          <div class="res-item"><div class="res-hora">20:30</div><div class="res-info"><h5>Sánchez · 4 pax</h5><p>Aniversario</p><span class="tag g">💑 Aniversario</span></div></div>
+          <div class="res-item"><div class="res-hora">21:00</div><div class="res-info"><h5>López · 8 pax</h5><p>Reserva empresarial</p><span class="tag r">⚠ Lactosa (2 pax)</span></div></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1.5rem">
+        <div class="cal-card">
+          <div class="cal-h"><h3>📅 Google Calendar</h3><span>Martes 7 abril</span></div>
+          <div class="cal-body">
+            <div class="cal-slot"><div class="cal-time">13:00</div><div class="cal-events"><div class="cal-ev v">🟢 13:00 · García · 4 pax</div></div></div>
+            <div class="cal-slot"><div class="cal-time">13:30</div><div class="cal-events"><div class="cal-ev v">🟢 13:30 · Martínez · 2 pax</div></div></div>
+            <div class="cal-slot"><div class="cal-time">14:00</div><div class="cal-events"><div class="cal-ev v">🟢 14:00 · Rodríguez · 6 pax</div></div></div>
+            <div class="cal-slot"><div class="cal-time">20:30</div><div class="cal-events"><div class="cal-ev v">🟢 20:30 · Sánchez · 4 pax</div></div></div>
+            <div class="cal-slot"><div class="cal-time">21:00</div><div class="cal-events"><div class="cal-ev v">🟢 21:00 · López · 8 pax</div><div class="cal-ev b">🔵 22:30 · Pérez · 4 pax</div></div></div>
+          </div>
+        </div>
+        <div class="mem-card">
+          <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--green);margin-bottom:12px">Memoria de clientes</div>
+          <div class="cli-row"><div class="cli-av">GF</div><div><div class="cli-nombre">García Fernández</div><div class="cli-data">23 visitas · hace 2 semanas</div><div class="cli-tags"><span class="ct v">⭐ VIP</span><span class="ct p">Mesa terraza</span><span class="ct p">Vino Rioja</span></div></div></div>
+          <div class="cli-row"><div class="cli-av">RL</div><div><div class="cli-nombre">Rodríguez López</div><div class="cli-data">8 visitas · hace 1 mes</div><div class="cli-tags"><span class="ct a">⚠ Marisco</span><span class="ct p">Mesa interior</span></div></div></div>
+          <div class="cli-row"><div class="cli-av">LR</div><div><div class="cli-nombre">López Ruiz</div><div class="cli-data">4 visitas · cliente frecuente</div><div class="cli-tags"><span class="ct a">⚠ Lactosa</span><span class="ct p">Mesa grande</span></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FUNCIONALIDADES -->
+<section class="grid-bg" style="background:var(--bg)">
+  <div class="section-inner">
+    <div class="section-label">Funcionalidades</div>
+    <h2 class="section-title">Todo lo que necesita tu restaurante</h2>
+    <p class="section-sub">Cada función diseñada para resolver un problema real del día a día en sala.</p>
+    <div class="features-grid">
+      <div class="feat-card"><div class="feat-icon">💬</div><h4>Agente WhatsApp 24h</h4><p>Atiende reservas a cualquier hora. Nunca más una reserva perdida por falta de respuesta.</p></div>
+      <div class="feat-card"><div class="feat-icon">📅</div><h4>Google Calendar integrado</h4><p>Cada reserva aparece automáticamente con nombre, personas, alergias y notas.</p></div>
+      <div class="feat-card"><div class="feat-icon">🧠</div><h4>Memoria de clientes</h4><p>Recuerda alergias, preferencias, fechas especiales e historial de visitas de cada cliente.</p></div>
+      <div class="feat-card"><div class="feat-icon">☀️</div><h4>Briefing diario automático</h4><p>Cada mañana a las 9h el equipo recibe el resumen del día con todo lo que necesita saber.</p></div>
+      <div class="feat-card"><div class="feat-icon">🔔</div><h4>Recordatorios anti no-show</h4><p>Recordatorios automáticos 24h antes para reducir ausencias y proteger tu servicio.</p></div>
+      <div class="feat-card"><div class="feat-icon">📧</div><h4>Confirmación por email</h4><p>Cada cliente recibe email de confirmación con botón para añadir la reserva a su calendario.</p></div>
+      <div class="feat-card"><div class="feat-icon">📊</div><h4>Control de aforo en tiempo real</h4><p>Gestiona el aforo automáticamente y nunca sobrepasa el límite del restaurante.</p></div>
+      <div class="feat-card"><div class="feat-icon">💳</div><h4>Señal anti no-show</h4><p>Opcionalmente cobra señal por persona al reservar. Se descuenta de la consumición del día.</p></div>
+      <div class="feat-card"><div class="feat-icon">📞</div><h4>Llamadas automáticas IA</h4><p>Opcional premium. Número de teléfono atendido por IA con las mismas capacidades que WhatsApp.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- TWILIO PREMIUM -->
+<section class="twilio-section">
+  <div class="section-inner">
+    <div class="section-label">Opcional premium</div>
+    <h2 class="section-title">Reservas telefónicas automatizadas</h2>
+    <p class="section-sub">Añade un número de teléfono atendido por IA. Los clientes llaman, la IA gestiona la reserva por voz y confirma por email. Sin intervención humana.</p>
+    <div class="twilio-card">
+      <div>
+        <div class="twilio-price">0,18€ <span>/ minuto</span></div>
+        <p style="color:rgba(255,255,255,0.5);font-size:0.85rem;margin-top:0.5rem">Solo pagas lo que usas. Sin cuota fija adicional.</p>
+        <ul class="twilio-features">
+          <li>Número de teléfono dedicado para tu restaurante</li>
+          <li>IA que atiende y gestiona reservas por voz</li>
+          <li>Confirmación automática por email al cliente</li>
+          <li>Registro detallado de cada llamada</li>
+          <li>Coste exacto visible en tu dashboard</li>
+          <li>Facturado mensualmente junto al plan base</li>
+        </ul>
+        <p class="twilio-note">El coste se calcula por minuto de llamada real. Una llamada media de reserva dura 2-3 minutos. Se cobra automáticamente a final de mes junto a tu suscripción mensual.</p>
+        <a href="https://damianherranz-netizen.github.io/reservaia-legal/registro.html" class="btn-primary" style="margin-top:1.5rem;display:inline-flex">Activar con ReservIA →</a>
+      </div>
+      <div class="twilio-example">
+        <h4>Ejemplo de factura mensual</h4>
+        <div class="twilio-row"><span>Plan base ReservIA</span><span>49,99€</span></div>
+        <div class="twilio-row"><span>Llamadas: 45 min totales</span><span>8,10€</span></div>
+        <div class="twilio-row"><span>Número de teléfono</span><span>2,15€</span></div>
+        <div class="twilio-row total"><span>Total mes</span><span>60,24€</span></div>
+        <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:12px">Ejemplo basado en 15 llamadas de 3 min de media. El coste varía según el uso real de tu restaurante.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRECIO -->
+<section class="grid-bg" id="precio" style="background:var(--bg)">
+  <div class="section-inner" style="text-align:center">
+    <div class="section-label">Precio</div>
+    <h2 class="section-title">Simple. Transparente. Sin sorpresas.</h2>
+    <p class="section-sub" style="margin:0 auto">Un precio fijo mensual. Sin comisiones por reserva, sin permanencia.</p>
+    <div class="precio-card">
+      <div class="precio-badge-top">Plan Base — Todo incluido</div>
+      <div class="precio-old">69,99€/mes</div>
+      <div class="precio-big">49,99€ <span>/ mes</span></div>
+      <div class="oferta-banner">🎉 Oferta lanzamiento — 2 meses gratis con código <strong>BIENVENIDA2M</strong></div>
+      <ul class="precio-feats">
+        <li>Agente AI en WhatsApp 24 horas</li>
+        <li>Google Calendar sincronizado</li>
+        <li>Memoria de clientes VIP</li>
+        <li>Briefing diario automático</li>
+        <li>Recordatorios anti no-show</li>
+        <li>Email de confirmación con Calendar</li>
+        <li>Control de aforo en tiempo real</li>
+        <li>Sin comisiones por reserva</li>
+        <li>Sin permanencia — cancela cuando quieras</li>
+        <li>Activo en 10 minutos</li>
+      </ul>
+      <a href="https://damianherranz-netizen.github.io/reservaia-legal/registro.html" class="btn-primary" style="width:100%;justify-content:center;font-size:1rem;padding:16px">Empezar ahora — 2 meses gratis →</a>
+      <p style="font-size:0.78rem;color:var(--muted);margin-top:12px">Tarjeta requerida · Sin compromiso · Cancela cuando quieras</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <div class="section-inner">
+    <h2>¿Listo para modernizar<br>tu restaurante?</h2>
+    <p>Únete a los restaurantes que ya gestionan sus reservas con inteligencia artificial.</p>
+    <div class="cta-actions">
+      <a href="https://damianherranz-netizen.github.io/reservaia-legal/registro.html" class="btn-primary" style="font-size:1rem;padding:16px 32px">Empezar — 2 meses gratis →</a>
+      <a href="https://www.zevorasystems.com" class="btn-outline-white">Conocer ZEVORA</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-logo">Reserv<span>IA</span> · <span style="color:rgba(255,255,255,0.4);font-weight:400">by ZEVORA</span></div>
+  <div class="foot-links">
+    <a href="https://www.zevorasystems.com">ZEVORA</a>
+    <a href="https://damianherranz-netizen.github.io/reservaia-legal/">Legal</a>
+    <a href="mailto:reservia@zevorasystems.com">Contacto</a>
+  </div>
+  <div style="font-size:0.75rem;color:rgba(255,255,255,0.3)">© 2026 ZEVORA Systems</div>
+</footer>
+
+<script>
+(function() {
+  var historial = [];
+  var enviando = false;
+
+  function addMsg(texto, tipo) {
+    var msgs = document.getElementById('demo-messages');
+    var div = document.createElement('div');
+    div.className = 'demo-msg ' + tipo;
+    div.textContent = texto;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function showTyping() {
+    var msgs = document.getElementById('demo-messages');
+    var div = document.createElement('div');
+    div.className = 'demo-msg typing';
+    div.id = 'typing-indicator';
+    div.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function removeTyping() {
+    var el = document.getElementById('typing-indicator');
+    if (el) el.remove();
+  }
+
+  function enviar() {
+    var input = document.getElementById('demo-input');
+    var btn = document.getElementById('demo-send');
+    var texto = input.value.trim();
+    if (!texto || enviando) return;
+
+    enviando = true;
+    btn.disabled = true;
+    input.value = '';
+
+    addMsg(texto, 'user');
+    historial.push({ role: 'user', content: texto });
+    showTyping();
+
+    fetch('https://msspbahutwrgajjsrwtj.supabase.co/functions/v1/demo-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: historial })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      removeTyping();
+      var respuesta = data.respuesta || 'Lo siento, ha habido un error.';
+      addMsg(respuesta, 'bot');
+      historial.push({ role: 'assistant', content: respuesta });
+      if (historial.length > 20) historial = historial.slice(-20);
+    })
+    .catch(function() {
+      removeTyping();
+      addMsg('Error de conexión. Por favor inténtalo de nuevo.', 'bot');
+    })
+    .finally(function() {
+      enviando = false;
+      btn.disabled = false;
+      input.focus();
+    });
+  }
+
+  document.getElementById('demo-send').addEventListener('click', enviar);
+  document.getElementById('demo-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') enviar();
+  });
+  document.getElementById('demo-chips').addEventListener('click', function(e) {
+    if (e.target.classList.contains('chip')) {
+      document.getElementById('demo-input').value = e.target.textContent.trim();
+      document.getElementById('demo-input').focus();
+    }
+  });
+
+  window.addEventListener('scroll', function() {
+    document.querySelector('nav').style.boxShadow = window.scrollY > 50 ? '0 4px 24px rgba(0,0,0,0.3)' : 'none';
+  });
+})();
+</script>
+
+</body>
+</html>
