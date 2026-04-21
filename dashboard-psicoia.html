@@ -1,0 +1,1829 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PsicoIA — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --purple:#5B2C8D;--purple2:#7B4BAD;--purple-dim:rgba(91,44,141,0.09);--purple-pale:#F7F4FD;
+  --teal:#1A7A6E;--teal-dim:rgba(26,122,110,0.1);
+  --blue:#2563EB;--blue-dim:rgba(37,99,235,0.1);
+  --amber:#D97706;--amber-dim:rgba(217,119,6,0.1);
+  --red:#DC2626;--red-dim:rgba(220,38,38,0.08);
+  --surface:#F7F4FD;--surface2:#FFFFFF;--surface3:#F0EAF9;
+  --border:rgba(91,44,141,0.12);--border2:rgba(91,44,141,0.22);
+  --text:#1A1A2E;--muted:#6B6B80;--muted2:#9B9BB0;
+  --shadow-sm:0 1px 4px rgba(91,44,141,0.08);--shadow-md:0 4px 20px rgba(91,44,141,0.1);
+  --font:'Plus Jakarta Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--font);background:var(--surface);color:var(--text);min-height:100vh;display:flex;overflow:hidden;}
+/* SIDEBAR */
+.sidebar{width:240px;min-width:240px;background:var(--surface2);display:flex;flex-direction:column;height:100vh;position:fixed;left:0;top:0;z-index:100;border-right:1px solid var(--border);box-shadow:var(--shadow-sm);}
+.sidebar-logo{padding:16px 18px 12px;border-bottom:1px solid var(--border);}
+.sidebar-logo .brand{font-size:22px;font-weight:900;color:var(--text);}
+.sidebar-logo .brand span{color:var(--purple);}
+.sidebar-logo .sub{font-size:9px;color:var(--muted2);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;font-weight:600;}
+.clinic-info{padding:10px 14px;border-bottom:1px solid var(--border);background:var(--purple-dim);}
+.clinic-name{font-size:12px;font-weight:700;color:var(--text);}
+.clinic-plan{font-size:10px;color:var(--purple);font-weight:600;margin-top:2px;}
+.psi-selector{padding:8px 14px;border-bottom:1px solid var(--border);background:var(--surface3);}
+.psi-selector select{width:100%;background:white;border:1px solid var(--border2);border-radius:6px;padding:6px 10px;font-size:11px;color:var(--text);font-family:var(--font);outline:none;}
+.nav{flex:1;padding:6px 10px;overflow-y:auto;}
+.nav-section{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:10px 8px 4px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:all 0.15s;margin-bottom:2px;color:var(--muted);font-size:13px;font-weight:500;position:relative;background:none;border:none;width:100%;text-align:left;font-family:var(--font);}
+.nav-item:hover{background:var(--surface3);color:var(--text);}
+.nav-item.active{background:var(--purple-dim);color:var(--purple);font-weight:700;}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--purple);border-radius:0 2px 2px 0;}
+.nav-icon{font-size:15px;width:20px;text-align:center;}
+.nav-badge{margin-left:auto;background:var(--red);color:white;font-size:9px;font-weight:800;padding:1px 6px;border-radius:10px;}
+.sidebar-footer{padding:10px 12px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px;}
+.btn-portal{width:100%;padding:8px;background:var(--purple-dim);border:1px solid rgba(91,44,141,0.2);border-radius:8px;color:var(--purple);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);}
+.btn-baja{width:100%;padding:7px;background:var(--red-dim);border:1px solid rgba(220,38,38,0.2);border-radius:8px;color:var(--red);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);}
+/* MAIN */
+.main{margin-left:240px;flex:1;height:100vh;overflow-y:auto;}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;}
+.topbar-title{font-size:15px;font-weight:800;color:var(--text);}
+.topbar-subtitle{font-size:10px;color:var(--muted2);margin-top:1px;}
+.topbar-actions{display:flex;gap:8px;}
+.btn-primary{background:var(--purple);color:white;border:none;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;font-family:var(--font);transition:all 0.2s;}
+.btn-primary:hover{background:var(--purple2);}
+.btn-secondary{background:var(--surface2);color:var(--muted);border:1px solid var(--border2);padding:7px 13px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);}
+.content{padding:20px 24px;}
+.section-view{display:none;}
+.section-view.active{display:block;}
+/* CARDS */
+.hero-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.hero-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden;box-shadow:var(--shadow-sm);}
+.hero-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--card-accent,var(--purple));}
+.hero-card-icon{font-size:20px;margin-bottom:10px;display:block;}
+.hero-card-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);margin-bottom:4px;}
+.hero-card-value{font-size:28px;font-weight:900;color:var(--text);line-height:1;font-family:var(--mono);}
+.hero-card-value span{font-size:13px;font-weight:600;color:var(--muted2);margin-left:3px;font-family:var(--font);}
+.hero-card-sub{font-size:10px;color:var(--muted2);margin-top:5px;}
+.impact-banner{background:linear-gradient(135deg,var(--purple) 0%,var(--purple2) 100%);border-radius:14px;padding:18px 22px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.impact-item{text-align:center;}
+.impact-number{font-size:26px;font-weight:900;color:white;font-family:var(--mono);line-height:1;}
+.impact-label{font-size:9px;color:rgba(255,255,255,0.7);margin-top:3px;font-weight:600;}
+.impact-divider{width:1px;height:36px;background:rgba(255,255,255,0.2);}
+.impact-text{flex:1;}
+.impact-text h3{font-size:13px;font-weight:800;color:white;margin-bottom:3px;}
+.impact-text p{font-size:10px;color:rgba(255,255,255,0.7);line-height:1.5;}
+.dashboard-grid{display:grid;grid-template-columns:1fr 340px;gap:16px;}
+.section-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow-sm);}
+.section-card:last-child{margin-bottom:0;}
+.section-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.section-title{font-size:13px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:8px;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+.section-action{font-size:11px;color:var(--purple);font-weight:700;cursor:pointer;background:none;border:none;font-family:var(--font);}
+.section-body{padding:14px 18px;}
+/* CITAS */
+.cita-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+.cita-item:last-child{border-bottom:none;}
+.cita-hora{font-size:12px;font-weight:700;color:var(--text);font-family:var(--mono);min-width:46px;}
+.cita-hora-fin{font-size:9px;color:var(--muted);}
+.cita-info{flex:1;}
+.cita-nombre{font-size:12px;font-weight:700;color:var(--text);}
+.cita-detalle{font-size:10px;color:var(--muted2);margin-top:1px;}
+.cita-estado{font-size:9px;font-weight:700;padding:3px 9px;border-radius:20px;}
+.estado-confirmada{background:var(--teal-dim);color:var(--teal);}
+.estado-pendiente{background:var(--amber-dim);color:var(--amber);}
+.estado-realizada{background:var(--blue-dim);color:var(--blue);}
+.estado-cancelada{background:var(--red-dim);color:var(--red);}
+.cita-btn{font-size:9px;padding:4px 9px;border-radius:6px;border:1px solid var(--border2);background:var(--surface3);color:var(--muted);cursor:pointer;font-family:var(--font);font-weight:600;}
+.cita-btn.primary{background:var(--purple-dim);color:var(--purple);border-color:rgba(91,44,141,0.2);}
+/* QUICK GRID */
+.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.quick-btn{background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;transition:all 0.2s;text-align:center;font-family:var(--font);}
+.quick-btn:hover{border-color:var(--purple);background:var(--purple-dim);}
+.quick-btn-icon{font-size:20px;display:block;margin-bottom:5px;}
+.quick-btn-label{font-size:10px;font-weight:700;color:var(--muted);}
+/* WEEK */
+.week-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;}
+.week-day{background:var(--surface3);border:1px solid var(--border);border-radius:9px;padding:9px 6px;text-align:center;}
+.week-day.today{background:var(--purple-dim);border-color:rgba(91,44,141,0.3);}
+.week-day-name{font-size:8px;color:var(--muted2);font-weight:700;text-transform:uppercase;}
+.week-day-num{font-size:16px;font-weight:900;font-family:var(--mono);color:var(--text);margin:3px 0;}
+.week-day.today .week-day-num{color:var(--purple);}
+.week-day-count{font-size:9px;background:var(--surface2);border-radius:8px;padding:2px 5px;color:var(--muted2);display:inline-block;}
+/* PACIENTES */
+.paciente-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
+.paciente-row:last-child{border-bottom:none;}
+.paciente-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;background:var(--purple-dim);color:var(--purple);}
+.paciente-info{flex:1;}
+.paciente-nombre{font-size:12px;font-weight:700;color:var(--text);}
+.paciente-meta{font-size:10px;color:var(--muted2);margin-top:1px;}
+/* BONOS */
+.bono-item{padding:10px 0;border-bottom:1px solid var(--border);}
+.bono-item:last-child{border-bottom:none;}
+.bono-header{display:flex;justify-content:space-between;margin-bottom:5px;}
+.bono-nombre{font-size:11px;font-weight:700;color:var(--text);}
+.bono-paciente{font-size:10px;color:var(--muted2);}
+.bono-progress{height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;}
+.bono-fill{height:100%;border-radius:2px;}
+/* PLANTILLAS */
+.plantilla-card{background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;}
+.plantilla-card:last-child{margin-bottom:0;}
+.plantilla-nombre{font-size:13px;font-weight:700;color:var(--text);}
+.plantilla-detalle{font-size:11px;color:var(--muted2);margin-top:4px;}
+.plantilla-precio{font-size:14px;font-weight:800;color:var(--purple);font-family:var(--mono);margin-top:6px;}
+/* FACTURAS */
+.factura-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+.factura-row:last-child{border-bottom:none;}
+.factura-num{font-size:11px;font-weight:700;color:var(--purple);font-family:var(--mono);min-width:100px;}
+.factura-info{flex:1;}
+.factura-paciente{font-size:12px;font-weight:700;color:var(--text);}
+.factura-concepto{font-size:10px;color:var(--muted2);}
+.factura-tipo{font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;}
+.factura-particular{background:var(--teal-dim);color:var(--teal);}
+.factura-mutua{background:var(--blue-dim);color:var(--blue);}
+.factura-suscripcion{background:var(--purple-dim);color:var(--purple);}
+.factura-importe{font-size:13px;font-weight:800;color:var(--text);font-family:var(--mono);}
+/* STATS */
+.stat-big-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.stat-big{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;}
+.stat-big-num{font-size:36px;font-weight:900;font-family:var(--mono);line-height:1;}
+.stat-big-label{font-size:10px;color:var(--muted2);margin-top:5px;font-weight:600;}
+/* TABS */
+.tabs{display:flex;gap:4px;background:var(--surface3);padding:3px;border-radius:9px;margin-bottom:16px;}
+.tab{flex:1;padding:7px 10px;border-radius:7px;border:none;background:none;color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);}
+.tab.active{background:var(--surface2);color:var(--text);}
+/* FORMS */
+.form-group{margin-bottom:13px;}
+.form-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);display:block;margin-bottom:5px;}
+.form-input{width:100%;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;padding:9px 13px;font-size:13px;color:var(--text);font-family:var(--font);outline:none;transition:border-color 0.2s;}
+.form-input:focus{border-color:var(--purple);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(26,26,46,0.5);backdrop-filter:blur(4px);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal-box{background:var(--surface2);border:1px solid var(--border2);border-radius:14px;width:100%;max-width:500px;padding:22px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(91,44,141,0.2);}
+.modal-title{font-size:15px;font-weight:800;color:var(--text);margin-bottom:18px;}
+.modal-actions{display:flex;gap:8px;margin-top:18px;justify-content:flex-end;}
+/* PRIVACY */
+.privacy-notice{background:var(--purple-dim);border:1px solid rgba(91,44,141,0.2);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--purple);font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+/* SEGUIMIENTO */
+.seguimiento-card{background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;}
+.seguimiento-fecha{font-size:10px;color:var(--muted2);}
+.seguimiento-texto{font-size:12px;color:var(--text);margin-top:4px;line-height:1.5;}
+/* ASEGURADORAS */
+.aseg-card{background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:14px;transition:all 0.2s;}
+.aseg-card:hover{border-color:var(--border2);}
+.aseg-logo{font-size:11px;font-weight:900;letter-spacing:0.5px;margin-bottom:6px;}
+.aseg-desc{font-size:10px;color:var(--muted2);margin-bottom:10px;line-height:1.4;}
+.aseg-btns{display:flex;flex-direction:column;gap:5px;}
+.aseg-btn-parte{width:100%;padding:7px;border-radius:7px;border:none;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.2s;}
+.aseg-btn-portal{width:100%;padding:6px;border-radius:7px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:10px;font-weight:600;cursor:pointer;font-family:var(--font);text-decoration:none;display:block;text-align:center;}
+.aseg-btn-portal:hover{border-color:var(--purple);color:var(--purple);}
+/* SUSCRIPCION */
+.suscripcion-card{background:linear-gradient(135deg,var(--purple) 0%,var(--purple2) 100%);border-radius:14px;padding:20px;margin-bottom:16px;}
+.suscripcion-precio{font-size:36px;font-weight:900;color:white;font-family:var(--mono);}
+.factura-mes{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
+.factura-mes-num{font-size:11px;font-weight:700;color:var(--purple);font-family:var(--mono);}
+.factura-mes-periodo{font-size:12px;font-weight:700;color:var(--text);margin-top:2px;}
+.factura-mes-detalle{font-size:10px;color:var(--muted2);margin-top:2px;}
+.factura-mes-total{font-size:16px;font-weight:800;color:var(--text);font-family:var(--mono);}
+/* AUTOCOMPLETE */
+.autocomplete-wrap{position:relative;}
+.autocomplete-list{position:absolute;top:100%;left:0;right:0;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;z-index:500;max-height:200px;overflow-y:auto;box-shadow:var(--shadow-md);display:none;}
+.autocomplete-list.open{display:block;}
+.autocomplete-item{padding:10px 14px;cursor:pointer;font-size:12px;color:var(--text);border-bottom:1px solid var(--border);transition:background 0.15s;}
+.autocomplete-item:last-child{border-bottom:none;}
+.autocomplete-item:hover{background:var(--purple-dim);}
+.autocomplete-item .ac-nombre{font-weight:700;}
+.autocomplete-item .ac-detalle{font-size:10px;color:var(--muted2);margin-top:2px;}
+.autocomplete-item .ac-tag{font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;background:var(--blue-dim);color:var(--blue);margin-left:6px;}
+/* MISC */
+.empty-state{text-align:center;padding:28px 16px;color:var(--muted2);}
+.empty-icon{font-size:28px;display:block;margin-bottom:8px;opacity:0.5;}
+.empty-text{font-size:11px;}
+.loading{text-align:center;padding:40px;color:var(--muted2);}
+.spinner{width:32px;height:32px;border:3px solid var(--surface3);border-top-color:var(--purple);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.servicio-card{background:var(--surface3);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:12px;}
+.servicio-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.servicio-titulo{font-size:13px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:8px;}
+.servicio-estado{font-size:9px;font-weight:700;padding:3px 9px;border-radius:20px;}
+.estado-activo{background:var(--teal-dim);color:var(--teal);}
+.estado-inactivo{background:var(--surface3);color:var(--muted2);}
+.servicio-desc{font-size:11px;color:var(--muted2);line-height:1.6;margin-bottom:12px;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px;}
+/* IA PERSONALITY BADGE */
+.ia-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;padding:3px 8px;border-radius:10px;background:var(--purple-dim);color:var(--purple);}
+/* TOGGLE SWITCH */
+.toggle-wrap{display:flex;align-items:center;gap:10px;}
+.toggle-sw{width:40px;height:22px;background:#CBD5E1;border-radius:11px;position:relative;cursor:pointer;flex-shrink:0;transition:background 0.2s;border:none;}
+.toggle-sw::after{content:'';position:absolute;width:16px;height:16px;background:white;border-radius:50%;top:3px;left:3px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);}
+.toggle-sw.on{background:var(--purple);}
+.toggle-sw.on::after{left:21px;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">Psico<span>IA</span></div>
+    <div class="sub">by ZEVORA Systems</div>
+  </div>
+  <div class="clinic-info">
+    <div class="clinic-name" id="sidebar-consulta">Cargando...</div>
+    <div class="clinic-plan">Plan Base Activo ✓</div>
+  </div>
+  <div class="psi-selector" id="psi-selector-wrap" style="display:none">
+    <select id="psi-selector" onchange="cambiarPsicologo(this.value)">
+      <option value="">Ver todo (administrador)</option>
+    </select>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">Principal</div>
+    <button class="nav-item active" onclick="showSection('inicio')"><span class="nav-icon">🏠</span>Inicio</button>
+    <button class="nav-item" onclick="showSection('agenda')"><span class="nav-icon">📅</span>Agenda<span class="nav-badge" id="badge-hoy">0</span></button>
+    <button class="nav-item" onclick="showSection('pacientes')"><span class="nav-icon">👥</span>Pacientes</button>
+    <div class="nav-section">Gestión</div>
+    <button class="nav-item" onclick="showSection('bonos')"><span class="nav-icon">🎟️</span>Bonos<span class="nav-badge" id="badge-bonos" style="display:none">!</span></button>
+    <button class="nav-item" onclick="showSection('facturacion')"><span class="nav-icon">🧾</span>Facturación</button>
+    <button class="nav-item" onclick="showSection('historial')"><span class="nav-icon">📋</span>Historial</button>
+    <div class="nav-section">Sistema</div>
+    <button class="nav-item" onclick="showSection('servicios')"><span class="nav-icon">⚡</span>Herramientas</button>
+    <button class="nav-item" onclick="showSection('suscripcion')"><span class="nav-icon">💳</span>Mi suscripción</button>
+    <button class="nav-item" onclick="showSection('psicologos')"><span class="nav-icon">🧑‍⚕️</span>Psicólogos/as</button>
+    <button class="nav-item" onclick="showSection('configuracion')"><span class="nav-icon">⚙️</span>Configuración</button>
+    <button class="nav-item" onclick="showSection('estadisticas')"><span class="nav-icon">📊</span>Estadísticas</button>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="btn-portal" onclick="abrirPortal()">💳 Gestionar suscripción</button>
+    <button class="btn-baja" onclick="abrirModalBaja()">Cancelar suscripción</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div><div class="topbar-title" id="topbar-title">Cargando...</div><div class="topbar-subtitle" id="topbar-subtitle"></div></div>
+    <div class="topbar-actions">
+      <button class="btn-secondary" onclick="abrirNuevaFactura()">🧾 Factura</button>
+      <button class="btn-secondary" onclick="abrirNuevoPaciente()">👤 Paciente</button>
+      <button class="btn-primary" onclick="abrirNuevaCita()">+ Nueva cita</button>
+    </div>
+  </div>
+  <div class="content">
+
+  <!-- INICIO -->
+  <div class="section-view active" id="view-inicio">
+    <div class="impact-banner">
+      <div class="impact-item"><div class="impact-number" id="imp-sesiones">—</div><div class="impact-label">Sesiones este mes</div></div>
+      <div class="impact-divider"></div>
+      <div class="impact-item"><div class="impact-number" id="imp-ingresos">—</div><div class="impact-label">Ingresos este mes</div></div>
+      <div class="impact-divider"></div>
+      <div class="impact-item"><div class="impact-number" id="imp-pacientes">—</div><div class="impact-label">Pacientes activos</div></div>
+      <div class="impact-divider"></div>
+      <div class="impact-item"><div class="impact-number" id="imp-bonos">—</div><div class="impact-label">Bonos activos</div></div>
+      <div class="impact-text"><h3>PsicoIA trabajando por ti 🤖</h3><p>Tu asistente gestiona reservas, recordatorios y seguimientos automáticamente.</p></div>
+    </div>
+    <div class="hero-grid">
+      <div class="hero-card" style="--card-accent:var(--purple)"><span class="hero-card-icon">📅</span><div class="hero-card-label">Citas hoy</div><div class="hero-card-value" id="metric-hoy">—</div><div class="hero-card-sub" id="metric-hoy-sub">Cargando...</div></div>
+      <div class="hero-card" style="--card-accent:var(--blue)"><span class="hero-card-icon">👥</span><div class="hero-card-label">Pacientes totales</div><div class="hero-card-value" id="metric-pacientes">—</div><div class="hero-card-sub">En el sistema</div></div>
+      <div class="hero-card" style="--card-accent:var(--amber)"><span class="hero-card-icon">🎟️</span><div class="hero-card-label">Bonos activos</div><div class="hero-card-value" id="metric-bonos">—</div><div class="hero-card-sub" id="metric-bonos-sub">Cargando...</div></div>
+      <div class="hero-card" style="--card-accent:var(--teal)"><span class="hero-card-icon">💶</span><div class="hero-card-label">Ingresos este mes</div><div class="hero-card-value" id="metric-ingresos">—<span>€</span></div><div class="hero-card-sub">Mes actual</div></div>
+    </div>
+    <div class="dashboard-grid">
+      <div>
+        <div class="section-card"><div class="section-header"><div class="section-title"><div class="dot"></div>Citas de hoy</div><button class="section-action" onclick="showSection('agenda')">Ver agenda →</button></div><div class="section-body" id="citas-hoy-list"><div class="loading"><div class="spinner"></div>Cargando...</div></div></div>
+        <div class="section-card"><div class="section-header"><div class="section-title">Vista semanal</div></div><div class="section-body"><div class="week-grid" id="week-grid"></div></div></div>
+        <div class="section-card"><div class="section-header"><div class="section-title">⚠️ Bonos por renovar</div><button class="section-action" onclick="showSection('bonos')">Ver todos →</button></div><div class="section-body" id="bonos-alerta-list"><div class="loading"><div class="spinner"></div></div></div></div>
+      </div>
+      <div>
+        <div class="section-card"><div class="section-header"><div class="section-title">Accesos rápidos</div></div><div class="section-body"><div class="quick-grid"><div class="quick-btn" onclick="abrirNuevaCita()"><span class="quick-btn-icon">📅</span><div class="quick-btn-label">Nueva cita</div></div><div class="quick-btn" onclick="abrirNuevoBono()"><span class="quick-btn-icon">🎟️</span><div class="quick-btn-label">Nuevo bono</div></div><div class="quick-btn" onclick="abrirNuevaFactura()"><span class="quick-btn-icon">🧾</span><div class="quick-btn-label">Generar factura</div></div><div class="quick-btn" onclick="abrirNuevoPaciente()"><span class="quick-btn-icon">👤</span><div class="quick-btn-label">Nuevo paciente</div></div></div></div></div>
+        <div class="section-card"><div class="section-header"><div class="section-title">Últimos pacientes</div><button class="section-action" onclick="showSection('pacientes')">Ver todos →</button></div><div class="section-body" id="pacientes-recientes-list"><div class="loading"><div class="spinner"></div></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AGENDA -->
+  <div class="section-view" id="view-agenda">
+    <div class="section-card"><div class="section-header"><div class="section-title">📅 Agenda de hoy</div><button class="btn-primary" onclick="abrirNuevaCita()">+ Nueva cita</button></div><div class="section-body" id="agenda-content"><div class="loading"><div class="spinner"></div></div></div></div>
+  </div>
+
+  <!-- PACIENTES -->
+  <div class="section-view" id="view-pacientes">
+    <div class="section-card"><div class="section-header"><div class="section-title">👥 Pacientes</div><button class="btn-primary" onclick="abrirNuevoPaciente()">+ Nuevo paciente</button></div><div class="section-body"><input type="text" class="form-input" placeholder="Buscar por nombre, teléfono o aseguradora..." id="search-paciente" oninput="buscarPaciente(this.value)" style="margin-bottom:14px"><div id="pacientes-list"><div class="loading"><div class="spinner"></div></div></div></div></div>
+  </div>
+
+  <!-- BONOS -->
+  <div class="section-view" id="view-bonos">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="section-card"><div class="section-header"><div class="section-title">🎟️ Bonos activos</div><button class="btn-primary" onclick="abrirNuevoBono()">+ Nuevo bono</button></div><div class="section-body" id="bonos-activos-list"><div class="loading"><div class="spinner"></div></div></div></div>
+      <div class="section-card">
+        <div class="section-header"><div class="section-title">⚙️ Plantillas de bonos</div><button class="btn-primary" onclick="abrirNuevaPlantilla()">+ Plantilla</button></div>
+        <div class="section-body">
+          <div style="font-size:11px;color:var(--muted2);margin-bottom:12px;background:var(--surface3);border-radius:8px;padding:10px;line-height:1.5">💡 Las plantillas definen los tipos de bono que ofreces. Puedes crear plantillas personalizadas para tu consulta.</div>
+          <div id="plantillas-list"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FACTURACIÓN -->
+  <div class="section-view" id="view-facturacion">
+    <div class="section-card"><div class="section-header"><div class="section-title">🧾 Facturas y partes</div><div style="display:flex;gap:8px"><button class="btn-secondary" onclick="abrirModalFactura('particular')">🧾 Particular</button><button class="btn-primary" onclick="abrirModalFactura('mutua')">📋 Parte aseguradora</button></div></div><div class="section-body"><div class="tabs"><button class="tab active" onclick="filtrarFacturas('todas',this)">Todas</button><button class="tab" onclick="filtrarFacturas('particular',this)">Particulares</button><button class="tab" onclick="filtrarFacturas('mutua',this)">Aseguradoras</button></div><div id="facturas-list"><div class="loading"><div class="spinner"></div></div></div></div></div>
+    <div class="section-card" style="margin-top:16px">
+      <div class="section-header"><div class="section-title">🏥 Portales de aseguradoras</div></div>
+      <div class="section-body">
+        <div style="font-size:11px;color:var(--muted2);margin-bottom:14px;line-height:1.5">Genera el parte de cada aseguradora con los datos del paciente ya rellenados, o accede directamente a su portal.</div>
+        <div id="aseguradoras-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORIAL -->
+  <div class="section-view" id="view-historial">
+    <div class="section-card"><div class="section-header"><div class="section-title">📋 Historial de pacientes</div></div><div class="section-body"><input type="text" class="form-input" placeholder="Buscar paciente..." id="search-historial" oninput="buscarHistorial(this.value)" style="margin-bottom:14px"><div id="historial-list"><div class="empty-state"><span class="empty-icon">📋</span><div class="empty-text">Busca un paciente para ver su historial</div></div></div></div></div>
+  </div>
+
+  <!-- HERRAMIENTAS -->
+  <div class="section-view" id="view-servicios">
+    <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:16px">⚡ Herramientas de la consulta</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="servicio-card">
+        <div class="servicio-header"><div class="servicio-titulo">📅 Google Calendar</div><span class="servicio-estado estado-inactivo" id="cal-estado">Sin conectar</span></div>
+        <div class="servicio-desc">Conecta el calendario de cada psicólogo/a. Las citas se sincronizan automáticamente y pueden consultarse desde el móvil en cualquier momento.</div>
+        <div class="form-group"><label class="form-label">ID del calendario general</label><input type="text" class="form-input" id="cal-id" placeholder="ejemplo@group.calendar.google.com"><div style="font-size:10px;color:var(--muted2);margin-top:4px">Google Calendar → Configuración → ID del calendario</div></div>
+        <button class="btn-primary" onclick="guardarCalendar()" style="width:100%">Conectar Calendar</button>
+      </div>
+      <div class="servicio-card">
+        <div class="servicio-header"><div class="servicio-titulo">💬 Agente WhatsApp</div><span class="servicio-estado estado-inactivo" id="wa-estado">Pendiente</span></div>
+        <div class="servicio-desc">El agente IA gestiona las citas de tus pacientes por WhatsApp las 24 horas. Incluido en el plan base — solo necesita activación cuando Meta confirme la verificación.</div>
+        <div style="background:var(--purple-dim);border:1px solid rgba(91,44,141,0.2);border-radius:8px;padding:12px;margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--purple);margin-bottom:4px">Para activar:</div>
+          <div style="font-size:11px;color:var(--purple)">📧 psicoia@zevorasystems.com</div>
+          <div style="font-size:11px;color:var(--purple);margin-top:2px">Asunto: "Activar WhatsApp PsicoIA"</div>
+        </div>
+        <button class="btn-primary" onclick="copiarEmailSoporte('whatsapp')" style="width:100%">Copiar email de activación</button>
+      </div>
+      <div class="servicio-card">
+        <div class="servicio-header"><div class="servicio-titulo">🔔 Recordatorios automáticos</div><span class="servicio-estado estado-activo">Activo</span></div>
+        <div class="servicio-desc">Los pacientes reciben un recordatorio con botón de confirmación 24 horas antes de su cita. Reduce no-shows hasta un 40%.</div>
+        <div style="background:var(--teal-dim);border:1px solid rgba(26,122,110,0.2);border-radius:8px;padding:12px">
+          <div style="font-size:11px;color:var(--teal)">✓ Recordatorios activos para todas las citas confirmadas</div>
+          <div style="font-size:11px;color:var(--teal);margin-top:3px">✓ El paciente puede confirmar o cancelar con un botón</div>
+          <div style="font-size:11px;color:var(--teal);margin-top:3px">✓ Sin mencionar psicología — máxima discreción</div>
+        </div>
+      </div>
+      <div class="servicio-card">
+        <div class="servicio-header"><div class="servicio-titulo">💌 Seguimiento entre sesiones</div><span class="servicio-estado" id="seguimiento-estado">Desactivado</span></div>
+        <div class="servicio-desc">Envía un mensaje de seguimiento opcional a cada paciente días después de la sesión. Configurable por consulta y personalizable por paciente.</div>
+        <div class="form-group"><label class="form-label">Activar seguimiento automático</label>
+          <div class="toggle-wrap">
+            <button class="toggle-sw" id="toggle-seguimiento" onclick="toggleSeguimiento()"></button>
+            <span style="font-size:12px;color:var(--muted)" id="toggle-seg-label">Desactivado</span>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Enviar seguimiento a las (horas post-sesión)</label>
+          <input type="number" class="form-input" id="seguimiento-horas" value="48" min="24" max="168" style="max-width:120px">
+        </div>
+        <button class="btn-primary" onclick="guardarSeguimiento()" style="width:100%">Guardar configuración</button>
+      </div>
+    </div>
+    <div style="margin-top:16px;background:var(--surface3);border-radius:10px;padding:14px;font-size:11px;color:var(--muted2);text-align:center;display:none" id="copy-feedback"></div>
+  </div>
+
+  <!-- SUSCRIPCIÓN -->
+  <div class="section-view" id="view-suscripcion">
+    <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:16px">💳 Mi suscripción PsicoIA</div>
+    <div class="suscripcion-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div><div style="font-size:11px;color:rgba(255,255,255,0.7);font-weight:600;text-transform:uppercase;letter-spacing:1px">Plan activo</div><div style="font-size:16px;font-weight:800;color:white;margin-top:4px">PsicoIA — Plan Base</div></div>
+        <div style="text-align:right"><div class="suscripcion-precio">49,99€</div><div style="font-size:11px;color:rgba(255,255,255,0.7)">/mes · sin permanencia</div></div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn-secondary" style="background:rgba(255,255,255,0.15);color:white;border-color:rgba(255,255,255,0.3)" onclick="abrirPortal()">Gestionar en Stripe →</button>
+        <button class="btn-secondary" style="background:rgba(255,255,255,0.1);color:white;border-color:rgba(255,255,255,0.2)" onclick="descargarFacturaSuscripcion()">⬇️ Factura del mes</button>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><div class="section-title">📄 Historial de facturas de suscripción</div></div>
+      <div class="section-body">
+        <div style="font-size:11px;color:var(--muted2);margin-bottom:14px;line-height:1.5">Facturas mensuales de tu suscripción a PsicoIA. Descárgalas para tu contabilidad trimestral.</div>
+        <div id="facturas-suscripcion-list"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PSICÓLOGOS -->
+  <div class="section-view" id="view-psicologos">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="font-size:15px;font-weight:800;color:var(--text)">🧑‍⚕️ Gestión de psicólogos/as</div>
+      <button class="btn-primary" onclick="abrirModalPsicologo()">+ Añadir psicólogo/a</button>
+    </div>
+    <div style="font-size:11px;color:var(--muted2);background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px;line-height:1.6">
+      <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px">🔒 Privacidad y acceso entre profesionales</div>
+      <div style="margin-bottom:8px"><strong style="color:var(--purple)">Modelo actual:</strong> El titular de la cuenta (tú) puede ver todos los pacientes y datos. Los psicólogos que añadas aquí aparecen como opción de filtro en el sidebar — al seleccionar uno, el dashboard solo muestra sus pacientes.</div>
+      <div style="margin-bottom:8px"><strong style="color:var(--amber)">⚠️ Importante:</strong> Actualmente todos los psicólogos usan las mismas credenciales de acceso. Para una clínica con varios profesionales, cada uno debe tener sus propias credenciales independientes.</div>
+      <div><strong style="color:var(--teal)">🚀 Próximamente:</strong> Credenciales individuales por psicólogo — cada uno iniciará sesión con su propio email y contraseña, y verá únicamente sus pacientes, agenda y notas clínicas. Nadie accede a los datos de otro profesional.</div>
+    </div>
+    <div id="psicologos-list"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
+  </div>
+
+  <!-- CONFIGURACIÓN -->
+  <div class="section-view" id="view-configuracion">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="section-card"><div class="section-header"><div class="section-title">⚙️ Datos de la consulta</div></div><div class="section-body" id="config-consulta"><div class="loading"><div class="spinner"></div></div></div></div>
+      <div class="section-card"><div class="section-header"><div class="section-title">🧑‍⚕️ Personalidades IA</div><button class="btn-primary" onclick="abrirModalPersonalidad()">+ Nueva</button></div><div class="section-body" id="config-personalidades"><div class="loading"><div class="spinner"></div></div></div></div>
+    </div>
+  </div>
+
+  <!-- ESTADÍSTICAS -->
+  <div class="section-view" id="view-estadisticas">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><div style="font-size:15px;font-weight:800">📊 Estadísticas</div><div class="tabs" style="margin-bottom:0;width:240px"><button class="tab active" onclick="cambiarPeriodo('mes',this)">Este mes</button><button class="tab" onclick="cambiarPeriodo('semana',this)">Semana</button><button class="tab" onclick="cambiarPeriodo('total',this)">Total</button></div></div>
+    <div class="stat-big-grid" id="stats-big"></div>
+    <div class="section-card"><div class="section-header"><div class="section-title">📈 Detalle</div></div><div class="section-body" id="stats-detalle"></div></div>
+  </div>
+
+  </div><!-- end content -->
+</main>
+
+<!-- MODAL PSICÓLOGO/A -->
+<div class="modal-overlay" id="modal-psicologo" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-psi-title">🧑‍⚕️ Nuevo psicólogo/a</div>
+    <input type="hidden" id="psi-edit-id">
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Nombre *</label><input type="text" class="form-input" id="psi-nombre" placeholder="Ana García"></div>
+      <div class="form-group"><label class="form-label">Apellidos</label><input type="text" class="form-input" id="psi-apellidos"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">NIF / DNI</label><input type="text" class="form-input" id="psi-nif" placeholder="12345678A"></div>
+      <div class="form-group"><label class="form-label">Nº Colegiado *</label><input type="text" class="form-input" id="psi-colegiado" placeholder="M-12345"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Especialización</label><input type="text" class="form-input" id="psi-especialidad" placeholder="Ej: Psicología clínica, TCC, EMDR..."></div>
+    <div class="form-group"><label class="form-label">ID Google Calendar</label><input type="text" class="form-input" id="psi-calendar" placeholder="ejemplo@group.calendar.google.com"><div style="font-size:10px;color:var(--muted2);margin-top:4px">Google Calendar → Configuración → ID del calendario</div></div>
+    <div class="form-group"><label class="form-label">Teléfono</label><input type="text" class="form-input" id="psi-tel"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="document.getElementById('modal-psicologo').style.display='none'">Cancelar</button>
+      <button class="btn-primary" onclick="guardarPsicologo()">✓ Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NUEVA CITA -->
+<div class="modal-overlay" id="modal-cita" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box"><div class="modal-title">📅 Nueva cita</div>
+    <div class="form-group">
+      <label class="form-label">Paciente *</label>
+      <div class="autocomplete-wrap">
+        <input type="text" class="form-input" id="cita-paciente" placeholder="Escribe nombre o teléfono..." autocomplete="off" oninput="autocompleteP(this.value)" onfocus="autocompleteP(this.value)">
+        <div class="autocomplete-list" id="ac-list"></div>
+      </div>
+      <input type="hidden" id="cita-paciente-id">
+      <input type="hidden" id="cita-paciente-tel">
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Fecha *</label><input type="date" class="form-input" id="cita-fecha"></div>
+      <div class="form-group"><label class="form-label">Hora *</label><input type="time" class="form-input" id="cita-hora"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Psicólogo/a</label>
+      <select class="form-input" id="cita-psicologo"><option value="">Sin asignar</option></select>
+    </div>
+    <div id="bono-activo-aviso" style="display:none;background:var(--purple-dim);border:1px solid rgba(91,44,141,0.2);border-radius:8px;padding:10px 14px;margin-bottom:13px">
+      <div style="font-size:11px;font-weight:700;color:var(--purple);margin-bottom:4px">🎟️ Bono activo disponible</div>
+      <div style="font-size:11px;color:var(--muted2)" id="bono-activo-info">—</div>
+      <label style="display:flex;align-items:center;gap:8px;margin-top:8px;cursor:pointer">
+        <input type="checkbox" id="usar-bono" style="accent-color:var(--purple)">
+        <span style="font-size:11px;font-weight:600;color:var(--text)">Descontar del bono activo</span>
+      </label>
+      <input type="hidden" id="bono-activo-id">
+    </div>
+    <div class="form-group"><label class="form-label">Tipo de sesión</label><input type="text" class="form-input" id="cita-tipo" placeholder="Ej: Individual, pareja, familiar..."></div>
+    <div class="form-group"><label class="form-label">Notas</label><input type="text" class="form-input" id="cita-notas"></div>
+    <div class="modal-actions"><button class="btn-secondary" onclick="document.getElementById('modal-cita').style.display='none'">Cancelar</button><button class="btn-primary" onclick="crearCita()">✓ Confirmar</button></div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO PACIENTE -->
+<div class="modal-overlay" id="modal-paciente" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box"><div class="modal-title">👤 Nuevo paciente</div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Nombre *</label><input type="text" class="form-input" id="pac-nombre"></div><div class="form-group"><label class="form-label">Apellidos</label><input type="text" class="form-input" id="pac-apellidos"></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Teléfono *</label><input type="tel" class="form-input" id="pac-telefono"></div><div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="pac-email"></div></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Psicólogo/a asignado</label><select class="form-input" id="pac-psicologo"><option value="">Sin asignar</option></select></div>
+      <div class="form-group"><label class="form-label">Aseguradora</label><select class="form-input" id="pac-aseguradora"><option value="">Particular</option><option>Adeslas</option><option>Sanitas</option><option>Asisa</option><option>Mapfre</option><option>DKV</option><option>AXA</option></select></div>
+    </div>
+    <div class="form-group"><label class="form-label">Motivo de consulta (general)</label><input type="text" class="form-input" id="pac-motivo" placeholder="Ej: Ansiedad, gestión emocional, duelo..."></div>
+    <div class="form-group"><label class="form-label">Alergias / Notas importantes</label><input type="text" class="form-input" id="pac-alergias" placeholder="Ej: Medicación actual, alergias..."></div>
+    <div class="modal-actions"><button class="btn-secondary" onclick="document.getElementById('modal-paciente').style.display='none'">Cancelar</button><button class="btn-primary" onclick="crearPaciente()">✓ Crear paciente</button></div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO BONO -->
+<div class="modal-overlay" id="modal-bono" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box"><div class="modal-title">🎟️ Nuevo bono para paciente</div>
+    <div class="form-group">
+      <label class="form-label">Paciente *</label>
+      <div class="autocomplete-wrap">
+        <input type="text" class="form-input" id="bono-paciente-nombre" placeholder="Escribe nombre o teléfono..." autocomplete="off" oninput="autocompleteBono(this.value)" onfocus="autocompleteBono(this.value)">
+        <div class="autocomplete-list" id="ac-bono-list"></div>
+      </div>
+      <input type="hidden" id="bono-paciente-id">
+    </div>
+    <div class="form-group"><label class="form-label">Plantilla de bono</label><select class="form-input" id="bono-plantilla-id" onchange="rellenarDesdePlantilla()"><option value="">Manual (sin plantilla)</option></select></div>
+    <div class="form-group"><label class="form-label">Nombre del bono *</label><input type="text" class="form-input" id="bono-nombre" placeholder="Ej: Bono 10 sesiones"></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Sesiones incluidas *</label><input type="number" class="form-input" id="bono-sesiones" value="10" min="1"></div><div class="form-group"><label class="form-label">Sesiones bonus (gratis)</label><input type="number" class="form-input" id="bono-bonus" value="0" min="0"></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Precio total (€) *</label><input type="number" class="form-input" id="bono-precio" placeholder="500"></div><div class="form-group"><label class="form-label">Método de pago</label><select class="form-input" id="bono-pago"><option value="efectivo">Efectivo</option><option value="tarjeta">Tarjeta</option><option value="transferencia">Transferencia</option></select></div></div>
+    <div class="modal-actions"><button class="btn-secondary" onclick="document.getElementById('modal-bono').style.display='none'">Cancelar</button><button class="btn-primary" onclick="crearBono()">✓ Crear bono</button></div>
+  </div>
+</div>
+
+<!-- MODAL NUEVA PLANTILLA BONO -->
+<div class="modal-overlay" id="modal-plantilla" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box"><div class="modal-title">⚙️ Nueva plantilla de bono</div>
+    <div class="form-group"><label class="form-label">Nombre *</label><input type="text" class="form-input" id="plt-nombre" placeholder="Ej: Bono 10 sesiones + 1 gratis"></div>
+    <div class="form-group"><label class="form-label">Descripción</label><input type="text" class="form-input" id="plt-desc"></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Sesiones incluidas *</label><input type="number" class="form-input" id="plt-sesiones" value="10" min="1"></div><div class="form-group"><label class="form-label">Sesiones bonus</label><input type="number" class="form-input" id="plt-bonus" value="0" min="0"></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Precio (€) *</label><input type="number" class="form-input" id="plt-precio"></div><div class="form-group"><label class="form-label">Validez (días)</label><input type="number" class="form-input" id="plt-validez" value="365"></div></div>
+    <div class="modal-actions"><button class="btn-secondary" onclick="document.getElementById('modal-plantilla').style.display='none'">Cancelar</button><button class="btn-primary" onclick="crearPlantilla()">✓ Crear plantilla</button></div>
+  </div>
+</div>
+
+<!-- MODAL FACTURA -->
+<div class="modal-overlay" id="modal-factura" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box"><div class="modal-title" id="modal-factura-title">🧾 Nueva factura</div>
+    <div class="form-group"><label class="form-label">Paciente *</label><select class="form-input" id="fac-paciente-id" onchange="rellenarDatosMutua()"><option value="">Selecciona paciente...</option></select></div>
+    <div id="fac-mutua-info" style="display:none;background:var(--blue-dim);border:1px solid rgba(37,99,235,0.2);border-radius:8px;padding:12px;margin-bottom:13px">
+      <div style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:4px">Datos de aseguradora</div>
+      <div style="font-size:11px;color:var(--blue)" id="fac-aseg-info">—</div>
+    </div>
+    <div id="fac-autorizacion-wrap" style="display:none">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Nº autorización</label><input type="text" class="form-input" id="fac-autorizacion"></div>
+        <div class="form-group"><label class="form-label">Código diagnóstico</label><input type="text" class="form-input" id="fac-diagnostico" placeholder="Ej: F41.1"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Nº sesión</label><input type="number" class="form-input" id="fac-nsesion" value="1" min="1"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Concepto</label><input type="text" class="form-input" id="fac-concepto" placeholder="Ej: Sesión de psicología"></div>
+    <div class="form-group"><label class="form-label">Importe (€)</label><input type="number" class="form-input" id="fac-importe"></div>
+    <div style="background:var(--purple-dim);border:1px solid rgba(91,44,141,0.2);border-radius:8px;padding:10px;font-size:11px;color:var(--purple);margin-bottom:13px">ℹ️ IVA 0% — Psicología exenta Art. 20.1.3° LIVA (profesional colegiado)</div>
+    <div class="modal-actions"><button class="btn-secondary" onclick="document.getElementById('modal-factura').style.display='none'">Cancelar</button><button class="btn-primary" onclick="generarFactura()">✓ Generar y ver</button></div>
+  </div>
+</div>
+
+<!-- MODAL BAJA -->
+<div class="modal-overlay" id="modal-baja" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box">
+    <div class="modal-title">⚠️ Cancelar suscripción</div>
+    <div style="background:var(--red-dim);border:1px solid rgba(220,38,38,0.3);border-radius:10px;padding:16px;margin-bottom:18px">
+      <div style="font-size:13px;font-weight:800;color:var(--red);margin-bottom:8px">Lee esto antes de continuar</div>
+      <div style="font-size:12px;color:var(--red);line-height:1.6">Al cancelar, y cuando expire la suscripción:<br>• Todos los datos de pacientes e historiales se eliminarán<br>• Esta acción es <strong>irreversible</strong></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Motivo de la baja</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px" id="motivos-baja">
+        <div class="motivo-btn" onclick="selectMotivo(this,'precio')" style="background:var(--surface3);border:1px solid var(--border2);border-radius:8px;padding:10px;cursor:pointer;font-size:11px;font-weight:600;color:var(--muted);text-align:center">💰 El precio es alto</div>
+        <div class="motivo-btn" onclick="selectMotivo(this,'funcionalidad')" style="background:var(--surface3);border:1px solid var(--border2);border-radius:8px;padding:10px;cursor:pointer;font-size:11px;font-weight:600;color:var(--muted);text-align:center">⚙️ Falta alguna función</div>
+        <div class="motivo-btn" onclick="selectMotivo(this,'dificil')" style="background:var(--surface3);border:1px solid var(--border2);border-radius:8px;padding:10px;cursor:pointer;font-size:11px;font-weight:600;color:var(--muted);text-align:center">🤔 Difícil de usar</div>
+        <div class="motivo-btn" onclick="selectMotivo(this,'cierre')" style="background:var(--surface3);border:1px solid var(--border2);border-radius:8px;padding:10px;cursor:pointer;font-size:11px;font-weight:600;color:var(--muted);text-align:center">🏥 Cierro la consulta</div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Comentarios (opcional)</label><textarea class="form-input" id="baja-comentario" rows="3" placeholder="Ayúdanos a mejorar PsicoIA..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="document.getElementById('modal-baja').style.display='none'">Cancelar — me quedo</button>
+      <button style="background:var(--red);color:white;border:none;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;font-family:var(--font)" onclick="confirmarBaja()">Confirmar baja</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PERSONALIDAD IA -->
+<div class="modal-overlay" id="modal-personalidad" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box">
+    <div class="modal-title">🤖 Nueva personalidad IA</div>
+    <div style="font-size:11px;color:var(--muted2);margin-bottom:16px;line-height:1.5">Define cómo se comunicará el agente IA de WhatsApp con los pacientes que tengan esta personalidad asignada.</div>
+    <input type="hidden" id="pers-edit-id">
+    <div class="form-group"><label class="form-label">Nombre *</label><input type="text" class="form-input" id="pers-nombre" placeholder="Ej: Cercano y cálido"></div>
+    <div class="form-group"><label class="form-label">Descripción corta</label><input type="text" class="form-input" id="pers-desc" placeholder="Ej: Tono amable e informal pero respetuoso"></div>
+    <div class="form-group"><label class="form-label">Prompt del sistema *</label><textarea class="form-input" id="pers-prompt" rows="5" placeholder="Eres un asistente de gestión de citas para una consulta de salud. Usa un tono..."></textarea><div style="font-size:10px;color:var(--muted2);margin-top:4px">⚠️ Nunca menciones psicología, salud mental ni terapia en el prompt. Solo gestión de citas.</div></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="document.getElementById('modal-personalidad').style.display='none'">Cancelar</button>
+      <button class="btn-primary" onclick="guardarPersonalidad()">✓ Guardar personalidad</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR PACIENTE — 3 PESTAÑAS -->
+<div class="modal-overlay" id="modal-edit-pac" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box" style="max-width:620px">
+    <div class="modal-title">👤 Ficha del paciente — <span id="edit-pac-nombre-titulo" style="color:var(--purple)">—</span></div>
+    <div id="edit-pac-stats"></div>
+    <input type="hidden" id="edit-pac-id">
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" id="tab-btn-datos" onclick="cambiarTabPac('datos',this)">📋 Datos</button>
+      <button class="tab" id="tab-btn-notas" onclick="cambiarTabPac('notas',this)">🔒 Notas privadas</button>
+      <button class="tab" id="tab-btn-ia" onclick="cambiarTabPac('ia',this)">🤖 Agente IA</button>
+    </div>
+
+    <!-- TAB 1: DATOS -->
+    <div id="tab-pac-datos">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Nombre *</label><input type="text" class="form-input" id="edit-pac-nombre"></div>
+        <div class="form-group"><label class="form-label">Apellidos</label><input type="text" class="form-input" id="edit-pac-apellidos"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Teléfono</label><input type="tel" class="form-input" id="edit-pac-telefono"></div>
+        <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="edit-pac-email"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">NIF / DNI</label><input type="text" class="form-input" id="edit-pac-nif"></div>
+        <div class="form-group"><label class="form-label">Fecha de nacimiento</label><input type="date" class="form-input" id="edit-pac-fecha-nac"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Psicólogo/a asignado</label><select class="form-input" id="edit-pac-psicologo"><option value="">Sin asignar</option></select></div>
+        <div class="form-group"><label class="form-label">Aseguradora</label><select class="form-input" id="edit-pac-aseguradora"><option value="">Particular</option><option>Adeslas</option><option>Sanitas</option><option>Asisa</option><option>Mapfre</option><option>DKV</option><option>AXA</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Nº póliza</label><input type="text" class="form-input" id="edit-pac-poliza"></div>
+        <div class="form-group"><label class="form-label">Motivo de consulta</label><input type="text" class="form-input" id="edit-pac-motivo"></div>
+      </div>
+      <div class="form-group"><label class="form-label">⚠️ Alergias / Contraindicaciones</label><input type="text" class="form-input" id="edit-pac-alergias"></div>
+    </div>
+
+    <!-- TAB 2: NOTAS PRIVADAS -->
+    <div id="tab-pac-notas" style="display:none">
+      <div class="privacy-notice">🔒 Solo tú puedes acceder a estas notas. Nunca se comparten ni se muestran al paciente ni a otros profesionales.</div>
+      <div class="form-group">
+        <label class="form-label">Notas clínicas y seguimiento</label>
+        <textarea class="form-input" id="edit-pac-notas-privadas" rows="8" placeholder="Evolución del paciente, notas de sesión, observaciones clínicas, cambios de enfoque terapéutico...&#10;&#10;Solo tú puedes leer esto."></textarea>
+      </div>
+      <div style="font-size:10px;color:var(--muted2);margin-bottom:12px">Las notas se guardan al pulsar "Guardar cambios".</div>
+      <div id="pac-sesiones-timeline" style="margin-top:16px"></div>
+    </div>
+
+    <!-- TAB 3: AGENTE IA -->
+    <div id="tab-pac-ia" style="display:none">
+      <div style="background:var(--purple-dim);border:1px solid rgba(91,44,141,0.15);border-radius:10px;padding:14px;margin-bottom:16px">
+        <div style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:4px">🤖 Configuración del agente IA para este paciente</div>
+        <div style="font-size:11px;color:var(--muted2);line-height:1.5">Personaliza cómo se comunica el agente WhatsApp con este paciente específico.</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Agente IA activo</label>
+        <div class="toggle-wrap">
+          <button class="toggle-sw" id="toggle-ia-paciente" onclick="toggleIAPaciente()"></button>
+          <span style="font-size:12px;color:var(--muted)" id="toggle-ia-label">Activo</span>
+        </div>
+        <div style="font-size:10px;color:var(--muted2);margin-top:6px">Si lo desactivas, el agente no responderá a mensajes de este paciente.</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Personalidad IA asignada</label>
+        <select class="form-input" id="edit-pac-personalidad">
+          <option value="">Por defecto (Profesional y formal)</option>
+        </select>
+        <div style="font-size:10px;color:var(--muted2);margin-top:4px">Define el tono con el que el agente habla a este paciente.</div>
+      </div>
+
+      <div style="height:1px;background:var(--border);margin:16px 0"></div>
+
+      <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:12px">💌 Mensaje de seguimiento personalizado</div>
+      <div class="form-group">
+        <label class="form-label">Texto del mensaje (opcional)</label>
+        <textarea class="form-input" id="edit-pac-seguimiento-msg" rows="4" placeholder="Hola [nombre], han pasado unos días desde nuestra última sesión. ¿Cómo estás llevando la semana?&#10;&#10;Si quieres comentar algo o pedir cita, escríbeme."></textarea>
+        <div style="font-size:10px;color:var(--muted2);margin-top:4px">Si está en blanco se usa el mensaje por defecto de la consulta. El nombre del paciente se sustituye automáticamente.</div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <button class="btn-primary" onclick="enviarSeguimientoManual()" style="flex:1">💌 Enviar seguimiento ahora</button>
+        <button class="btn-secondary" onclick="verHistorialSeguimientos()" style="flex:1">📋 Ver historial</button>
+      </div>
+      <div id="seguimiento-historial-wrap" style="display:none;margin-top:12px"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="document.getElementById('modal-edit-pac').style.display='none'">Cerrar</button>
+      <button class="btn-primary" onclick="guardarPaciente()">✓ Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var SUPABASE_URL = 'https://wqbmznfsprgiofptoepr.supabase.co';
+var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxYm16bmZzcHJnaW9mcHRvZXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0Njg1OTMsImV4cCI6MjA5MjA0NDU5M30.8U63oSAdBB4UhcainuMO55QP93OaopRD5L3HLCCArV0';
+
+var TOKEN='', CONSULTA_ID='', CONSULTA=null;
+var PACIENTES=[], CITAS_HOY=[], BONOS=[], PLANTILLAS=[], FACTURAS=[];
+var PERIODO='mes', TIPO_FACTURA='particular', MOTIVO_BAJA='';
+var PSICOLOGO_ACTIVO=''; // nombre del psicólogo activo (filtro)
+var IA_PACIENTE_ACTIVA = true; // estado toggle modal paciente
+
+function checkAuth(){
+  TOKEN = sessionStorage.getItem('psicoia_token');
+  CONSULTA_ID = sessionStorage.getItem('psicoia_consulta_id');
+  if(!TOKEN){ window.location.href='login-psicoia.html'; return false; }
+  return true;
+}
+
+function hdrs(){ return {'Content-Type':'application/json','apikey':SUPABASE_ANON,'Authorization':'Bearer '+TOKEN}; }
+
+async function sbGet(t,q){
+  var r = await fetch(SUPABASE_URL+'/rest/v1/'+t+'?'+(q||''),{headers:hdrs()});
+  if(r.status===401){ window.location.href='login-psicoia.html'; return []; }
+  return r.json();
+}
+async function sbPost(t,d){
+  var r = await fetch(SUPABASE_URL+'/rest/v1/'+t,{method:'POST',headers:{...hdrs(),'Prefer':'return=representation'},body:JSON.stringify(d)});
+  if(r.status===401){ window.location.href='login-psicoia.html'; return null; }
+  var j = await r.json();
+  if(Array.isArray(j)&&j[0]) return j[0];
+  return j;
+}
+async function sbPatch(t,query,d){
+  var r = await fetch(SUPABASE_URL+'/rest/v1/'+t+'?'+query,{method:'PATCH',headers:hdrs(),body:JSON.stringify(d)});
+  if(r.status===401){ window.location.href='login-psicoia.html'; return null; }
+  if(!r.ok){
+    var err = await r.json().catch(function(){return {};});
+    console.error('sbPatch error '+r.status+' en '+t+':', err);
+    return { error: err };
+  }
+  return r;
+}
+async function callFn(n,b){
+  var r = await fetch(SUPABASE_URL+'/functions/v1/'+n,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},body:JSON.stringify(b)});
+  if(r.status===401){ window.location.href='login-psicoia.html'; return {}; }
+  return r.json();
+}
+
+// ==============================
+// INIT
+// ==============================
+document.addEventListener('DOMContentLoaded', async function(){
+  if(!checkAuth()) return;
+  var h = new Date().getHours();
+  document.getElementById('topbar-title').textContent = (h<12?'Buenos días':h<20?'Buenas tardes':'Buenas noches')+' 👋';
+  document.getElementById('topbar-subtitle').textContent = new Date().toLocaleDateString('es-ES',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('cita-fecha').value = new Date().toISOString().split('T')[0];
+  await loadConsulta();
+  await Promise.all([loadCitasHoy(), loadPacientes(), loadBonos(), loadPlantillas(), loadFacturas()]);
+  renderWeekGrid(); renderImpact(); renderAseguradoras();
+});
+
+// ==============================
+// LOAD DATA
+// ==============================
+async function loadConsulta(){
+  var d;
+  if(CONSULTA_ID) d = await sbGet('consultas','id=eq.'+CONSULTA_ID+'&select=*');
+  if(!d||!d[0]){
+    try{
+      var ur = await fetch(SUPABASE_URL+'/auth/v1/user',{headers:{'apikey':SUPABASE_ANON,'Authorization':'Bearer '+TOKEN}});
+      var ud = await ur.json();
+      if(ud&&ud.email) d = await sbGet('consultas','email=eq.'+encodeURIComponent(ud.email)+'&select=*');
+    }catch(e){}
+  }
+  if(d&&d[0]){
+    CONSULTA = d[0];
+    CONSULTA_ID = CONSULTA.id;
+    sessionStorage.setItem('psicoia_consulta_id', CONSULTA_ID);
+    document.getElementById('sidebar-consulta').textContent = CONSULTA.nombre;
+    document.title = 'PsicoIA — '+CONSULTA.nombre;
+    // Psicólogos selector
+    var psicologos = CONSULTA.psicologos || [];
+    if(psicologos.length > 1){
+      var sel = document.getElementById('psi-selector');
+      psicologos.forEach(function(p){ var o = document.createElement('option'); o.value=p.nombre; o.textContent=p.nombre; sel.appendChild(o); });
+      document.getElementById('psi-selector-wrap').style.display = 'block';
+    }
+    populatePsicologoSelects();
+    // Seguimiento toggle
+    if(CONSULTA.seguimiento_activo){
+      var t = document.getElementById('toggle-seguimiento');
+      t.classList.add('on');
+      document.getElementById('toggle-seg-label').textContent = 'Activado';
+      document.getElementById('seguimiento-estado').textContent = 'Activado';
+      document.getElementById('seguimiento-estado').className = 'servicio-estado estado-activo';
+    }
+    if(CONSULTA.seguimiento_horas) document.getElementById('seguimiento-horas').value = CONSULTA.seguimiento_horas;
+    if(CONSULTA.calendario_id) document.getElementById('cal-id').value = CONSULTA.calendario_id;
+  }
+}
+
+async function loadCitasHoy(){
+  var hoy = new Date().toISOString().split('T')[0];
+  var q = 'consulta_id=eq.'+CONSULTA_ID+'&fecha=eq.'+hoy+'&order=hora_inicio.asc&select=*,pacientes(nombre,apellidos,aseguradora)';
+  if(PSICOLOGO_ACTIVO) q += '&psicologo=eq.'+encodeURIComponent(PSICOLOGO_ACTIVO);
+  var d = await sbGet('sesiones', q);
+  CITAS_HOY = d||[];
+  renderCitasHoy(); renderAgenda();
+  document.getElementById('badge-hoy').textContent = CITAS_HOY.length;
+  document.getElementById('metric-hoy').textContent = CITAS_HOY.length;
+  document.getElementById('metric-hoy-sub').textContent = CITAS_HOY.filter(function(c){return c.estado==='confirmada';}).length+' confirmadas';
+}
+
+async function loadPacientes(){
+  var q = 'consulta_id=eq.'+CONSULTA_ID+'&order=created_at.desc&select=*';
+  if(PSICOLOGO_ACTIVO) q += '&psicologo_asignado=eq.'+encodeURIComponent(PSICOLOGO_ACTIVO);
+  var d = await sbGet('pacientes', q);
+  PACIENTES = d||[];
+  document.getElementById('metric-pacientes').textContent = PACIENTES.length;
+  renderPacientesRecientes(); renderPacientesLista(PACIENTES); populatePacienteSelects();
+}
+
+async function loadBonos(){
+  var q = 'consulta_id=eq.'+CONSULTA_ID+'&estado=eq.activo&select=*,pacientes(nombre,apellidos)';
+  var d = await sbGet('bonos', q);
+  BONOS = d||[];
+  document.getElementById('metric-bonos').textContent = BONOS.length;
+  var a = BONOS.filter(function(b){return b.sesiones_restantes<=2;});
+  if(a.length){ document.getElementById('badge-bonos').style.display='inline'; document.getElementById('badge-bonos').textContent=a.length; document.getElementById('metric-bonos-sub').innerHTML='<span style="color:var(--amber)">'+a.length+' por renovar</span>'; }
+  else{ document.getElementById('metric-bonos-sub').textContent='Sin alertas'; }
+  renderBonosAlerta(); renderBonosActivos();
+}
+
+async function loadPlantillas(){
+  var d = await sbGet('plantillas_bonos','consulta_id=eq.'+CONSULTA_ID+'&activo=eq.true&order=created_at.asc');
+  PLANTILLAS = d||[];
+  renderPlantillas(); populatePlantillaSelect();
+}
+
+async function loadFacturas(){
+  var d = await sbGet('facturas','consulta_id=eq.'+CONSULTA_ID+'&order=created_at.desc&limit=50&select=*');
+  FACTURAS = d||[];
+  var mes=new Date().getMonth()+1, anio=new Date().getFullYear();
+  var ing = FACTURAS.filter(function(f){var dd=new Date(f.created_at);return dd.getMonth()+1===mes&&dd.getFullYear()===anio;}).reduce(function(s,f){return s+(f.total||0);},0);
+  document.getElementById('metric-ingresos').innerHTML = Math.round(ing)+'<span>€</span>';
+  renderFacturas('todas'); renderFacturasSuscripcion();
+}
+
+function cambiarPsicologo(nombre){
+  PSICOLOGO_ACTIVO = nombre;
+  loadCitasHoy(); loadPacientes(); loadBonos();
+}
+
+// ==============================
+// RENDERS
+// ==============================
+function renderImpact(){
+  var mes=new Date().getMonth()+1, anio=new Date().getFullYear();
+  var fm = FACTURAS.filter(function(f){var d=new Date(f.created_at);return d.getMonth()+1===mes&&d.getFullYear()===anio;});
+  document.getElementById('imp-sesiones').textContent = fm.length;
+  document.getElementById('imp-ingresos').textContent = Math.round(fm.reduce(function(s,f){return s+(f.total||0);},0))+'€';
+  document.getElementById('imp-pacientes').textContent = PACIENTES.length;
+  document.getElementById('imp-bonos').textContent = BONOS.length;
+}
+
+function renderCitasHoy(){
+  var l = document.getElementById('citas-hoy-list');
+  if(!CITAS_HOY.length){ l.innerHTML='<div class="empty-state"><span class="empty-icon">✅</span><div class="empty-text">Sin citas hoy</div></div>'; return; }
+  l.innerHTML = CITAS_HOY.map(function(c){
+    var n = c.pacientes?(c.pacientes.nombre+' '+(c.pacientes.apellidos||'')):(c.nombre_paciente||'Paciente');
+    return '<div class="cita-item"><div><div class="cita-hora">'+(c.hora_inicio||'')+'</div><div class="cita-hora-fin">'+(c.hora_fin||'')+'</div></div><div class="cita-info"><div class="cita-nombre">'+n+'</div><div class="cita-detalle">'+(c.tipo_sesion||'Sesión')+(c.psicologo?' · '+c.psicologo:'')+'</div></div><span class="cita-estado estado-'+(c.estado||'pendiente')+'">'+(c.estado||'pendiente')+'</span><div style="display:flex;gap:5px"><button class="cita-btn primary" onclick="marcarRealizada(\''+c.id+'\')">✓</button><button class="cita-btn" onclick="abrirModalFacturaCita(\''+c.id+'\')">🧾</button></div></div>';
+  }).join('');
+}
+
+function renderAgenda(){
+  var e = document.getElementById('agenda-content');
+  if(!CITAS_HOY.length){ e.innerHTML='<div class="empty-state"><span class="empty-icon">📅</span><div class="empty-text">Sin citas hoy</div></div>'; return; }
+  e.innerHTML = CITAS_HOY.map(function(c){
+    var n = c.pacientes?(c.pacientes.nombre+' '+(c.pacientes.apellidos||'')):(c.nombre_paciente||'Paciente');
+    return '<div class="cita-item"><div><div class="cita-hora">'+(c.hora_inicio||'')+'</div><div class="cita-hora-fin">'+(c.hora_fin||'')+'</div></div><div class="cita-info"><div class="cita-nombre">'+n+'</div><div class="cita-detalle">'+(c.tipo_sesion||'Sesión')+(c.psicologo?' · '+c.psicologo:'')+(c.confirmada_por_paciente?' <span style="color:var(--teal);font-size:9px">✓ Confirmada</span>':'')+'</div></div><span class="cita-estado estado-'+(c.estado||'pendiente')+'">'+(c.estado||'pendiente')+'</span><div style="display:flex;gap:5px"><button class="cita-btn primary" onclick="marcarRealizada(\''+c.id+'\')">✓ Realizada</button><button class="cita-btn" onclick="abrirModalFacturaCita(\''+c.id+'\')">🧾</button></div></div>';
+  }).join('');
+}
+
+function renderWeekGrid(){
+  var hoy=new Date(), dias=['Dom','Lun','Mar','Mié','Jue','Vie'];
+  document.getElementById('week-grid').innerHTML = [1,2,3,4,5,6].map(function(i){
+    var d=new Date(hoy); d.setDate(hoy.getDate()-hoy.getDay()+i);
+    var et=d.toDateString()===hoy.toDateString();
+    return '<div class="week-day'+(et?' today':'')+'"><div class="week-day-name">'+dias[i]+'</div><div class="week-day-num">'+d.getDate()+'</div><div class="week-day-count">'+(et?CITAS_HOY.length:0)+'</div></div>';
+  }).join('');
+}
+
+function renderBonosAlerta(){
+  var a = BONOS.filter(function(b){return b.sesiones_restantes<=2;});
+  var l = document.getElementById('bonos-alerta-list');
+  if(!a.length){ l.innerHTML='<div class="empty-state"><span class="empty-icon">✅</span><div class="empty-text">Sin alertas de bonos</div></div>'; return; }
+  l.innerHTML = a.map(function(b){
+    var n=b.pacientes?b.pacientes.nombre:'Paciente';
+    var c=b.sesiones_restantes<=1?'var(--red)':'var(--amber)';
+    var p=(b.sesiones_restantes/b.sesiones_totales)*100;
+    return '<div class="bono-item"><div class="bono-header"><div><div class="bono-nombre">'+b.nombre+'</div><div class="bono-paciente">'+n+'</div></div><div style="font-size:11px;font-weight:700;color:'+c+'">'+b.sesiones_restantes+'/'+b.sesiones_totales+'</div></div><div class="bono-progress"><div class="bono-fill" style="width:'+p+'%;background:'+c+'"></div></div></div>';
+  }).join('');
+}
+
+function renderPacientesRecientes(){
+  var l = document.getElementById('pacientes-recientes-list');
+  var lista = PACIENTES.slice(0,5);
+  if(!lista.length){ l.innerHTML='<div class="empty-state"><span class="empty-icon">👥</span><div class="empty-text">Sin pacientes aún</div></div>'; return; }
+  l.innerHTML = lista.map(function(p){
+    var i=((p.nombre||'?')[0]+((p.apellidos||'?')[0]||'')).toUpperCase();
+    return '<div class="paciente-row"><div class="paciente-avatar">'+i+'</div><div class="paciente-info"><div class="paciente-nombre">'+(p.nombre||'')+' '+(p.apellidos||'')+'</div><div class="paciente-meta">'+(p.motivo_consulta||'Sin motivo asignado')+(p.aseguradora?' · '+p.aseguradora:' · Particular')+'</div></div></div>';
+  }).join('');
+}
+
+function renderPacientesLista(lista){
+  var e = document.getElementById('pacientes-list');
+  if(!lista.length){ e.innerHTML='<div class="empty-state"><span class="empty-icon">🔍</span><div class="empty-text">Sin resultados</div></div>'; return; }
+  e.innerHTML = lista.map(function(p){
+    var i=((p.nombre||'?')[0]+((p.apellidos||'?')[0]||'')).toUpperCase();
+    var iaBadge = p.ia_activa!==false ? '<span class="ia-badge">🤖 IA</span>' : '';
+    return '<div class="paciente-row"><div class="paciente-avatar">'+i+'</div><div class="paciente-info"><div class="paciente-nombre">'+(p.nombre||'')+' '+(p.apellidos||'')+' '+iaBadge+'</div><div class="paciente-meta">'+(p.motivo_consulta||'—')+(p.aseguradora?' · '+p.aseguradora:' · Particular')+(p.alergias?'<span style="color:var(--red)"> · ⚠️ '+p.alergias+'</span>':'')+'</div></div><button class="cita-btn primary" onclick="verFicha(\''+p.id+'\')">Ver ficha</button></div>';
+  }).join('');
+}
+
+function renderBonosActivos(){
+  var e = document.getElementById('bonos-activos-list');
+  if(!BONOS.length){ e.innerHTML='<div class="empty-state"><span class="empty-icon">🎟️</span><div class="empty-text">Sin bonos activos</div></div>'; return; }
+  e.innerHTML = BONOS.map(function(b){
+    var n=b.pacientes?b.pacientes.nombre:'Paciente';
+    var c=b.sesiones_restantes<=2?'var(--amber)':'var(--teal)';
+    var p=(b.sesiones_restantes/b.sesiones_totales)*100;
+    return '<div class="bono-item"><div class="bono-header"><div><div class="bono-nombre">'+b.nombre+'</div><div class="bono-paciente">'+n+'</div></div><div style="font-size:11px;font-weight:700;color:'+c+'">'+b.sesiones_restantes+'/'+b.sesiones_totales+'</div></div><div class="bono-progress"><div class="bono-fill" style="width:'+p+'%;background:'+c+'"></div></div></div>';
+  }).join('');
+}
+
+function renderPlantillas(){
+  var e = document.getElementById('plantillas-list');
+  if(!PLANTILLAS.length){ e.innerHTML='<div class="empty-state"><span class="empty-icon">📝</span><div class="empty-text">Sin plantillas — crea la primera</div></div>'; return; }
+  e.innerHTML = PLANTILLAS.map(function(p){
+    var ses=p.sesiones_incluidas+(p.sesiones_bonus>0?'+'+p.sesiones_bonus+' gratis':'');
+    return '<div class="plantilla-card"><div class="plantilla-nombre">'+p.nombre+'</div><div class="plantilla-detalle">'+ses+' sesiones · Validez '+p.validez_dias+' días</div><div class="plantilla-precio">'+p.precio+'€</div></div>';
+  }).join('');
+}
+
+function renderFacturas(filtro){
+  TIPO_FACTURA = filtro==='mutua' ? 'mutua' : 'particular';
+  var lista = filtro==='todas' ? FACTURAS : FACTURAS.filter(function(f){return f.es_mutua===(filtro==='mutua');});
+  var e = document.getElementById('facturas-list');
+  if(!lista.length){ e.innerHTML='<div class="empty-state"><span class="empty-icon">🧾</span><div class="empty-text">Sin facturas aún</div></div>'; return; }
+  e.innerHTML = lista.map(function(f){
+    var tipo = f.es_mutua?'mutua':'particular';
+    var fecha = f.fecha_factura||new Date(f.created_at).toLocaleDateString('es-ES');
+    return '<div class="factura-row"><div class="factura-num">'+(f.numero_factura||'—')+'</div><div class="factura-info"><div class="factura-paciente">'+(f.nombre_paciente||'—')+'</div><div class="factura-concepto">'+(f.concepto||'—')+' · '+fecha+'</div></div><span class="factura-tipo factura-'+tipo+'">'+(f.es_mutua?'Aseguradora':'Particular')+'</span><div class="factura-importe">'+(f.total||0)+'€</div><button class="cita-btn" onclick="verFacturaPDF(\''+f.id+'\')">👁️</button></div>';
+  }).join('');
+}
+
+function filtrarFacturas(filtro, btn){
+  document.querySelectorAll('#view-facturacion .tabs .tab').forEach(function(t){t.classList.remove('active');});
+  btn.classList.add('active');
+  renderFacturas(filtro);
+}
+
+function renderFacturasSuscripcion(){
+  var e = document.getElementById('facturas-suscripcion-list');
+  if(!CONSULTA){ e.innerHTML='<div class="loading"><div class="spinner"></div></div>'; return; }
+  var ahora=new Date(), MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var alta = CONSULTA.created_at ? new Date(CONSULTA.created_at) : ahora;
+  var cupon = (CONSULTA.cupon_aplicado||'').toUpperCase();
+  // Detectar tipo de cupón
+  var mesesGratis = 0;
+  var gratisParaSiempre = false;
+  if(cupon.indexOf('BIENVENIDA') !== -1) mesesGratis = 2;
+  if(cupon.indexOf('DEMO') !== -1 || cupon.indexOf('TEST') !== -1 || cupon.indexOf('100') !== -1) gratisParaSiempre = true;
+  var out='';
+  for(var i=0; i<12; i++){
+    var d=new Date(ahora.getFullYear(),ahora.getMonth()-i,1);
+    if(d < new Date(alta.getFullYear(),alta.getMonth(),1)) break;
+    var mesNom=MESES[d.getMonth()], anioNum=d.getFullYear();
+    var diffMeses=(d.getFullYear()-alta.getFullYear())*12+(d.getMonth()-alta.getMonth());
+    var gratis = gratisParaSiempre || diffMeses < mesesGratis;
+    var totalShow=gratis?'0,00':'49,99';
+    var totalNum=gratis?0:49.99;
+    var numFac='PSICO-'+anioNum+String(d.getMonth()+1).padStart(2,'0')+'-'+(CONSULTA_ID||'').substr(-4).toUpperCase();
+    var badge=gratis?'<span style="background:var(--teal-dim);border:1px solid rgba(26,122,110,0.2);border-radius:20px;padding:2px 10px;font-size:9px;font-weight:700;color:var(--teal)">GRATIS</span>':'';
+    out+='<div class="factura-mes"><div class="factura-mes-info"><div class="factura-mes-num">'+numFac+'</div><div class="factura-mes-periodo">'+mesNom+' '+anioNum+' '+badge+'</div><div class="factura-mes-detalle">PsicoIA Plan Base'+(gratis?' · Período promocional gratuito':' · IVA 21% incluido')+'</div></div><div style="text-align:right"><div class="factura-mes-total">'+totalShow+'€</div><button class="cita-btn primary" style="margin-top:6px" data-mes="'+mesNom+'" data-anio="'+anioNum+'" data-num="'+numFac+'" data-total="'+totalNum+'" data-gratis="'+(gratis?'1':'0')+'" onclick="descargarFacturaMesBtn(this)">⬇️ PDF</button></div></div>';
+  }
+  if(!out) out='<div class="empty-state"><span class="empty-icon">📄</span><div class="empty-text">Aún no hay facturas</div></div>';
+  e.innerHTML=out;
+}
+
+function descargarFacturaMesBtn(btn){
+  descargarFacturaMes(btn.getAttribute('data-mes'),btn.getAttribute('data-anio'),btn.getAttribute('data-num'),parseFloat(btn.getAttribute('data-total')),btn.getAttribute('data-gratis')==='1');
+}
+
+function renderConfigConsulta(){
+  if(!CONSULTA) return;
+  document.getElementById('config-consulta').innerHTML=
+    '<div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--purple);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)">Datos generales</div>'+
+    '<div class="form-group"><label class="form-label">Nombre de la consulta</label><input class="form-input" value="'+(CONSULTA.nombre||'')+'" id="cfg-nombre"></div>'+
+    '<div class="form-row"><div class="form-group"><label class="form-label">Duración sesión (min)</label><input type="number" class="form-input" value="'+(CONSULTA.duracion_sesion_min||50)+'" id="cfg-duracion"></div><div class="form-group"><label class="form-label">Precio sesión (€)</label><input type="number" class="form-input" value="'+(CONSULTA.precio_sesion||60)+'" id="cfg-precio"></div></div>'+
+    '<div class="form-group"><label class="form-label">Teléfono</label><input class="form-input" value="'+(CONSULTA.telefono||'')+'" id="cfg-telefono"></div>'+
+    '<div class="form-group"><label class="form-label">Dirección</label><input class="form-input" value="'+(CONSULTA.direccion||'')+'" id="cfg-direccion"></div>'+
+    '<div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--purple);margin:16px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border)">Datos de facturación (aparecen en facturas a pacientes)</div>'+
+    '<div class="form-row"><div class="form-group"><label class="form-label">Nombre / Razón social</label><input class="form-input" value="'+(CONSULTA.razon_social||CONSULTA.nombre||'')+'" id="cfg-razon-social" placeholder="Tu nombre o nombre de la clínica"></div><div class="form-group"><label class="form-label">NIF / CIF</label><input class="form-input" value="'+(CONSULTA.nif||'')+'" id="cfg-nif" placeholder="12345678A"></div></div>'+
+    '<div class="form-group"><label class="form-label">Número de colegiado</label><input class="form-input" value="'+(CONSULTA.numero_colegiado||'')+'" id="cfg-colegiado" placeholder="XX-XXXXX"></div>'+
+    '<div class="form-group"><label class="form-label">Dirección fiscal (si difiere de la anterior)</label><input class="form-input" value="'+(CONSULTA.direccion_fiscal||CONSULTA.direccion||'')+'" id="cfg-direccion-fiscal" placeholder="Calle, número, CP, ciudad"></div>'+
+    '<button class="btn-primary" onclick="guardarConfig()" style="margin-top:8px">Guardar cambios</button>';
+  renderConfigPersonalidades();
+}
+
+function renderConfigPersonalidades(){
+  var e = document.getElementById('config-personalidades');
+  var defaults=[
+    {id:'formal',nombre:'Profesional y formal',descripcion:'Tono serio, preciso y empático. Ideal para pacientes que prefieren distancia profesional.',prompt_sistema:'Eres un asistente de gestión de citas para una consulta de salud. Usa un tono profesional, formal y empático. No menciones el tipo de consulta ni especialidad. Gestiona únicamente citas, bonos y consultas administrativas. Si el paciente expresa malestar emocional intenso o urgencia, responde con calidez y pide que contacte directamente con el profesional por teléfono.'},
+    {id:'cercano',nombre:'Cercano y cálido',descripcion:'Tono amable, informal pero respetuoso. Ideal para pacientes que necesitan más cercanía y contención.',prompt_sistema:'Eres un asistente de gestión de citas para una consulta de salud. Usa un tono amable, cálido y cercano. No menciones el tipo de consulta ni especialidad. Gestiona únicamente citas, bonos y consultas administrativas. Si el paciente expresa malestar emocional intenso o urgencia, responde con calidez y pide que contacte directamente con el profesional por teléfono.'},
+    {id:'neutro',nombre:'Neutro y directo',descripcion:'Respuestas cortas y al grano. Ideal para pacientes que solo necesitan gestionar la agenda sin conversación.',prompt_sistema:'Eres un asistente de gestión de citas para una consulta de salud. Usa un tono neutro y directo. Respuestas breves y claras. No menciones el tipo de consulta ni especialidad. Gestiona únicamente citas, bonos y consultas administrativas. Si el paciente expresa malestar o urgencia, pide que contacte directamente con el profesional.'}
+  ];
+  var pers = (CONSULTA&&CONSULTA.personalidades_ia&&CONSULTA.personalidades_ia.length) ? CONSULTA.personalidades_ia : defaults;
+  // Nota de uso
+  var nota='<div style="background:var(--blue-dim);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:14px;margin-bottom:16px;font-size:12px;color:var(--blue);line-height:1.7">'+
+    '<strong>💡 Cómo usar las personalidades:</strong><br>'+
+    '• Asigna la personalidad más adecuada a cada paciente desde su ficha.<br>'+
+    '• El agente de WhatsApp <strong>nunca menciona psicología, terapia ni salud mental</strong>.<br>'+
+    '• Si un paciente escribe en crisis → el agente siempre le pide que llame directamente al profesional.<br>'+
+    '• Si está bien → gestiona la cita con normalidad.<br>'+
+    '• El agente <strong>no hace terapia</strong> — solo gestiona agenda y citas.'+
+    '</div>';
+  e.innerHTML = nota + pers.map(function(p,i){
+    return '<div class="plantilla-card" style="margin-bottom:10px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">'+
+      '<div><div class="plantilla-nombre">'+p.nombre+'</div>'+
+      '<div class="plantilla-detalle" style="margin-top:2px">'+p.descripcion+'</div></div>'+
+      '<div style="display:flex;gap:6px">'+
+      '<button class="cita-btn" style="font-size:10px" onclick="verPromptPersonalidad('+i+')">👁️ Ver prompt</button>'+
+      '<button class="cita-btn primary" onclick="editarPersonalidad('+i+')">✏️</button>'+
+      '</div></div></div>';
+  }).join('');
+}
+
+function verPromptPersonalidad(idx){
+  var defaults=[
+    {id:'formal',nombre:'Profesional y formal',prompt_sistema:'Eres un asistente de gestión de citas para una consulta de salud. Usa un tono profesional, formal y empático. No menciones el tipo de consulta ni especialidad. Gestiona únicamente citas, bonos y consultas administrativas. Si el paciente expresa malestar emocional intenso o urgencia, responde con calidez y pide que contacte directamente con el profesional por teléfono.'},
+    {id:'cercano',nombre:'Cercano y cálido',prompt_sistema:'Eres un asistente de gestión de citas para una consulta de salud. Usa un tono amable, cálido y cercano. No menciones el tipo de consulta ni especialidad. Gestiona únicamente citas, bonos y consultas administrativas. Si el paciente expresa malestar emocional intenso o urgencia, responde con calidez y pide que contacte directamente con el profesional por teléfono.'},
+    {id:'neutro',nombre:'Neutro y directo',prompt_sistema:'Eres un asistente de gestión de citas para una consulta de salud. Usa un tono neutro y directo. Respuestas breves y claras. No menciones el tipo de consulta ni especialidad. Gestiona únicamente citas, bonos y consultas administrativas. Si el paciente expresa malestar o urgencia, pide que contacte directamente con el profesional.'}
+  ];
+  var pers = (CONSULTA&&CONSULTA.personalidades_ia&&CONSULTA.personalidades_ia.length) ? CONSULTA.personalidades_ia : defaults;
+  var p = pers[idx];
+  if(!p) return;
+  alert('🤖 Personalidad: '+p.nombre+'\n\nPrompt del sistema:\n\n'+p.prompt_sistema);
+}
+
+function populatePacienteSelects(){
+  var opts='<option value="">Selecciona paciente...</option>'+PACIENTES.map(function(p){return'<option value="'+p.id+'">'+p.nombre+' '+(p.apellidos||'')+(p.aseguradora?' ('+p.aseguradora+')':'')+'</option>';}).join('');
+  var el=document.getElementById('fac-paciente-id');
+  if(el) el.innerHTML=opts;
+}
+
+function populatePlantillaSelect(){
+  var opts='<option value="">Manual (sin plantilla)</option>'+PLANTILLAS.map(function(p){return'<option value="'+p.id+'">'+p.nombre+' — '+p.precio+'€</option>';}).join('');
+  document.getElementById('bono-plantilla-id').innerHTML=opts;
+}
+
+function populatePsicologoSelects(){
+  var psicologos = CONSULTA&&CONSULTA.psicologos ? CONSULTA.psicologos : [];
+  var opts='<option value="">Sin asignar</option>'+psicologos.map(function(p){return'<option value="'+p.nombre+'">'+p.nombre+(p.apellidos?' '+p.apellidos:'')+'</option>';}).join('');
+  ['cita-psicologo','pac-psicologo','edit-pac-psicologo'].forEach(function(id){var el=document.getElementById(id);if(el)el.innerHTML=opts;});
+}
+
+function populatePersonalidadSelect(){
+  var pers = CONSULTA&&CONSULTA.personalidades_ia ? CONSULTA.personalidades_ia : [];
+  var defaults=[{id:'formal',nombre:'Profesional y formal'},{id:'cercano',nombre:'Cercano y cálido'},{id:'neutro',nombre:'Neutro y directo'}];
+  var lista = pers.length ? pers : defaults;
+  var opts='<option value="">Por defecto</option>'+lista.map(function(p){return'<option value="'+p.id+'">'+p.nombre+'</option>';}).join('');
+  var el=document.getElementById('edit-pac-personalidad');
+  if(el) el.innerHTML=opts;
+}
+
+function rellenarDesdePlantilla(){
+  var id=document.getElementById('bono-plantilla-id').value;
+  if(!id) return;
+  var p=PLANTILLAS.find(function(x){return x.id===id;});
+  if(!p) return;
+  document.getElementById('bono-nombre').value=p.nombre;
+  document.getElementById('bono-sesiones').value=p.sesiones_incluidas;
+  document.getElementById('bono-bonus').value=p.sesiones_bonus||0;
+  document.getElementById('bono-precio').value=p.precio;
+}
+
+function rellenarDatosMutua(){
+  var id=document.getElementById('fac-paciente-id').value;
+  if(!id){document.getElementById('fac-mutua-info').style.display='none';document.getElementById('fac-autorizacion-wrap').style.display='none';return;}
+  var p=PACIENTES.find(function(x){return x.id===id;});
+  if(!p) return;
+  if(p.aseguradora&&TIPO_FACTURA==='mutua'){
+    document.getElementById('fac-mutua-info').style.display='block';
+    document.getElementById('fac-aseg-info').textContent='Aseguradora: '+p.aseguradora+(p.numero_poliza?' · Póliza: '+p.numero_poliza:'');
+    document.getElementById('fac-autorizacion-wrap').style.display='block';
+  }else{
+    document.getElementById('fac-mutua-info').style.display='none';
+    document.getElementById('fac-autorizacion-wrap').style.display='none';
+  }
+}
+
+// ==============================
+// ACCIONES CITAS
+// ==============================
+async function marcarRealizada(id){
+  if(!confirm('¿Marcar esta sesión como realizada?')) return;
+  await sbPatch('sesiones','id=eq.'+id,{estado:'realizada'});
+  await loadCitasHoy();
+  alert('✅ Sesión marcada como realizada');
+}
+
+async function crearCita(){
+  var nombre=document.getElementById('cita-paciente').value.trim();
+  var pacId=document.getElementById('cita-paciente-id').value;
+  var f=document.getElementById('cita-fecha').value;
+  var h=document.getElementById('cita-hora').value;
+  var psicologo=document.getElementById('cita-psicologo').value;
+  if(!nombre||!f||!h){alert('Rellena paciente, fecha y hora');return;}
+  if(!pacId){var enc=PACIENTES.find(function(p){return(p.nombre+' '+(p.apellidos||'')).toLowerCase().includes(nombre.toLowerCase());});if(enc)pacId=enc.id;}
+  var usarBono=document.getElementById('usar-bono')&&document.getElementById('usar-bono').checked;
+  var bonoId=document.getElementById('bono-activo-id')&&document.getElementById('bono-activo-id').value;
+  // Calcular hora fin basada en duración
+  var duracion = CONSULTA&&CONSULTA.duracion_sesion_min ? parseInt(CONSULTA.duracion_sesion_min) : 50;
+  var [hh,mm] = h.split(':').map(Number);
+  var finMin = hh*60+mm+duracion;
+  var horaFin = String(Math.floor(finMin/60)).padStart(2,'0')+':'+String(finMin%60).padStart(2,'0');
+  var sesionId = 'ses_'+Date.now()+'_'+Math.random().toString(36).substr(2,6);
+  var data = {
+    id:sesionId, consulta_id:CONSULTA_ID, nombre_paciente:nombre,
+    fecha:f, hora_inicio:h, hora_fin:horaFin,
+    tipo_sesion:document.getElementById('cita-tipo').value||'Individual',
+    notas_sesion:document.getElementById('cita-notas').value,
+    estado:'pendiente', psicologo:psicologo||null
+  };
+  if(pacId) data.paciente_id=pacId;
+  if(usarBono&&bonoId){ data.bono_id=bonoId; await sbPatch('bonos','id=eq.'+bonoId,{sesiones_consumidas:1}); }
+  await sbPost('sesiones',data);
+  document.getElementById('modal-cita').style.display='none';
+  ['cita-paciente','cita-tipo','cita-notas'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('cita-paciente-id').value='';
+  document.getElementById('ac-list').classList.remove('open');
+  var av=document.getElementById('bono-activo-aviso');if(av)av.style.display='none';
+  // Refrescar citas y métricas
+  await loadCitasHoy();
+  await loadBonos();
+  // Actualizar contador de citas de hoy en el hero
+  document.getElementById('metric-hoy').textContent = CITAS_HOY.length;
+  document.getElementById('metric-hoy-sub').textContent = CITAS_HOY.filter(function(c){return c.estado==='confirmada';}).length+' confirmadas';
+  alert('✅ Cita creada para el '+f+' a las '+h);
+}
+
+async function crearPaciente(){
+  var n=document.getElementById('pac-nombre').value.trim();
+  var ape=document.getElementById('pac-apellidos').value.trim();
+  var tel=document.getElementById('pac-telefono').value.trim();
+  if(!n){alert('El nombre es obligatorio');return;}
+  if(!tel){alert('El teléfono es obligatorio');return;}
+  var id='pac_'+Date.now()+'_'+Math.random().toString(36).substr(2,6);
+  var data={id,consulta_id:CONSULTA_ID,nombre:n,apellidos:ape,telefono:tel,
+    email:document.getElementById('pac-email').value.trim(),
+    psicologo_asignado:document.getElementById('pac-psicologo').value||null,
+    aseguradora:document.getElementById('pac-aseguradora').value||null,
+    motivo_consulta:document.getElementById('pac-motivo').value.trim(),
+    alergias:document.getElementById('pac-alergias').value.trim(),
+    ia_activa:true, created_at:new Date().toISOString()};
+  await sbPost('pacientes',data);
+  PACIENTES.unshift(data);
+  document.getElementById('metric-pacientes').textContent=PACIENTES.length;
+  document.getElementById('modal-paciente').style.display='none';
+  ['pac-nombre','pac-apellidos','pac-telefono','pac-email','pac-motivo','pac-alergias'].forEach(function(id){document.getElementById(id).value='';});
+  renderPacientesLista(PACIENTES); renderPacientesRecientes(); populatePacienteSelects();
+  alert('✅ Paciente '+n+' '+ape+' creado');
+}
+
+async function crearBono(){
+  var pid=document.getElementById('bono-paciente-id').value;
+  var nom=document.getElementById('bono-nombre').value.trim();
+  var ses=parseInt(document.getElementById('bono-sesiones').value);
+  var bon=parseInt(document.getElementById('bono-bonus').value)||0;
+  var prec=parseFloat(document.getElementById('bono-precio').value);
+  if(!pid){alert('Selecciona un paciente');return;}
+  if(!nom||!ses||!prec){alert('Rellena nombre, sesiones y precio');return;}
+  var total=ses+bon;
+  var id='bono_'+Date.now()+'_'+Math.random().toString(36).substr(2,6);
+  var data={id,consulta_id:CONSULTA_ID,paciente_id:pid,nombre:nom,sesiones_totales:total,sesiones_incluidas:ses,sesiones_bonus:bon,sesiones_consumidas:0,sesiones_restantes:total,precio_total:prec,metodo_pago:document.getElementById('bono-pago').value,estado:'activo',fecha_inicio:new Date().toISOString().split('T')[0],created_at:new Date().toISOString()};
+  await sbPost('bonos',data);
+  var pac=PACIENTES.find(function(p){return p.id===pid;});
+  data.pacientes=pac?{nombre:pac.nombre,apellidos:pac.apellidos}:null;
+  BONOS.push(data);
+  document.getElementById('modal-bono').style.display='none';
+  document.getElementById('bono-paciente-nombre').value=''; document.getElementById('bono-paciente-id').value='';
+  document.getElementById('bono-nombre').value=''; document.getElementById('bono-precio').value='';
+  document.getElementById('metric-bonos').textContent=BONOS.length;
+  renderBonosActivos(); renderBonosAlerta();
+  alert('✅ Bono "'+nom+'" creado ('+total+' sesiones)');
+}
+
+async function crearPlantilla(){
+  var nom=document.getElementById('plt-nombre').value.trim();
+  var ses=parseInt(document.getElementById('plt-sesiones').value);
+  var bon=parseInt(document.getElementById('plt-bonus').value)||0;
+  var prec=parseFloat(document.getElementById('plt-precio').value);
+  var val=parseInt(document.getElementById('plt-validez').value)||365;
+  if(!nom||!ses||!prec){alert('Rellena nombre, sesiones y precio');return;}
+  var id='plt_'+Date.now()+'_'+Math.random().toString(36).substr(2,6);
+  var precioPorSesion=Math.round((prec/(ses+bon))*100)/100;
+  var data={id,consulta_id:CONSULTA_ID,nombre:nom,descripcion:document.getElementById('plt-desc').value||null,sesiones_incluidas:ses,sesiones_bonus:bon,precio:prec,precio_por_sesion:precioPorSesion,validez_dias:val,activo:true,created_at:new Date().toISOString()};
+  await sbPost('plantillas_bonos',data);
+  PLANTILLAS.push(data);
+  document.getElementById('modal-plantilla').style.display='none';
+  document.getElementById('plt-nombre').value=''; document.getElementById('plt-desc').value='';
+  renderPlantillas(); populatePlantillaSelect();
+  alert('✅ Plantilla "'+nom+'" creada');
+}
+
+async function generarFactura(){
+  var pid=document.getElementById('fac-paciente-id').value;
+  var concepto=document.getElementById('fac-concepto').value.trim();
+  var importe=parseFloat(document.getElementById('fac-importe').value);
+  if(!pid||!concepto||!importe){alert('Rellena paciente, concepto e importe');return;}
+  var paciente=PACIENTES.find(function(p){return p.id===pid;});
+  if(!paciente){alert('Paciente no encontrado');return;}
+  var esMutua=TIPO_FACTURA==='mutua';
+  var autorizacion=esMutua?document.getElementById('fac-autorizacion').value:'';
+  var diagnostico=esMutua?document.getElementById('fac-diagnostico').value:'';
+  var nSesion=esMutua?parseInt(document.getElementById('fac-nsesion').value)||1:1;
+  var ahora=new Date();
+  var serie=esMutua?'P':'F';
+  var num='PSICO-'+serie+(CONSULTA_ID||'').substr(-4).toUpperCase()+'-'+ahora.getFullYear()+String(ahora.getMonth()+1).padStart(2,'0')+'-'+String(FACTURAS.length+1).padStart(3,'0');
+  var fecha=ahora.toLocaleDateString('es-ES');
+  var id='fac_'+Date.now()+'_'+Math.random().toString(36).substr(2,6);
+  var rec={id,consulta_id:CONSULTA_ID,paciente_id:pid,numero_factura:num,nombre_paciente:(paciente.nombre+' '+(paciente.apellidos||'')).trim(),concepto,total:importe,es_mutua:esMutua,aseguradora:esMutua?paciente.aseguradora:null,numero_poliza:esMutua?paciente.numero_poliza:null,numero_autorizacion:autorizacion||null,codigo_diagnostico:diagnostico||null,numero_sesion_mutua:esMutua?nSesion:null,fecha_factura:fecha,created_at:ahora.toISOString()};
+  await sbPost('facturas',rec);
+  FACTURAS.unshift(rec);
+  document.getElementById('modal-factura').style.display='none';
+  renderFacturas('todas');
+  imprimirFactura(rec,paciente,esMutua,importe,fecha,num,autorizacion,diagnostico,nSesion);
+  alert('✅ Factura '+num+' generada');
+}
+
+function abrirModalFacturaCita(citaId){
+  var c=CITAS_HOY.find(function(x){return x.id===citaId;});
+  if(!c) return;
+  var p=c.pacientes;
+  TIPO_FACTURA=p&&p.aseguradora?'mutua':'particular';
+  document.getElementById('modal-factura-title').textContent=TIPO_FACTURA==='mutua'?'📋 Parte de aseguradora':'🧾 Factura particular';
+  document.getElementById('fac-concepto').value='Sesión de psicología';
+  document.getElementById('fac-importe').value=CONSULTA?CONSULTA.precio_sesion||60:60;
+  populatePacienteSelects();
+  document.getElementById('modal-factura').style.display='flex';
+  rellenarDatosMutua();
+}
+
+function imprimirFactura(rec,paciente,esMutua,importe,fecha,num,autorizacion,diagnostico,nSesion){
+  var clinicaNombre=CONSULTA?CONSULTA.nombre:'Consulta';
+  var clinicaTel=CONSULTA?CONSULTA.telefono||'':'';
+  var clinicaDir=CONSULTA?CONSULTA.direccion||'':'';
+  var colegiado=CONSULTA?CONSULTA.numero_colegiado||'':'';
+  var nombrePac=(paciente.nombre+' '+(paciente.apellidos||'')).trim();
+  var css='<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;background:white;color:#1A1A2E;-webkit-print-color-adjust:exact;print-color-adjust:exact}.page{width:210mm;min-height:297mm;margin:0 auto;background:white;position:relative;padding-bottom:50mm}.top-bar{height:3mm;background:#5B2C8D}.header{background:#1A1A2E;padding:10mm 15mm 8mm;display:flex;justify-content:space-between;align-items:flex-start}.logo{font-size:28px;font-weight:900;color:white;letter-spacing:-1px}.logo span{color:#9B6CC8}.fiscal{border-left:1px solid #333;padding-left:8mm;margin-left:8mm}.fiscal-name{font-size:11px;font-weight:700;color:white;margin-bottom:3px}.fiscal-det{font-size:8.5px;color:#AAA;line-height:1.7}.inv-title{font-size:32px;font-weight:900;color:#9B6CC8;letter-spacing:-1px;text-align:right}.inv-meta{font-size:9px;color:#94A3B8;margin-top:4px;line-height:1.9;text-align:right}.client-sec{background:#F7F4FD;padding:6mm 15mm;display:flex;justify-content:space-between}.lbl{font-size:7px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#6B6B80;margin-bottom:5px}.cli-name{font-size:13px;font-weight:700;margin-bottom:3px}.cli-det{font-size:9px;color:#6B6B80;line-height:1.7}.exento{background:#EEE5F8;border:1px solid rgba(91,44,141,0.2);margin:4mm 15mm 0;border-radius:6px;padding:3mm 6mm;font-size:8px;color:#5B2C8D;font-weight:600}.table-sec{padding:6mm 15mm}table{width:100%;border-collapse:collapse}thead tr{background:#1A1A2E}thead th{padding:6px 8px;font-size:8px;font-weight:700;text-transform:uppercase;color:white;text-align:left}thead th:nth-child(2),thead th:nth-child(3),thead th:nth-child(4){text-align:right}tbody td{padding:8px;font-size:9.5px;border-bottom:1px solid #E5E7EB}tbody td:nth-child(2),tbody td:nth-child(3){text-align:right;color:#6B6B80}tbody td:nth-child(4){text-align:right;font-weight:700}.totals{padding:4mm 15mm;display:flex;justify-content:flex-end}.totals-box{width:65mm}.tot-row{display:flex;justify-content:space-between;padding:4px 0;font-size:9.5px;border-bottom:1px solid #E5E7EB}.tot-row span:last-child{font-weight:600}.tot-final{background:#1A1A2E;border-radius:6px;padding:8px 10px;display:flex;justify-content:space-between;margin-top:6px}.tot-final span:first-child{font-size:10px;font-weight:700;color:white}.tot-final span:last-child{font-size:13px;font-weight:900;color:#9B6CC8}.footer{position:absolute;bottom:0;left:0;right:0;background:#F7F4FD;padding:5mm 15mm 8mm;border-top:1px solid #E5E7EB}.foot-txt{font-size:8px;color:#6B6B80;line-height:1.7}.bot-bar{position:absolute;bottom:0;left:0;right:0;height:3mm;background:#5B2C8D}@media print{body{margin:0}.page{margin:0}@page{margin:0;size:A4}}</style>';
+  var h='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>'+num+'</title>'+css+'</head><body><div class="page"><div class="top-bar"></div>';
+  h+='<div class="header"><div style="display:flex;align-items:flex-start;gap:8mm"><div><div class="logo">Psico<span>IA</span></div><div style="font-size:10px;color:#9B6CC8;font-weight:700;letter-spacing:1px;margin-top:3px">by ZEVORA Systems</div></div>';
+  h+='<div class="fiscal"><div class="fiscal-name">'+clinicaNombre+'</div><div class="fiscal-det">'+(clinicaDir?clinicaDir+'<br>':'')+(clinicaTel?'Tel: '+clinicaTel+'<br>':'')+(colegiado?'Nº Col: '+colegiado:'')+'</div></div></div>';
+  h+='<div><div class="inv-title">'+(esMutua?'PARTE':'FACTURA')+'</div><div class="inv-meta">N.º '+num+'<br>Fecha: '+fecha+'</div></div></div>';
+  h+='<div class="client-sec"><div><div class="lbl">Facturar a</div><div class="cli-name">'+nombrePac+'</div><div class="cli-det">'+(paciente.nif?'NIF: '+paciente.nif+'<br>':'')+'</div></div>';
+  if(esMutua&&paciente.aseguradora) h+='<div><div class="lbl">Aseguradora</div><div class="cli-name">'+paciente.aseguradora+'</div><div class="cli-det">'+(paciente.numero_poliza?'Póliza: '+paciente.numero_poliza:'')+(autorizacion?'<br>Autorización: '+autorizacion:'')+'</div></div>';
+  h+='</div>';
+  h+='<div class="exento">✓ Exento de IVA — Art. 20.1.3° Ley 37/1992 (LIVA). Servicios de psicología realizados por profesional colegiado.</div>';
+  h+='<div class="table-sec"><table><thead><tr><th>Concepto</th><th>Cant.</th><th>P. Unit.</th><th>Importe</th></tr></thead><tbody>';
+  h+='<tr><td>'+rec.concepto+(esMutua&&diagnostico?' (CIE: '+diagnostico+')':'')+'</td><td>1</td><td>'+importe.toFixed(2)+' EUR</td><td>'+importe.toFixed(2)+' EUR</td></tr>';
+  h+='</tbody></table></div>';
+  h+='<div class="totals"><div class="totals-box"><div class="tot-row"><span>Base imponible:</span><span>'+importe.toFixed(2)+' EUR</span></div><div class="tot-row"><span>IVA:</span><span>Exento art. 20 LIVA</span></div><div class="tot-final"><span>Total:</span><span>'+importe.toFixed(2)+' EUR</span></div></div></div>';
+  h+='<div class="footer"><div class="foot-txt">Factura emitida conforme a la normativa fiscal española. IVA 0% según art. 20.1.3° LIVA — servicios de psicología exentos.</div><div class="foot-contact">psicoia@zevorasystems.com · zevorasystems.com</div><div class="bot-bar"></div></div>';
+  h+='</div><sc'+'ript>window.onload=function(){window.print();}<'+'/script></body></html>';
+  var v=window.open('','_blank','width=900,height=750');
+  if(v){v.document.write(h);v.document.close();}else{alert('Permite ventanas emergentes para ver la factura.');}
+}
+
+function verFacturaPDF(id){
+  var f=FACTURAS.find(function(x){return x.id===id;});
+  if(!f) return;
+  var pac=PACIENTES.find(function(p){return p.id===f.paciente_id;})||{nombre:f.nombre_paciente,apellidos:'',nif:'',numero_poliza:f.numero_poliza||''};
+  imprimirFactura(f,pac,f.es_mutua,f.total,f.fecha_factura,f.numero_factura,f.numero_autorizacion,f.codigo_diagnostico,f.numero_sesion_mutua);
+}
+
+function descargarFacturaMes(mes,anio,num,totalNum,esGratis){
+  // Datos del emisor — datos de la consulta (psicólogo/clínica)
+  var nombre=CONSULTA?CONSULTA.nombre:'Consulta PsicoIA';
+  var nif=CONSULTA?(CONSULTA.nif||CONSULTA.numero_colegiado||''):'';
+  var dir=CONSULTA?(CONSULTA.direccion||''):'';
+  var tel=CONSULTA?(CONSULTA.telefono||''):'';
+  var colegiado=CONSULTA?(CONSULTA.numero_colegiado||''):'';
+  var total=(totalNum||0).toFixed(2);
+  var base=esGratis?'0.00':(totalNum/1.21).toFixed(2);
+  var iva=esGratis?'0.00':(totalNum-totalNum/1.21).toFixed(2);
+  var baseUnit=esGratis?'0.00':'41.32';
+  var fecha=new Date().toLocaleDateString('es-ES');
+  var css='<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;background:white;color:#1A1A2E;-webkit-print-color-adjust:exact;print-color-adjust:exact}.page{width:210mm;min-height:297mm;margin:0 auto;background:white;position:relative;padding-bottom:50mm}.top-bar{height:3mm;background:#5B2C8D}.header{background:#1A1A2E;padding:10mm 15mm 8mm;display:flex;justify-content:space-between;align-items:flex-start}.logo{font-size:28px;font-weight:900;color:white;letter-spacing:-1px}.logo span{color:#9B6CC8}.fiscal{border-left:1px solid #333;padding-left:8mm;margin-left:8mm}.fiscal-name{font-size:11px;font-weight:700;color:white}.fiscal-det{font-size:8.5px;color:#AAA;line-height:1.7}.inv-title{font-size:32px;font-weight:900;color:#9B6CC8;text-align:right}.inv-meta{font-size:9px;color:#94A3B8;margin-top:4px;text-align:right}.client-sec{background:#F7F4FD;padding:6mm 15mm;display:flex;justify-content:space-between}.lbl{font-size:7px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#6B6B80;margin-bottom:5px}.cli-name{font-size:13px;font-weight:700}.cli-det{font-size:9px;color:#6B6B80;line-height:1.7}.promo{background:#EEE5F8;border:1px solid rgba(91,44,141,0.3);margin:4mm 15mm;border-radius:6px;padding:4mm;font-size:9px;color:#5B2C8D;font-weight:600}.table-sec{padding:6mm 15mm}table{width:100%;border-collapse:collapse}thead tr{background:#1A1A2E}thead th{padding:6px 8px;font-size:8px;font-weight:700;text-transform:uppercase;color:white;text-align:left}thead th:nth-child(2),thead th:nth-child(3),thead th:nth-child(4){text-align:right}tbody td{padding:8px;font-size:9.5px;border-bottom:1px solid #E5E7EB}tbody td:nth-child(2),tbody td:nth-child(3){text-align:right;color:#6B6B80}tbody td:nth-child(4){text-align:right;font-weight:700}.totals{padding:4mm 15mm;display:flex;justify-content:flex-end}.totals-box{width:65mm}.tot-row{display:flex;justify-content:space-between;padding:4px 0;font-size:9.5px;border-bottom:1px solid #E5E7EB}.tot-row span:last-child{font-weight:600}.tot-final{background:#1A1A2E;border-radius:6px;padding:8px 10px;display:flex;justify-content:space-between;margin-top:6px}.tot-final span:first-child{font-size:10px;font-weight:700;color:white}.tot-final span:last-child{font-size:13px;font-weight:900;color:#9B6CC8}.footer{position:absolute;bottom:0;left:0;right:0;background:#F7F4FD;padding:5mm 15mm 8mm;border-top:1px solid #E5E7EB}.foot-txt{font-size:8px;color:#6B6B80;line-height:1.7}.bot-bar{position:absolute;bottom:0;left:0;right:0;height:3mm;background:#5B2C8D}@media print{body{margin:0}.page{margin:0}@page{margin:0;size:A4}}</style>';
+  var h='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>'+num+'</title>'+css+'</head><body><div class="page"><div class="top-bar"></div>';
+  h+='<div class="header"><div style="display:flex;align-items:flex-start;gap:8mm"><div><div class="logo">Psico<span>IA</span></div></div>';
+  h+='<div class="fiscal"><div class="fiscal-name">'+nombre+'</div><div class="fiscal-det">'+(nif?'NIF/CIF: '+nif+'<br>':'')+(colegiado?'Nº Colegiado: '+colegiado+'<br>':'')+dir+(tel?'<br>'+tel:'')+'</div></div></div>';
+  h+='<div><div class="inv-title">FACTURA</div><div class="inv-meta">N.º '+num+'<br>Fecha: '+fecha+'</div></div></div>';
+  h+='<div class="client-sec"><div><div class="lbl">Facturar a</div><div class="cli-name">'+nombre+'</div><div class="cli-det">'+(nif?'NIF/CIF: '+nif+'<br>':'')+dir+'</div></div>';
+  h+='<div style="text-align:right"><div class="lbl">Periodo de servicio</div><div style="font-size:13px;font-weight:700">'+mes+' '+anio+'</div></div></div>';
+  if(esGratis) h+='<div class="promo">🎉 Mes promocional gratuito — Oferta BIENVENIDA-PSICO2M. Sin cargo este periodo.</div>';
+  h+='<div class="table-sec"><table><thead><tr><th>Concepto</th><th>Cant.</th><th>P. Unit.</th><th>Importe</th></tr></thead><tbody>';
+  h+='<tr><td>PsicoIA — Plan Base ('+mes+' '+anio+')</td><td>1</td><td style="text-align:right;color:#6B6B80">'+baseUnit+' EUR</td><td style="text-align:right;font-weight:700">'+baseUnit+' EUR</td></tr>';
+  h+='</tbody></table></div>';
+  h+='<div class="totals"><div class="totals-box"><div class="tot-row"><span>Base imponible:</span><span>'+base+' EUR</span></div><div class="tot-row"><span>IVA (21%):</span><span>'+iva+' EUR</span></div>';
+  if(esGratis) h+='<div class="tot-row"><span>Descuento promocional:</span><span style="color:#5B2C8D">-49,99 EUR</span></div>';
+  h+='<div class="tot-final"><span>Total a pagar:</span><span>'+(esGratis?'0,00':total)+' EUR</span></div></div></div>';
+  h+='<div class="footer"><div class="foot-txt">Pago procesado mediante Stripe. Factura emitida en régimen general de IVA (21%).</div><div style="font-size:7.5px;color:#9B9BB0;margin-top:4px">psicoia@zevorasystems.com | www.zevorasystems.com</div><div class="bot-bar"></div></div>';
+  h+='</div><sc'+'ript>window.onload=function(){window.print();}<'+'/script></body></html>';
+  var v=window.open('','_blank','width=900,height=750');
+  if(v){v.document.write(h);v.document.close();}else{alert('Permite ventanas emergentes para descargar la factura.');}
+}
+
+function descargarFacturaSuscripcion(){
+  var ahora=new Date();
+  var meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var alta=CONSULTA&&CONSULTA.created_at?new Date(CONSULTA.created_at):ahora;
+  var cupon=(CONSULTA?(CONSULTA.cupon_aplicado||''):'').toUpperCase();
+  var mesesGratis = cupon.indexOf('BIENVENIDA') !== -1 ? 2 : 0;
+  var gratisParaSiempre = cupon.indexOf('DEMO') !== -1 || cupon.indexOf('TEST') !== -1 || cupon.indexOf('100') !== -1;
+  var diffMeses=(ahora.getFullYear()-alta.getFullYear())*12+(ahora.getMonth()-alta.getMonth());
+  var esGratis = gratisParaSiempre || diffMeses < mesesGratis;
+  var num='PSICO-'+ahora.getFullYear()+String(ahora.getMonth()+1).padStart(2,'0')+'-'+(CONSULTA_ID||'').substr(-4).toUpperCase();
+  descargarFacturaMes(meses[ahora.getMonth()],ahora.getFullYear(),num,esGratis?0:49.99,esGratis);
+}
+
+// ==============================
+// FICHA PACIENTE — 3 TABS
+// ==============================
+function cambiarTabPac(tab, btn){
+  ['datos','notas','ia'].forEach(function(t){ document.getElementById('tab-pac-'+t).style.display='none'; });
+  document.querySelectorAll('#modal-edit-pac .tabs .tab').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('tab-pac-'+tab).style.display='block';
+  btn.classList.add('active');
+  if(tab==='notas') renderTimelineSesiones();
+  if(tab==='ia') populatePersonalidadSelect();
+}
+
+function renderTimelineSesiones(){
+  var pacId = document.getElementById('edit-pac-id').value;
+  if(!pacId) return;
+  var sesiones_pac = [];
+  // Buscar en CITAS_HOY y también en FACTURAS por paciente_id
+  var wrap = document.getElementById('pac-sesiones-timeline');
+  var facs = FACTURAS.filter(function(f){return f.paciente_id===pacId;}).slice(0,8);
+  if(!facs.length){ wrap.innerHTML='<div class="empty-state" style="padding:16px 0"><span class="empty-icon" style="font-size:20px">📅</span><div class="empty-text">Sin sesiones registradas aún</div></div>'; return; }
+  wrap.innerHTML='<div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:10px">Últimas sesiones/facturas</div>'+facs.map(function(f){
+    return '<div style="display:flex;justify-content:space-between;padding:8px 10px;background:var(--surface3);border-radius:7px;margin-bottom:6px;font-size:11px"><div><div style="font-weight:700">'+f.concepto+'</div><div style="color:var(--muted2);margin-top:2px">'+f.fecha_factura+'</div></div><div style="font-weight:800;color:var(--purple)">'+f.total+'€</div></div>';
+  }).join('');
+}
+
+function toggleIAPaciente(){
+  IA_PACIENTE_ACTIVA = !IA_PACIENTE_ACTIVA;
+  var t=document.getElementById('toggle-ia-paciente');
+  var l=document.getElementById('toggle-ia-label');
+  t.classList.toggle('on', IA_PACIENTE_ACTIVA);
+  l.textContent = IA_PACIENTE_ACTIVA ? 'Activo' : 'Desactivado';
+}
+
+async function enviarSeguimientoManual(){
+  var pacId=document.getElementById('edit-pac-id').value;
+  var msg=document.getElementById('edit-pac-seguimiento-msg').value.trim();
+  if(!pacId){alert('No hay paciente seleccionado');return;}
+  var pac=PACIENTES.find(function(p){return p.id===pacId;});
+  if(!pac||!pac.email){alert('Este paciente no tiene email registrado');return;}
+  if(!confirm('¿Enviar mensaje de seguimiento a '+pac.nombre+'?')) return;
+  var data=await callFn('enviar-seguimiento-manual-psicoia',{paciente_id:pacId,consulta_id:CONSULTA_ID,mensaje_personalizado:msg||null});
+  if(data.ok) alert('✅ Mensaje de seguimiento enviado a '+pac.nombre);
+  else alert('Error: '+(data.error||'No se pudo enviar'));
+}
+
+async function verHistorialSeguimientos(){
+  var wrap=document.getElementById('seguimiento-historial-wrap');
+  if(wrap.style.display!=='none'){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  wrap.innerHTML='<div class="loading" style="padding:16px"><div class="spinner"></div></div>';
+  var pacId=document.getElementById('edit-pac-id').value;
+  var d=await sbGet('sesiones','consulta_id=eq.'+CONSULTA_ID+'&paciente_id=eq.'+pacId+'&seguimiento_enviado=eq.true&order=created_at.desc&limit=10&select=fecha,hora_inicio');
+  if(!d||!d.length){wrap.innerHTML='<div style="font-size:11px;color:var(--muted2);padding:8px 0">Sin seguimientos enviados aún</div>';return;}
+  wrap.innerHTML='<div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:8px">Seguimientos enviados:</div>'+d.map(function(s){return'<div style="font-size:11px;color:var(--muted2);padding:4px 0;border-bottom:1px solid var(--border)">📧 Tras sesión del '+s.fecha+' a las '+s.hora_inicio+'</div>';}).join('');
+}
+
+function verFicha(id){
+  var p=PACIENTES.find(function(x){return x.id===id;});
+  if(!p) return;
+  document.getElementById('edit-pac-id').value=p.id;
+  document.getElementById('edit-pac-nombre-titulo').textContent=(p.nombre||'')+' '+(p.apellidos||'');
+  document.getElementById('edit-pac-nombre').value=p.nombre||'';
+  document.getElementById('edit-pac-apellidos').value=p.apellidos||'';
+  document.getElementById('edit-pac-telefono').value=p.telefono||'';
+  document.getElementById('edit-pac-email').value=p.email||'';
+  document.getElementById('edit-pac-nif').value=p.nif||'';
+  document.getElementById('edit-pac-fecha-nac').value=p.fecha_nacimiento||'';
+  document.getElementById('edit-pac-motivo').value=p.motivo_consulta||'';
+  document.getElementById('edit-pac-aseguradora').value=p.aseguradora||'';
+  document.getElementById('edit-pac-poliza').value=p.numero_poliza||'';
+  document.getElementById('edit-pac-alergias').value=p.alergias||'';
+  document.getElementById('edit-pac-notas-privadas').value=p.notas_privadas||'';
+  document.getElementById('edit-pac-psicologo').value=p.psicologo_asignado||'';
+  // IA state
+  IA_PACIENTE_ACTIVA = p.ia_activa !== false;
+  var t=document.getElementById('toggle-ia-paciente');
+  t.classList.toggle('on', IA_PACIENTE_ACTIVA);
+  document.getElementById('toggle-ia-label').textContent = IA_PACIENTE_ACTIVA ? 'Activo' : 'Desactivado';
+  document.getElementById('edit-pac-seguimiento-msg').value=p.seguimiento_mensaje||'';
+  // Stats
+  var bonoPac=BONOS.find(function(b){return b.paciente_id===p.id&&b.estado==='activo';});
+  var facsPac=FACTURAS.filter(function(f){return f.paciente_id===p.id;});
+  var totalGastado=facsPac.reduce(function(s,f){return s+(f.total||0);},0);
+  document.getElementById('edit-pac-stats').innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">'+
+    '<div style="background:var(--purple-dim);border-radius:8px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:900;color:var(--purple);font-family:var(--mono)">'+(p.total_sesiones||0)+'</div><div style="font-size:9px;color:var(--muted2);margin-top:2px">Sesiones</div></div>'+
+    '<div style="background:var(--blue-dim);border-radius:8px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:900;color:var(--blue);font-family:var(--mono)">'+Math.round(totalGastado)+'€</div><div style="font-size:9px;color:var(--muted2);margin-top:2px">Facturado</div></div>'+
+    '<div style="background:'+(bonoPac?'var(--teal-dim)':'var(--surface3)')+';border-radius:8px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:900;color:'+(bonoPac?'var(--teal)':'var(--muted2)')+';font-family:var(--mono)">'+(bonoPac?bonoPac.sesiones_restantes:'—')+'</div><div style="font-size:9px;color:var(--muted2);margin-top:2px">Bono</div></div>'+
+    '</div>';
+  populatePsicologoSelects();
+  // Reset tabs
+  cambiarTabPac('datos', document.getElementById('tab-btn-datos'));
+  document.getElementById('modal-edit-pac').style.display='flex';
+}
+
+async function guardarPaciente(){
+  var id=document.getElementById('edit-pac-id').value;
+  var nombre=document.getElementById('edit-pac-nombre').value.trim();
+  if(!nombre){alert('El nombre es obligatorio');return;}
+  var updates={
+    nombre, apellidos:document.getElementById('edit-pac-apellidos').value.trim(),
+    telefono:document.getElementById('edit-pac-telefono').value.trim(),
+    email:document.getElementById('edit-pac-email').value.trim(),
+    nif:document.getElementById('edit-pac-nif').value.trim()||null,
+    fecha_nacimiento:document.getElementById('edit-pac-fecha-nac').value||null,
+    motivo_consulta:document.getElementById('edit-pac-motivo').value.trim(),
+    aseguradora:document.getElementById('edit-pac-aseguradora').value||null,
+    numero_poliza:document.getElementById('edit-pac-poliza').value.trim()||null,
+    alergias:document.getElementById('edit-pac-alergias').value.trim()||null,
+    notas_privadas:document.getElementById('edit-pac-notas-privadas').value.trim()||null,
+    psicologo_asignado:document.getElementById('edit-pac-psicologo').value||null,
+    personalidad_ia_id:document.getElementById('edit-pac-personalidad').value||null,
+    ia_activa:IA_PACIENTE_ACTIVA,
+    seguimiento_mensaje:document.getElementById('edit-pac-seguimiento-msg').value.trim()||null,
+    updated_at:new Date().toISOString()
+  };
+  var res = await sbPatch('pacientes','id=eq.'+id,updates);
+  if(res && res.error){
+    alert('Error al guardar: '+JSON.stringify(res.error));
+    return;
+  }
+  var idx=PACIENTES.findIndex(function(p){return p.id===id;});
+  if(idx!==-1) Object.assign(PACIENTES[idx],updates);
+  document.getElementById('modal-edit-pac').style.display='none';
+  renderPacientesLista(PACIENTES); renderPacientesRecientes(); populatePacienteSelects();
+  alert('✅ Datos de '+nombre+' actualizados');
+}
+
+// ==============================
+// PSICÓLOGOS CRUD
+// ==============================
+async function loadPsicologos(){
+  var e=document.getElementById('psicologos-list');
+  if(!CONSULTA){e.innerHTML='<div class="loading"><div class="spinner"></div></div>';return;}
+  var psicologos=CONSULTA.psicologos||[];
+  if(!psicologos.length){e.innerHTML='<div class="empty-state"><span class="empty-icon">🧑‍⚕️</span><div class="empty-text">Sin psicólogos — añade el primero</div></div>';return;}
+  e.innerHTML=psicologos.map(function(p,idx){
+    return '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:16px">'+
+      '<div style="width:44px;height:44px;border-radius:50%;background:var(--purple-dim);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--purple);flex-shrink:0">'+((p.nombre||'?')[0]+((p.apellidos||'?')[0]||'')).toUpperCase()+'</div>'+
+      '<div style="flex:1"><div style="font-size:13px;font-weight:800;color:var(--text)">'+(p.nombre||'')+' '+(p.apellidos||'')+'</div>'+
+      '<div style="font-size:11px;color:var(--muted2);margin-top:2px">'+(p.especialidad||'Psicólogo/a')+(p.colegiado?' · Nº col. '+p.colegiado:'')+'</div>'+
+      (p.calendar_id?'<div style="font-size:10px;color:var(--teal);margin-top:3px">📅 Calendar conectado</div>':'<div style="font-size:10px;color:var(--amber);margin-top:3px">⚠️ Sin Calendar</div>')+'</div>'+
+      '<div style="display:flex;gap:6px"><button class="cita-btn primary" onclick="editarPsicologo('+idx+')">✏️ Editar</button><button class="cita-btn" style="color:var(--red)" onclick="eliminarPsicologo('+idx+')">🗑️</button></div></div>';
+  }).join('');
+}
+
+function abrirModalPsicologo(){
+  document.getElementById('psi-edit-id').value='';
+  document.getElementById('modal-psi-title').textContent='🧑‍⚕️ Nuevo psicólogo/a';
+  ['psi-nombre','psi-apellidos','psi-nif','psi-colegiado','psi-especialidad','psi-calendar','psi-tel'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('modal-psicologo').style.display='flex';
+}
+
+function editarPsicologo(idx){
+  var p=(CONSULTA.psicologos||[])[idx];
+  if(!p) return;
+  document.getElementById('psi-edit-id').value=idx;
+  document.getElementById('modal-psi-title').textContent='✏️ Editar psicólogo/a';
+  document.getElementById('psi-nombre').value=p.nombre||'';
+  document.getElementById('psi-apellidos').value=p.apellidos||'';
+  document.getElementById('psi-nif').value=p.nif||'';
+  document.getElementById('psi-colegiado').value=p.colegiado||'';
+  document.getElementById('psi-especialidad').value=p.especialidad||'';
+  document.getElementById('psi-calendar').value=p.calendar_id||'';
+  document.getElementById('psi-tel').value=p.telefono||'';
+  document.getElementById('modal-psicologo').style.display='flex';
+}
+
+async function guardarPsicologo(){
+  var nombre=document.getElementById('psi-nombre').value.trim();
+  if(!nombre){alert('El nombre es obligatorio');return;}
+  var data={nombre,apellidos:document.getElementById('psi-apellidos').value.trim(),nif:document.getElementById('psi-nif').value.trim(),colegiado:document.getElementById('psi-colegiado').value.trim(),especialidad:document.getElementById('psi-especialidad').value.trim(),calendar_id:document.getElementById('psi-calendar').value.trim(),telefono:document.getElementById('psi-tel').value.trim()};
+  var lista=CONSULTA.psicologos?JSON.parse(JSON.stringify(CONSULTA.psicologos)):[];
+  var editIdx=document.getElementById('psi-edit-id').value;
+  if(editIdx!=='') lista[parseInt(editIdx)]=data; else lista.push(data);
+  await sbPatch('consultas','id=eq.'+CONSULTA_ID,{psicologos:lista});
+  CONSULTA.psicologos=lista;
+  document.getElementById('modal-psicologo').style.display='none';
+  await loadPsicologos(); populatePsicologoSelects();
+  alert('✅ Psicólogo/a guardado');
+}
+
+async function eliminarPsicologo(idx){
+  if(!confirm('¿Eliminar este psicólogo/a?')) return;
+  var lista=CONSULTA.psicologos?JSON.parse(JSON.stringify(CONSULTA.psicologos)):[];
+  lista.splice(idx,1);
+  await sbPatch('consultas','id=eq.'+CONSULTA_ID,{psicologos:lista});
+  CONSULTA.psicologos=lista;
+  await loadPsicologos(); populatePsicologoSelects();
+  alert('✅ Psicólogo/a eliminado');
+}
+
+// ==============================
+// PERSONALIDADES IA
+// ==============================
+function abrirModalPersonalidad(){ document.getElementById('pers-edit-id').value=''; document.getElementById('pers-nombre').value=''; document.getElementById('pers-desc').value=''; document.getElementById('pers-prompt').value=''; document.getElementById('modal-personalidad').style.display='flex'; }
+function editarPersonalidad(idx){ var p=(CONSULTA.personalidades_ia||[])[idx]; if(!p)return; document.getElementById('pers-edit-id').value=idx; document.getElementById('pers-nombre').value=p.nombre||''; document.getElementById('pers-desc').value=p.descripcion||''; document.getElementById('pers-prompt').value=p.prompt_sistema||''; document.getElementById('modal-personalidad').style.display='flex'; }
+async function guardarPersonalidad(){
+  var nom=document.getElementById('pers-nombre').value.trim();
+  var prompt=document.getElementById('pers-prompt').value.trim();
+  if(!nom||!prompt){alert('Nombre y prompt son obligatorios');return;}
+  var lista=CONSULTA.personalidades_ia?JSON.parse(JSON.stringify(CONSULTA.personalidades_ia)):[];
+  var data={id:'pers_'+Date.now(),nombre:nom,descripcion:document.getElementById('pers-desc').value.trim(),prompt_sistema:prompt};
+  var editIdx=document.getElementById('pers-edit-id').value;
+  if(editIdx!=='') lista[parseInt(editIdx)]=data; else lista.push(data);
+  await sbPatch('consultas','id=eq.'+CONSULTA_ID,{personalidades_ia:lista});
+  CONSULTA.personalidades_ia=lista;
+  document.getElementById('modal-personalidad').style.display='none';
+  renderConfigPersonalidades(); alert('✅ Personalidad guardada');
+}
+async function eliminarPersonalidad(idx){ if(!confirm('¿Eliminar esta personalidad?'))return; var lista=CONSULTA.personalidades_ia?JSON.parse(JSON.stringify(CONSULTA.personalidades_ia)):[]; lista.splice(idx,1); await sbPatch('consultas','id=eq.'+CONSULTA_ID,{personalidades_ia:lista}); CONSULTA.personalidades_ia=lista; renderConfigPersonalidades(); }
+
+// ==============================
+// HERRAMIENTAS
+// ==============================
+async function guardarCalendar(){
+  var id=document.getElementById('cal-id').value.trim();
+  if(!id){alert('Introduce el ID del calendario');return;}
+  await sbPatch('consultas','id=eq.'+CONSULTA_ID,{calendario_id:id});
+  document.getElementById('cal-estado').textContent='Conectado';
+  document.getElementById('cal-estado').className='servicio-estado estado-activo';
+  alert('✅ Google Calendar conectado');
+}
+
+function toggleSeguimiento(){
+  var t=document.getElementById('toggle-seguimiento');
+  var on=!t.classList.contains('on');
+  t.classList.toggle('on',on);
+  document.getElementById('toggle-seg-label').textContent=on?'Activado':'Desactivado';
+}
+
+async function guardarSeguimiento(){
+  var on=document.getElementById('toggle-seguimiento').classList.contains('on');
+  var horas=parseInt(document.getElementById('seguimiento-horas').value)||48;
+  await sbPatch('consultas','id=eq.'+CONSULTA_ID,{seguimiento_activo:on,seguimiento_horas:horas});
+  if(CONSULTA){CONSULTA.seguimiento_activo=on;CONSULTA.seguimiento_horas=horas;}
+  document.getElementById('seguimiento-estado').textContent=on?'Activado':'Desactivado';
+  document.getElementById('seguimiento-estado').className='servicio-estado '+(on?'estado-activo':'');
+  alert('✅ Configuración de seguimiento guardada');
+}
+
+function copiarEmailSoporte(tipo){
+  var email='psicoia@zevorasystems.com';
+  navigator.clipboard.writeText(email).then(function(){
+    var fb=document.getElementById('copy-feedback');
+    fb.textContent='✅ Email copiado: '+email;
+    fb.style.display='block';
+    setTimeout(function(){fb.style.display='none';},4000);
+  }).catch(function(){alert('Email: '+email);});
+}
+
+// ==============================
+// ASEGURADORAS
+// ==============================
+var ASEGURADORAS_CONFIG=[
+  {id:'adeslas',nombre:'Adeslas',color:'#0066CC',color2:'#E8F0FF',portal:'https://www.adeslas.es/proveedores',desc:'Grupo Mutua Madrileña'},
+  {id:'sanitas',nombre:'Sanitas',color:'#E4002B',color2:'#FFF0F2',portal:'https://www.sanitas.es/profesionales-sanitarios',desc:'Grupo BUPA'},
+  {id:'asisa',nombre:'Asisa',color:'#00A651',color2:'#E8F7EE',portal:'https://www.asisa.es/proveedores',desc:'Asociación de Médicos'},
+  {id:'mapfre',nombre:'Mapfre Salud',color:'#CC0000',color2:'#FFEEEE',portal:'https://www.mapfre.es/seguros/salud/profesionales-sanitarios/',desc:'Grupo Mapfre'},
+  {id:'dkv',nombre:'DKV',color:'#006633',color2:'#E8F5ED',portal:'https://www.dkvsalud.es/profesionales',desc:'Deutsche Krankenversicherung'},
+  {id:'axa',nombre:'AXA Salud',color:'#00008F',color2:'#EEEEFF',portal:'https://www.axa.es/profesionales-sanitarios',desc:'Grupo AXA'}
+];
+
+function renderAseguradoras(){
+  var grid=document.getElementById('aseguradoras-grid');
+  if(!grid) return;
+  grid.innerHTML=ASEGURADORAS_CONFIG.map(function(a){
+    return '<div class="aseg-card"><div class="aseg-logo" style="color:'+a.color+'">'+a.nombre+'</div><div class="aseg-desc">'+a.desc+'</div><div class="aseg-btns"><button class="aseg-btn-parte" style="background:'+a.color2+';color:'+a.color+'" data-aseg="'+a.id+'" onclick="generarParteBtn(this)">📋 Generar parte</button><a class="aseg-btn-portal" href="'+a.portal+'" target="_blank">🔗 Portal '+a.nombre+' →</a></div></div>';
+  }).join('');
+}
+
+function generarParteBtn(el){ generarPartePsico(el.getAttribute('data-aseg')); }
+
+function generarPartePsico(asegId){
+  var config=ASEGURADORAS_CONFIG.find(function(a){return a.id===asegId;});
+  if(!config) return;
+  var pacsAseg=PACIENTES.filter(function(p){return p.aseguradora&&p.aseguradora.toLowerCase().includes(asegId==='mapfre'?'mapfre':asegId==='axa'?'axa':asegId);});
+  if(!pacsAseg.length){ if(!confirm('No tienes pacientes con '+config.nombre+' registrados.\n¿Generar plantilla en blanco?'))return; generarPlantillaAseguradora(config,null); }
+  else if(pacsAseg.length===1){ generarPlantillaAseguradora(config,pacsAseg[0]); }
+  else{
+    var opts=pacsAseg.map(function(p,i){return i+1+'. '+(p.nombre+' '+(p.apellidos||'')).trim();}).join('\n');
+    var sel=prompt('Selecciona paciente (número):\n'+opts);
+    if(!sel) return;
+    var idx=parseInt(sel)-1;
+    if(idx>=0&&idx<pacsAseg.length) generarPlantillaAseguradora(config,pacsAseg[idx]);
+  }
+}
+
+function generarPlantillaAseguradora(config,paciente){
+  var clinicaNombre=CONSULTA?CONSULTA.nombre:'Consulta';
+  var clinicaTel=CONSULTA?CONSULTA.telefono||'':'';
+  var clinicaDir=CONSULTA?CONSULTA.direccion||'':'';
+  var psicologos=CONSULTA&&CONSULTA.psicologos?CONSULTA.psicologos:[];
+  var psi=psicologos.length?psicologos[0]:{nombre:'',colegiado:''};
+  var fecha=new Date().toLocaleDateString('es-ES');
+  var pacNombre=paciente?(paciente.nombre+' '+(paciente.apellidos||'')).trim():'';
+  var pacPoliza=paciente?paciente.numero_poliza||'':'';
+  var pacNif=paciente?paciente.nif||'':'';
+  var pacTel=paciente?paciente.telefono||'':'';
+  var motivo=paciente?paciente.motivo_consulta||'':'';
+  var css='<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;color:#1a1a1a;background:white;-webkit-print-color-adjust:exact;print-color-adjust:exact}.page{width:210mm;min-height:297mm;margin:0 auto;padding:0;background:white}.header{background:'+config.color+';padding:8mm 15mm 6mm;display:flex;justify-content:space-between;align-items:center}.h-logo{font-size:22px;font-weight:900;color:white}.h-title{text-align:right;color:white;font-size:16px;font-weight:700}.section{padding:5mm 15mm;border-bottom:1px solid #E5E7EB}.section-title{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:'+config.color+';margin-bottom:6px;border-bottom:2px solid '+config.color+';padding-bottom:4px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:5px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}.field{margin-bottom:5px}.field-lbl{font-size:7px;color:#9CA3AF;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:2px}.field-val{font-size:10px;font-weight:600;color:#111;border-bottom:1px solid #D1D5DB;padding-bottom:3px;min-height:16px}.firma-area{display:flex;gap:15mm;margin-top:8mm}.firma-box{flex:1;text-align:center}.firma-line{border-top:1px solid #374151;padding-top:3px;font-size:7.5px;color:#6B7280;margin-top:14mm}.legal{background:'+config.color2+';border:1px solid '+config.color+';border-radius:4px;padding:4mm;margin:4mm 15mm;font-size:7.5px;color:#374151;line-height:1.5}.bot{background:'+config.color+';height:2mm;position:fixed;bottom:0;left:0;right:0}@media print{body{margin:0}.page{margin:0}@page{margin:0;size:A4}}</style>';
+  var h='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Parte '+config.nombre+'</title>'+css+'</head><body><div class="page">';
+  h+='<div class="header"><div><div class="h-logo">'+config.nombre.toUpperCase()+'</div><div style="font-size:9px;color:rgba(255,255,255,0.8);margin-top:2px">Parte de tratamiento — Psicología</div></div><div class="h-title">PARTE DE TRATAMIENTO<div style="font-size:9px;opacity:0.8;margin-top:2px">Psicología — Art. 20 LIVA exento</div></div></div>';
+  h+='<div class="section"><div class="section-title">Datos de la aseguradora</div><div class="grid3"><div class="field"><div class="field-lbl">Aseguradora</div><div class="field-val" style="font-size:12px">'+config.nombre+'</div></div><div class="field"><div class="field-lbl">Nº Póliza</div><div class="field-val" style="font-size:12px">'+pacPoliza+'</div></div><div class="field"><div class="field-lbl">Nº Autorización</div><div class="field-val"></div></div></div></div>';
+  h+='<div class="section"><div class="section-title">Datos del paciente</div><div class="grid2"><div class="field"><div class="field-lbl">Nombre completo</div><div class="field-val" style="font-size:12px">'+pacNombre+'</div></div><div class="field"><div class="field-lbl">DNI / NIF</div><div class="field-val">'+pacNif+'</div></div></div><div class="grid3" style="margin-top:4px"><div class="field"><div class="field-lbl">Fecha nacimiento</div><div class="field-val">'+(paciente&&paciente.fecha_nacimiento?new Date(paciente.fecha_nacimiento).toLocaleDateString('es-ES'):'')+'</div></div><div class="field"><div class="field-lbl">Teléfono</div><div class="field-val">'+pacTel+'</div></div><div class="field"><div class="field-lbl">Fecha del parte</div><div class="field-val">'+fecha+'</div></div></div></div>';
+  h+='<div class="section"><div class="section-title">Datos clínicos</div><div class="grid2"><div class="field"><div class="field-lbl">Motivo de consulta</div><div class="field-val" style="font-size:12px">'+motivo+'</div></div><div class="field"><div class="field-lbl">Código CIE-10</div><div class="field-val"></div></div></div><div class="grid3" style="margin-top:4px"><div class="field"><div class="field-lbl">Tipo de sesión</div><div class="field-val"></div></div><div class="field"><div class="field-lbl">Sesión nº</div><div class="field-val"></div></div><div class="field"><div class="field-lbl">Total sesiones autorizadas</div><div class="field-val"></div></div></div><div class="field" style="margin-top:4px"><div class="field-lbl">Observaciones / Evolución</div><div class="field-val" style="min-height:20mm;border:1px solid #D1D5DB;border-radius:3px;padding:3px"></div></div></div>';
+  h+='<div class="section"><div class="section-title">Datos del centro y profesional</div><div class="grid2"><div><div class="field"><div class="field-lbl">Consulta</div><div class="field-val" style="font-size:12px">'+clinicaNombre+'</div></div><div class="field"><div class="field-lbl">Dirección</div><div class="field-val">'+clinicaDir+'</div></div><div class="field"><div class="field-lbl">Teléfono</div><div class="field-val">'+clinicaTel+'</div></div></div><div><div class="field"><div class="field-lbl">Psicólogo/a</div><div class="field-val" style="font-size:12px">'+(psi.nombre||'')+'</div></div><div class="field"><div class="field-lbl">Nº Colegiado</div><div class="field-val">'+(psi.colegiado||'')+'</div></div><div class="field"><div class="field-lbl">Importe sesión</div><div class="field-val">'+(CONSULTA?CONSULTA.precio_sesion||'60':'60')+' € — Exento IVA art. 20 LIVA</div></div></div></div></div>';
+  h+='<div class="section" style="border-bottom:none"><div class="firma-area"><div class="firma-box"><div class="firma-line">Firma del psicólogo/a y sello de la consulta</div></div><div class="firma-box"><div class="firma-line">Firma y conformidad del paciente</div></div></div></div>';
+  h+='<div class="legal">Prestación de servicios de psicología exenta de IVA según Art. 20.1.3° de la Ley 37/1992 (LIVA), realizada por profesional colegiado. Este documento es válido como justificante de prestación de servicios psicológicos para '+config.nombre+'.</div>';
+  h+='</div><sc'+'ript>window.onload=function(){window.print();}<'+'/script></body></html>';
+  var v=window.open('','_blank','width=900,height=750');
+  if(v){v.document.write(h);v.document.close();}else{alert('Permite ventanas emergentes.');}
+}
+
+// ==============================
+// CONFIGURACIÓN
+// ==============================
+async function guardarConfig(){
+  var u={
+    nombre:document.getElementById('cfg-nombre').value,
+    duracion_sesion_min:parseInt(document.getElementById('cfg-duracion').value),
+    precio_sesion:parseFloat(document.getElementById('cfg-precio').value),
+    telefono:document.getElementById('cfg-telefono').value,
+    direccion:document.getElementById('cfg-direccion').value,
+    numero_colegiado:document.getElementById('cfg-colegiado').value,
+    nif:document.getElementById('cfg-nif').value.trim()||null,
+    razon_social:document.getElementById('cfg-razon-social').value.trim()||null,
+    direccion_fiscal:document.getElementById('cfg-direccion-fiscal').value.trim()||null,
+  };
+  await sbPatch('consultas','id=eq.'+CONSULTA_ID,u);
+  Object.assign(CONSULTA,u);
+  alert('✅ Configuración guardada');
+}
+
+// ==============================
+// BAJA
+// ==============================
+function selectMotivo(el,motivo){ MOTIVO_BAJA=motivo; document.querySelectorAll('.motivo-btn').forEach(function(b){b.style.background='var(--surface3)';b.style.borderColor='var(--border2)';b.style.color='var(--muted)';}); el.style.background='var(--red-dim)'; el.style.borderColor='rgba(220,38,38,0.3)'; el.style.color='var(--red)'; }
+async function confirmarBaja(){
+  if(!MOTIVO_BAJA){alert('Por favor selecciona el motivo');return;}
+  if(!confirm('¿Estás completamente seguro? Esta acción es irreversible.')) return;
+  var data=await callFn('cancelar-suscripcion-psicoia',{consulta_id:CONSULTA_ID,motivo:MOTIVO_BAJA,comentario:document.getElementById('baja-comentario').value});
+  if(data.ok){alert('Solicitud de baja enviada.');sessionStorage.clear();window.location.href='psicoia.html';}
+  else{alert('Error: '+(data.error||'No se pudo procesar'));}
+}
+
+// ==============================
+// ESTADÍSTICAS
+// ==============================
+function cambiarPeriodo(p,btn){ PERIODO=p; document.querySelectorAll('#view-estadisticas .tabs .tab').forEach(function(t){t.classList.remove('active');}); btn.classList.add('active'); renderStats(); }
+function renderStats(){
+  var now=new Date(),mes=now.getMonth()+1,anio=now.getFullYear();
+  var filtradas=FACTURAS.filter(function(f){var d=new Date(f.created_at);if(PERIODO==='mes')return d.getMonth()+1===mes&&d.getFullYear()===anio;if(PERIODO==='semana')return(now-d)/(1000*60*60*24)<=7;return true;});
+  var ing=filtradas.reduce(function(s,f){return s+(f.total||0);},0);
+  var ticket=filtradas.length?Math.round(ing/filtradas.length):0;
+  var mutuas=filtradas.filter(function(f){return f.es_mutua;}).length;
+  document.getElementById('stats-big').innerHTML=
+    '<div class="stat-big"><div class="stat-big-num" style="color:var(--purple)">'+filtradas.length+'</div><div class="stat-big-label">Sesiones facturadas</div></div>'+
+    '<div class="stat-big"><div class="stat-big-num" style="color:var(--blue)">'+Math.round(ing)+'€</div><div class="stat-big-label">Ingresos</div></div>'+
+    '<div class="stat-big"><div class="stat-big-num" style="color:var(--amber)">'+ticket+'€</div><div class="stat-big-label">Ticket medio</div></div>';
+  document.getElementById('stats-detalle').innerHTML=
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">'+
+    '<div style="background:var(--surface3);border-radius:10px;padding:14px;text-align:center"><div style="font-size:24px;font-weight:900;color:var(--purple);font-family:var(--mono)">'+PACIENTES.length+'</div><div style="font-size:10px;color:var(--muted2);margin-top:4px">Total pacientes</div></div>'+
+    '<div style="background:var(--surface3);border-radius:10px;padding:14px;text-align:center"><div style="font-size:24px;font-weight:900;color:var(--blue);font-family:var(--mono)">'+mutuas+'</div><div style="font-size:10px;color:var(--muted2);margin-top:4px">Partes aseguradora</div></div>'+
+    '<div style="background:var(--surface3);border-radius:10px;padding:14px;text-align:center"><div style="font-size:24px;font-weight:900;color:var(--amber);font-family:var(--mono)">'+BONOS.length+'</div><div style="font-size:10px;color:var(--muted2);margin-top:4px">Bonos activos</div></div>'+
+    '</div>';
+}
+
+// ==============================
+// PORTAL STRIPE
+// ==============================
+async function abrirPortal(){
+  var btn = event && event.target ? event.target : null;
+  if(btn){ btn.disabled=true; btn.textContent='Abriendo...'; }
+  try{
+    var d=await callFn('stripe-portal-psicoia',{consulta_id:CONSULTA_ID});
+    if(d && d.url){
+      window.open(d.url,'_blank');
+    } else {
+      alert('No se pudo abrir el portal de Stripe. Escríbenos a psicoia@zevorasystems.com y lo gestionamos.');
+    }
+  } catch(e){
+    alert('Error de conexión. Inténtalo de nuevo o escríbenos a psicoia@zevorasystems.com');
+  }
+  if(btn){ btn.disabled=false; btn.textContent='💳 Gestionar suscripción'; }
+}
+
+// ==============================
+// AUTOCOMPLETE
+// ==============================
+function autocompleteP(q){
+  var list=document.getElementById('ac-list');
+  if(!q||q.length<1){list.classList.remove('open');return;}
+  var matches=PACIENTES.filter(function(p){var full=(p.nombre+' '+(p.apellidos||'')+' '+(p.telefono||'')).toLowerCase();return full.includes(q.toLowerCase());}).slice(0,6);
+  if(!matches.length){list.classList.remove('open');return;}
+  list.innerHTML=matches.map(function(p){
+    var nombre=(p.nombre+' '+(p.apellidos||'')).trim();
+    var tag=p.aseguradora?'<span class="ac-tag">'+p.aseguradora+'</span>':'';
+    var alerta=p.alergias?'<span style="color:var(--red);font-size:9px"> · ⚠️ '+p.alergias+'</span>':'';
+    return '<div class="autocomplete-item" data-id="'+p.id+'" data-nombre="'+nombre.replace(/"/g,'&quot;')+'" data-tel="'+(p.telefono||'')+'" onclick="seleccionarPacienteAC(this)"><div class="ac-nombre">'+nombre+tag+'</div><div class="ac-detalle">'+(p.telefono||'Sin tel')+alerta+'</div></div>';
+  }).join('');
+  list.classList.add('open');
+}
+function seleccionarPacienteAC(el){
+  document.getElementById('cita-paciente').value=el.getAttribute('data-nombre');
+  document.getElementById('cita-paciente-id').value=el.getAttribute('data-id');
+  document.getElementById('cita-paciente-tel').value=el.getAttribute('data-tel');
+  document.getElementById('ac-list').classList.remove('open');
+  checkBonoActivo(el.getAttribute('data-id'));
+}
+function autocompleteBono(q){
+  var list=document.getElementById('ac-bono-list');
+  if(!q||q.length<1){list.classList.remove('open');return;}
+  var matches=PACIENTES.filter(function(p){var full=(p.nombre+' '+(p.apellidos||'')+' '+(p.telefono||'')).toLowerCase();return full.includes(q.toLowerCase());}).slice(0,6);
+  if(!matches.length){list.classList.remove('open');return;}
+  list.innerHTML=matches.map(function(p){
+    var nombre=(p.nombre+' '+(p.apellidos||'')).trim();
+    var bonoP=BONOS.find(function(b){return b.paciente_id===p.id&&b.estado==='activo';});
+    var bonoTag=bonoP?'<span class="ac-tag" style="background:var(--teal-dim);color:var(--teal)">'+bonoP.sesiones_restantes+' ses.</span>':'';
+    return '<div class="autocomplete-item" data-id="'+p.id+'" data-nombre="'+nombre.replace(/"/g,'&quot;')+'" onclick="seleccionarPacienteBono(this)"><div class="ac-nombre">'+nombre+bonoTag+'</div><div class="ac-detalle">'+(p.telefono||'Sin tel')+'</div></div>';
+  }).join('');
+  list.classList.add('open');
+}
+function seleccionarPacienteBono(el){ document.getElementById('bono-paciente-nombre').value=el.getAttribute('data-nombre'); document.getElementById('bono-paciente-id').value=el.getAttribute('data-id'); document.getElementById('ac-bono-list').classList.remove('open'); }
+document.addEventListener('click',function(e){ if(!e.target.closest('.autocomplete-wrap')){ ['ac-list','ac-bono-list'].forEach(function(id){var l=document.getElementById(id);if(l)l.classList.remove('open');}); } });
+function checkBonoActivo(pacienteId){
+  var aviso=document.getElementById('bono-activo-aviso');
+  var info=document.getElementById('bono-activo-info');
+  var bonoId=document.getElementById('bono-activo-id');
+  if(!aviso||!pacienteId){if(aviso)aviso.style.display='none';return;}
+  var bono=BONOS.find(function(b){return b.paciente_id===pacienteId&&b.estado==='activo';});
+  if(bono){aviso.style.display='block';info.textContent=bono.nombre+' · '+bono.sesiones_restantes+' sesiones restantes de '+bono.sesiones_totales;bonoId.value=bono.id;document.getElementById('usar-bono').checked=true;}
+  else{aviso.style.display='none';bonoId.value='';}
+}
+
+// ==============================
+// BÚSQUEDA
+// ==============================
+function buscarPaciente(q){ renderPacientesLista(q?PACIENTES.filter(function(p){return(p.nombre+' '+(p.apellidos||'')+(p.motivo_consulta||'')+(p.aseguradora||'')).toLowerCase().includes(q.toLowerCase());}):PACIENTES); }
+function buscarHistorial(q){
+  var e=document.getElementById('historial-list');
+  if(!q){e.innerHTML='<div class="empty-state"><span class="empty-icon">📋</span><div class="empty-text">Busca un paciente</div></div>';return;}
+  var p=PACIENTES.find(function(x){return(x.nombre+' '+(x.apellidos||'')).toLowerCase().includes(q.toLowerCase());});
+  if(!p){e.innerHTML='<div class="empty-state"><span class="empty-icon">🔍</span><div class="empty-text">No encontrado</div></div>';return;}
+  var ff=FACTURAS.filter(function(f){return f.paciente_id===p.id;});
+  var bonoPac=BONOS.find(function(b){return b.paciente_id===p.id&&b.estado==='activo';});
+  e.innerHTML=
+    '<div style="background:var(--surface3);border-radius:10px;padding:14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:flex-start">'+
+    '<div><div style="font-size:14px;font-weight:800">'+p.nombre+' '+(p.apellidos||'')+'</div>'+
+    '<div style="font-size:11px;color:var(--muted2);margin-top:4px">'+(p.motivo_consulta||'—')+' · '+(p.aseguradora||'Particular')+'</div>'+
+    (p.alergias?'<div style="font-size:11px;color:var(--red);margin-top:4px">⚠️ '+p.alergias+'</div>':'')+
+    (bonoPac?'<div style="font-size:11px;color:var(--teal);margin-top:4px">🎟️ Bono activo: '+bonoPac.sesiones_restantes+' sesiones restantes</div>':'')+
+    '</div><button class="btn-secondary" onclick="verFicha(\''+p.id+'\')">Ver ficha</button></div>'+
+    (ff.length?ff.map(function(f){return'<div style="padding:10px;background:var(--surface3);border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:11px;font-weight:700;color:var(--purple)">'+(f.numero_factura||'—')+'</div><div style="font-size:10px;color:var(--muted2)">'+(f.concepto||'—')+' · '+(f.fecha_factura||new Date(f.created_at).toLocaleDateString('es-ES'))+'</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:800">'+(f.total||0)+'€</div><span class="factura-tipo factura-'+(f.es_mutua?'mutua':'particular')+'">'+(f.es_mutua?'Aseguradora':'Particular')+'</span></div></div>';}).join(''):'<div class="empty-state"><span class="empty-icon">🧾</span><div class="empty-text">Sin facturas</div></div>');
+}
+
+// ==============================
+// NAVEGACIÓN
+// ==============================
+function showSection(s){
+  document.querySelectorAll('.section-view').forEach(function(v){v.classList.remove('active');});
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
+  document.getElementById('view-'+s).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(function(n){if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+s+"'"))n.classList.add('active');});
+  var t={inicio:'Inicio',agenda:'Agenda',pacientes:'Pacientes',bonos:'Bonos',facturacion:'Facturación',historial:'Historial',servicios:'Herramientas',suscripcion:'Mi suscripción',psicologos:'Psicólogos/as',configuracion:'Configuración',estadisticas:'Estadísticas'};
+  var h=new Date().getHours(),sal=h<12?'Buenos días':h<20?'Buenas tardes':'Buenas noches';
+  document.getElementById('topbar-title').textContent=s==='inicio'?sal+' 👋':(t[s]||s);
+  if(s==='estadisticas') renderStats();
+  if(s==='configuracion') renderConfigConsulta();
+  if(s==='suscripcion') renderFacturasSuscripcion();
+  if(s==='facturacion'){ renderAseguradoras(); renderFacturas('todas'); }
+  if(s==='psicologos') loadPsicologos();
+}
+
+// MODALES ABRIR
+function abrirNuevaCita(){ populatePsicologoSelects(); document.getElementById('modal-cita').style.display='flex'; }
+function abrirNuevoPaciente(){ populatePsicologoSelects(); document.getElementById('modal-paciente').style.display='flex'; }
+function abrirNuevoBono(){ populatePlantillaSelect(); document.getElementById('bono-paciente-nombre').value=''; document.getElementById('bono-paciente-id').value=''; document.getElementById('bono-nombre').value=''; document.getElementById('bono-sesiones').value='10'; document.getElementById('bono-bonus').value='0'; document.getElementById('bono-precio').value=''; document.getElementById('modal-bono').style.display='flex'; }
+function abrirNuevaPlantilla(){ document.getElementById('modal-plantilla').style.display='flex'; }
+function abrirNuevaFactura(){ TIPO_FACTURA='particular'; document.getElementById('modal-factura-title').textContent='🧾 Nueva factura particular'; populatePacienteSelects(); document.getElementById('fac-importe').value=CONSULTA?CONSULTA.precio_sesion||60:60; document.getElementById('fac-autorizacion-wrap').style.display='none'; document.getElementById('fac-mutua-info').style.display='none'; document.getElementById('modal-factura').style.display='flex'; }
+function abrirModalFactura(tipo){ TIPO_FACTURA=tipo; document.getElementById('modal-factura-title').textContent=tipo==='mutua'?'📋 Parte de aseguradora':'🧾 Nueva factura particular'; populatePacienteSelects(); document.getElementById('fac-importe').value=CONSULTA?CONSULTA.precio_sesion||60:60; document.getElementById('fac-autorizacion-wrap').style.display=tipo==='mutua'?'block':'none'; document.getElementById('fac-mutua-info').style.display='none'; document.getElementById('modal-factura').style.display='flex'; }
+function abrirModalBaja(){ MOTIVO_BAJA=''; document.getElementById('modal-baja').style.display='flex'; }
+</script>
+
+<div style="text-align:center;padding:12px;font-size:10px;color:var(--muted2)"><a href="/politica-privacidad.pdf" target="_blank" style="color:var(--purple);text-decoration:none">Política de Privacidad</a> · © 2026 ZEVORA Systems</div>
+</body>
+</html>
