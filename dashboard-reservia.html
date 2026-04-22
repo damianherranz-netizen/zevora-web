@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReservIA — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#00C896;--green2:#00A07A;--green-dim:rgba(0,200,150,0.09);
+  --blue:#2563EB;--blue-dim:rgba(37,99,235,0.08);
+  --amber:#F59E0B;--amber-dim:rgba(245,158,11,0.1);
+  --red:#EF4444;--red-dim:rgba(239,68,68,0.08);
+  --navy:#0B1F3A;
+  --bg:#0D1117;--surface:#161B22;--surface2:#1C2333;--surface3:#21262D;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --text:rgba(255,255,255,0.92);--muted:rgba(255,255,255,0.45);--muted2:rgba(255,255,255,0.28);
+  --font:'Inter',sans-serif;--mono:'JetBrains Mono',monospace;
+  --sidebar:220px;--radius:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh;display:flex;overflow:hidden;}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
+.sidebar-logo{padding:20px 16px 14px;border-bottom:1px solid var(--border);}
+.sidebar-logo-text{font-size:20px;font-weight:900;color:var(--text);letter-spacing:-0.5px;}
+.sidebar-logo-text span{color:var(--green);}
+.sidebar-rest{font-size:11px;color:var(--muted2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sidebar-nav{padding:10px 8px;flex:1;}
+.nav-section{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);padding:10px 8px 4px;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:500;color:var(--muted);transition:all 0.15s;border:none;background:none;width:100%;text-align:left;}
+.nav-item:hover{background:var(--surface3);color:var(--text);}
+.nav-item.active{background:var(--green-dim);color:var(--green);font-weight:600;}
+.nav-icon{font-size:14px;width:18px;text-align:center;}
+.sidebar-footer{padding:12px;border-top:1px solid var(--border);}
+.btn-logout{width:100%;padding:8px;border-radius:7px;border:1px solid var(--border2);background:none;color:var(--muted);font-size:11px;font-family:var(--font);cursor:pointer;transition:all 0.15s;}
+.btn-logout:hover{border-color:var(--red);color:var(--red);}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:52px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;}
+.topbar-title{font-size:13px;font-weight:700;color:var(--text);}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.topbar-date{font-size:11px;color:var(--muted2);font-family:var(--mono);}
+.content{flex:1;overflow-y:auto;padding:20px;}
+
+/* SECTION VIEWS */
+.section-view{display:none;}
+.section-view.active{display:block;}
+
+/* CARDS */
+.section-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px;overflow:hidden;}
+.section-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);}
+.section-title{font-size:13px;font-weight:700;color:var(--text);}
+.section-body{padding:16px;}
+
+/* METRICS */
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;}
+.metric-value{font-size:24px;font-weight:900;color:var(--text);font-family:var(--mono);line-height:1;}
+.metric-label{font-size:10px;color:var(--muted2);margin-top:5px;font-weight:500;text-transform:uppercase;letter-spacing:0.5px;}
+.metric-sub{font-size:10px;color:var(--green);margin-top:3px;}
+
+/* TABLES */
+.res-table{width:100%;border-collapse:collapse;font-size:12px;}
+.res-table th{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted2);padding:6px 8px;border-bottom:1px solid var(--border);text-align:left;}
+.res-table td{padding:9px 8px;border-bottom:1px solid var(--border);color:var(--text);}
+.res-table tr:last-child td{border-bottom:none;}
+.res-table tr:hover td{background:var(--surface2);}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;}
+.badge.confirmada,.badge.confirmed{background:var(--green-dim);color:var(--green);}
+.badge.pendiente,.badge.pending{background:var(--amber-dim);color:var(--amber);}
+.badge.cancelada,.badge.cancelled{background:var(--red-dim);color:var(--red);}
+.badge.whatsapp{background:rgba(37,211,102,0.1);color:#25D366;}
+.badge.web{background:var(--blue-dim);color:var(--blue);}
+.badge.vip{background:rgba(245,158,11,0.12);color:var(--amber);}
+.badge.telefono{background:var(--surface3);color:var(--muted);}
+
+/* CLIENTES GRID */
+.clientes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.cliente-card{background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius);padding:14px;cursor:pointer;transition:border-color 0.15s;}
+.cliente-card:hover{border-color:var(--border2);}
+.cliente-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.cliente-av{width:36px;height:36px;border-radius:50%;background:var(--green-dim);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--green);flex-shrink:0;}
+.cliente-nombre{font-size:13px;font-weight:700;color:var(--text);}
+.cliente-visits{font-size:10px;color:var(--muted2);}
+.cliente-tags{display:flex;flex-wrap:wrap;gap:4px;}
+.ctag{font-size:9px;padding:2px 7px;border-radius:10px;font-weight:600;}
+.ctag.v{background:var(--amber-dim);color:var(--amber);}
+.ctag.a{background:var(--red-dim);color:var(--red);}
+.ctag.p{background:var(--green-dim);color:var(--green);}
+
+/* ACTIVIDAD FEED */
+.activity-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.activity-item:last-child{border-bottom:none;}
+.activity-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.activity-icon.reserva{background:var(--green-dim);}
+.activity-icon.calendar{background:rgba(59,130,246,0.1);}
+.activity-icon.noshow{background:var(--amber-dim);}
+.activity-icon.ia{background:rgba(139,92,246,0.1);}
+.activity-icon.cancel{background:var(--red-dim);}
+.activity-text{flex:1;}
+.activity-title{font-size:12px;font-weight:600;color:var(--text);}
+.activity-detail{font-size:10px;color:var(--muted2);margin-top:2px;}
+
+/* FORMS */
+.form-group{margin-bottom:12px;}
+.form-label{display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;}
+.form-input{width:100%;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;padding:9px 12px;color:var(--text);font-family:var(--font);font-size:12px;transition:border-color 0.15s;outline:none;}
+.form-input:focus{border-color:var(--green);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+select.form-input option{background:var(--surface3);}
+textarea.form-input{resize:vertical;}
+
+/* BUTTONS */
+.btn-primary{background:var(--green);color:#0B1F3A;border:none;border-radius:8px;padding:9px 16px;font-size:12px;font-weight:700;font-family:var(--font);cursor:pointer;transition:all 0.15s;}
+.btn-primary:hover{background:var(--green2);}
+.btn-secondary{background:var(--surface3);color:var(--muted);border:1px solid var(--border2);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer;transition:all 0.15s;}
+.btn-secondary:hover{border-color:var(--border2);color:var(--text);}
+.btn-danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer;}
+
+/* TABS */
+.tabs{display:flex;gap:4px;margin-bottom:14px;background:var(--surface3);border-radius:8px;padding:3px;}
+.tab{padding:6px 14px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--muted);font-family:var(--font);transition:all 0.15s;}
+.tab.active{background:var(--surface);color:var(--green);box-shadow:0 1px 3px rgba(0,0,0,0.3);}
+
+/* SEARCH */
+.search-input{background:var(--surface3);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:12px;font-family:var(--font);width:220px;outline:none;}
+.search-input:focus{border-color:var(--green);}
+
+/* SERVICE CARDS */
+.service-card{background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.service-info{flex:1;}
+.service-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.service-desc{font-size:11px;color:var(--muted2);line-height:1.4;}
+.service-status{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;}
+.status-dot{width:7px;height:7px;border-radius:50%;}
+.status-dot.on{background:var(--green);}
+.status-dot.off{background:var(--muted2);}
+.status-dot.pending{background:var(--amber);}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:100;display:flex;align-items:center;justify-content:center;}
+.modal-box{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:24px;width:90%;max-width:520px;max-height:90vh;overflow-y:auto;}
+.modal-title{font-size:15px;font-weight:800;color:var(--text);margin-bottom:18px;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;}
+
+/* SUSCRIPCION */
+.factura-mes{background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.factura-mes-num{font-size:10px;color:var(--muted2);font-family:var(--mono);}
+.factura-mes-periodo{font-size:13px;font-weight:700;color:var(--text);margin:3px 0;}
+.factura-mes-detalle{font-size:10px;color:var(--muted2);}
+.factura-mes-total{font-size:18px;font-weight:900;color:var(--green);font-family:var(--mono);}
+
+/* ROI */
+.roi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.roi-card{background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+.roi-value{font-size:22px;font-weight:900;font-family:var(--mono);color:var(--green);}
+.roi-label{font-size:10px;color:var(--muted2);margin-top:4px;text-transform:uppercase;letter-spacing:0.5px;}
+
+/* CONFIG */
+.config-section{background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;}
+.config-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--green);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;gap:8px;padding:32px;color:var(--muted2);font-size:12px;}
+.spinner{width:18px;height:18px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin 0.6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.empty-state{text-align:center;padding:32px;color:var(--muted2);}
+.empty-icon{font-size:32px;display:block;margin-bottom:8px;}
+.empty-text{font-size:12px;}
+
+/* HORA RESERVA */
+.hora-pill{background:var(--green-dim);color:var(--green);border-radius:6px;padding:2px 8px;font-family:var(--mono);font-size:11px;font-weight:700;}
+
+/* ROI highlight */
+.roi-positive{color:var(--green);}
+.roi-neutral{color:var(--amber);}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-text">Reserv<span>IA</span></div>
+    <div class="sidebar-rest" id="sidebar-rest-name">Cargando...</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Principal</div>
+    <button class="nav-item active" onclick="showSection('inicio')"><span class="nav-icon">📊</span>Inicio</button>
+    <button class="nav-item" onclick="showSection('reservas')"><span class="nav-icon">📅</span>Reservas</button>
+    <button class="nav-item" onclick="showSection('clientes')"><span class="nav-icon">👥</span>Clientes</button>
+    <button class="nav-item" onclick="showSection('actividad')"><span class="nav-icon">⚡</span>Actividad</button>
+    <div class="nav-section">Gestión</div>
+    <button class="nav-item" onclick="showSection('facturacion')"><span class="nav-icon">🧾</span>Facturación</button>
+    <button class="nav-item" onclick="showSection('roi')"><span class="nav-icon">📈</span>ROI & Métricas</button>
+    <button class="nav-item" onclick="showSection('servicios')"><span class="nav-icon">⚙️</span>Servicios</button>
+    <div class="nav-section">Cuenta</div>
+    <button class="nav-item" onclick="showSection('suscripcion')"><span class="nav-icon">💳</span>Mi Suscripción</button>
+    <button class="nav-item" onclick="showSection('configuracion')"><span class="nav-icon">🏪</span>Mi Restaurante</button>
+    <button class="nav-item" onclick="showSection('estadisticas')"><span class="nav-icon">📉</span>Estadísticas</button>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="btn-logout" onclick="cerrarSesion()">Cerrar sesión</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Inicio</div>
+    <div class="topbar-right">
+      <div class="topbar-date" id="topbar-date"></div>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- INICIO -->
+    <div class="section-view active" id="view-inicio">
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-value" id="metric-hoy">—</div>
+          <div class="metric-label">Reservas hoy</div>
+          <div class="metric-sub" id="metric-hoy-pax"></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="metric-semana">—</div>
+          <div class="metric-label">Esta semana</div>
+          <div class="metric-sub" id="metric-semana-sub"></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="metric-clientes">—</div>
+          <div class="metric-label">Clientes en BD</div>
+          <div class="metric-sub" id="metric-vip-count"></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="metric-ocupacion">—</div>
+          <div class="metric-label">Ocupación hoy</div>
+          <div class="metric-sub" id="metric-aforo-sub"></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">📅 Reservas de hoy</div>
+          </div>
+          <div class="section-body" id="reservas-hoy-content">
+            <div class="loading"><div class="spinner"></div></div>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">⚡ Actividad reciente</div>
+          </div>
+          <div class="section-body" id="actividad-reciente-content">
+            <div class="loading"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESERVAS -->
+    <div class="section-view" id="view-reservas">
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title">📅 Reservas</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input class="search-input" placeholder="Buscar cliente..." oninput="resSearchTerm=this.value;loadReservas()" id="res-search">
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="tabs">
+            <button class="tab active" onclick="currentResPeriod='hoy';loadReservas();setTabActive(this)">Hoy</button>
+            <button class="tab" onclick="currentResPeriod='semana';loadReservas();setTabActive(this)">Esta semana</button>
+            <button class="tab" onclick="currentResPeriod='mes';loadReservas();setTabActive(this)">Este mes</button>
+            <button class="tab" onclick="currentResPeriod='todas';loadReservas();setTabActive(this)">Todas</button>
+          </div>
+          <div id="reservas-table-content"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIENTES -->
+    <div class="section-view" id="view-clientes">
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title">👥 Clientes</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span id="clientes-count" style="font-size:11px;color:var(--muted2)"></span>
+            <input class="search-input" placeholder="Buscar..." oninput="cliSearchTerm=this.value;loadClientes()" id="cli-search">
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="tabs">
+            <button class="tab active" onclick="cliFilter='todos';loadClientes();setTabActive(this)">Todos</button>
+            <button class="tab" onclick="cliFilter='vip';loadClientes();setTabActive(this)">⭐ VIP</button>
+            <button class="tab" onclick="cliFilter='frecuentes';loadClientes();setTabActive(this)">🔄 Frecuentes</button>
+            <button class="tab" onclick="cliFilter='alergias';loadClientes();setTabActive(this)">⚠️ Alergias</button>
+          </div>
+          <div class="clientes-grid" id="clientes-grid">
+            <div class="loading" style="grid-column:1/-1"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIVIDAD -->
+    <div class="section-view" id="view-actividad">
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title">⚡ Feed de actividad</div>
+          <button class="btn-secondary" onclick="loadActividad()">↻ Actualizar</button>
+        </div>
+        <div class="section-body" id="actividad-content">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FACTURACIÓN -->
+    <div class="section-view" id="view-facturacion">
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title">🧾 Historial de facturas</div>
+        </div>
+        <div class="section-body" id="facturas-content">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROI -->
+    <div class="section-view" id="view-roi">
+      <div class="section-card">
+        <div class="section-header"><div class="section-title">📈 ROI & Métricas</div></div>
+        <div class="section-body">
+          <div class="roi-grid" id="roi-cards">
+            <div class="loading" style="grid-column:1/-1"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="section-card" style="margin-top:14px">
+        <div class="section-header"><div class="section-title">📊 Reservas últimas semanas</div></div>
+        <div class="section-body">
+          <canvas id="chart-reservas" height="120"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- SERVICIOS -->
+    <div class="section-view" id="view-servicios">
+      <div class="section-card">
+        <div class="section-header"><div class="section-title">⚙️ Servicios conectados</div></div>
+        <div class="section-body">
+          <div class="service-card">
+            <div style="font-size:24px">📅</div>
+            <div class="service-info">
+              <div class="service-title">Google Calendar</div>
+              <div class="service-desc">Sincroniza reservas automáticamente con tu calendario. Las citas del agente IA aparecen en tiempo real.</div>
+            </div>
+            <div>
+              <div class="service-status" id="cal-status">
+                <div class="status-dot off" id="cal-dot"></div>
+                <span id="cal-label">No conectado</span>
+              </div>
+              <button class="btn-primary" style="margin-top:8px;font-size:11px" onclick="conectarCalendar()">Conectar</button>
+            </div>
+          </div>
+          <div class="service-card">
+            <div style="font-size:24px">💬</div>
+            <div class="service-info">
+              <div class="service-title">WhatsApp Business</div>
+              <div class="service-desc">Agente IA que gestiona reservas 24h por WhatsApp. Confirmaciones automáticas y recordatorios.</div>
+            </div>
+            <div>
+              <div class="service-status" id="wa-status">
+                <div class="status-dot off" id="wa-dot"></div>
+                <span id="wa-label">Pendiente activación</span>
+              </div>
+            </div>
+          </div>
+          <div class="service-card">
+            <div style="font-size:24px">🤖</div>
+            <div class="service-info">
+              <div class="service-title">Agente IA ReservIA</div>
+              <div class="service-desc">Motor de inteligencia artificial que entiende lenguaje natural, gestiona disponibilidad y recuerda preferencias de clientes.</div>
+            </div>
+            <div>
+              <div class="service-status">
+                <div class="status-dot on"></div>
+                <span style="color:var(--green);font-size:11px;font-weight:600">Activo</span>
+              </div>
+            </div>
+          </div>
+          <div class="service-card">
+            <div style="font-size:24px">📊</div>
+            <div class="service-info">
+              <div class="service-title">Briefing diario</div>
+              <div class="service-desc">Email visual al equipo cada mañana a las 9h con las reservas del día, VIPs y alertas especiales.</div>
+            </div>
+            <div>
+              <div class="service-status" id="briefing-status">
+                <div class="status-dot" id="briefing-dot" style="background:var(--amber)"></div>
+                <span id="briefing-label" style="font-size:11px;font-weight:600;color:var(--amber)">Sin emails configurados</span>
+              </div>
+              <button class="btn-secondary" style="margin-top:8px;font-size:11px" onclick="showSection('configuracion')">Configurar →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Google Calendar input -->
+      <div class="section-card" id="cal-config-card" style="display:none">
+        <div class="section-header"><div class="section-title">📅 Configurar Google Calendar</div></div>
+        <div class="section-body">
+          <div class="form-group">
+            <label class="form-label">ID del calendario</label>
+            <input class="form-input" id="cal-input" placeholder="ejemplo@group.calendar.google.com">
+            <div style="font-size:10px;color:var(--muted2);margin-top:4px">Google Calendar → Configuración → ID del calendario</div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="btn-primary" onclick="guardarCalendar()">✓ Guardar y conectar</button>
+            <button class="btn-secondary" onclick="document.getElementById('cal-config-card').style.display='none'">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUSCRIPCIÓN -->
+    <div class="section-view" id="view-suscripcion">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+        <div class="section-card">
+          <div class="section-header"><div class="section-title">💳 Plan activo</div></div>
+          <div class="section-body">
+            <div style="font-size:28px;font-weight:900;color:var(--green);font-family:var(--mono)">39,99€</div>
+            <div style="font-size:11px;color:var(--muted2);margin-top:4px">/ mes · ReservIA Plan Base</div>
+            <div style="font-size:10px;color:var(--muted2);margin-top:8px">Agente IA WhatsApp · Google Calendar · Briefing diario · Sin límite de reservas</div>
+            <button class="btn-primary" style="margin-top:14px;width:100%" onclick="abrirPortal()">Gestionar en Stripe ↗</button>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-header"><div class="section-title">🎁 Período promocional</div></div>
+          <div class="section-body" id="promo-info">
+            <div class="loading"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="section-card">
+        <div class="section-header"><div class="section-title">📄 Facturas del servicio</div></div>
+        <div class="section-body" id="facturas-suscripcion-list">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIGURACIÓN -->
+    <div class="section-view" id="view-configuracion">
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title">🏪 Datos de mi restaurante</div>
+          <button class="btn-primary" onclick="guardarConfigRestaurante()">✓ Guardar cambios</button>
+        </div>
+        <div class="section-body" id="config-restaurante">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+      </div>
+      <div class="section-card">
+        <div class="section-header"><div class="section-title">📧 Emails briefing diario</div></div>
+        <div class="section-body">
+          <div style="font-size:11px;color:var(--muted2);margin-bottom:12px;line-height:1.5">Introduce los emails del maître o encargado que recibirá el briefing visual cada mañana a las 9h. Puedes añadir varios separados por comas.</div>
+          <div class="form-group">
+            <label class="form-label">Emails (separados por comas)</label>
+            <input class="form-input" id="cfg-emails-briefing" placeholder="maitre@mirestaurante.com, gerente@mirestaurante.com">
+          </div>
+          <button class="btn-primary" onclick="guardarEmailsBriefing()">✓ Guardar emails</button>
+        </div>
+      </div>
+      <div class="section-card">
+        <div class="section-header"><div class="section-title">⚠️ Zona de peligro</div></div>
+        <div class="section-body">
+          <div style="font-size:12px;color:var(--muted2);margin-bottom:12px">Si cancelas tu suscripción perderás el acceso al sistema. Todos tus datos serán eliminados en 30 días.</div>
+          <button class="btn-danger" onclick="document.getElementById('cancel-modal').style.display='flex'">Cancelar suscripción</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ESTADÍSTICAS -->
+    <div class="section-view" id="view-estadisticas">
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-value" id="stat-total-reservas">—</div>
+          <div class="metric-label">Total reservas</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="stat-total-clientes">—</div>
+          <div class="metric-label">Clientes únicos</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="stat-vip">—</div>
+          <div class="metric-label">Clientes VIP</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="stat-conversion">—</div>
+          <div class="metric-label">Canal IA</div>
+          <div class="metric-sub">% vía WhatsApp</div>
+        </div>
+      </div>
+      <div class="section-card">
+        <div class="section-header"><div class="section-title">📊 Reservas por semana</div></div>
+        <div class="section-body">
+          <canvas id="chart-stats" height="120"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- MODAL CANCELAR -->
+<div class="modal-overlay" id="cancel-modal" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box">
+    <div class="modal-title">⚠️ Cancelar suscripción ReservIA</div>
+    <p style="font-size:12px;color:var(--muted2);margin-bottom:16px;line-height:1.6">¿Estás seguro? Perderás acceso al sistema y todos los datos se eliminarán en 30 días. Esta acción no se puede deshacer.</p>
+    <div class="form-group">
+      <label class="form-label">Motivo de cancelación</label>
+      <select class="form-input" id="cancel-reason">
+        <option value="">Selecciona un motivo...</option>
+        <option>El precio es demasiado alto</option>
+        <option>No uso suficientemente el sistema</option>
+        <option>Me falta alguna funcionalidad</option>
+        <option>Encontré otra solución</option>
+        <option>Cierre del negocio</option>
+        <option>Otro motivo</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Comentario (opcional)</label>
+      <textarea class="form-input" id="cancel-comment" rows="3" placeholder="Ayúdanos a mejorar..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="document.getElementById('cancel-modal').style.display='none'">Cancelar</button>
+      <button class="btn-danger" onclick="confirmarBaja()">Confirmar baja</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script>
+// ── GLOBALS ──
+const SUPABASE_URL = 'https://msspbahutwrgajjsrwtj.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zc3BiYWh1dHdyZ2FqanNyd3RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0ODAzODYsImV4cCI6MjA4OTA1NjM4Nn0.ILW9n5wF3zIL_e4WfYqIuZ0nF8XjVQhu-h6Xt9lE0X8';
+var TOKEN = null, RESTAURANT_ID = null, RESTAURANT = null;
+var currentResPeriod = 'hoy', resSearchTerm = '', cliSearchTerm = '', cliFilter = 'todos';
+
+// ── AUTH ──
+function checkAuth(){
+  TOKEN = sessionStorage.getItem('reservia_token');
+  RESTAURANT_ID = sessionStorage.getItem('reservia_restaurant_id');
+  if(!TOKEN){ window.location.href='login-reservia.html'; return false; }
+  return true;
+}
+
+function hdrs(){ return {'Content-Type':'application/json','apikey':SUPABASE_ANON,'Authorization':'Bearer '+TOKEN}; }
+
+async function sbGet(t,q){
+  var r = await fetch(SUPABASE_URL+'/rest/v1/'+t+'?'+(q||''),{headers:hdrs()});
+  if(r.status===401){ window.location.href='login-reservia.html'; return []; }
+  return r.json();
+}
+
+async function sbPost(t,data){
+  var r = await fetch(SUPABASE_URL+'/rest/v1/'+t,{method:'POST',headers:hdrs(),body:JSON.stringify(data)});
+  return r.json();
+}
+
+async function sbPatch(t,filter,data){
+  var r = await fetch(SUPABASE_URL+'/rest/v1/'+t+'?'+filter,{method:'PATCH',headers:hdrs(),body:JSON.stringify(data)});
+  return r.status;
+}
+
+async function callFn(name,body){
+  var r = await fetch(SUPABASE_URL+'/functions/v1/'+name,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},
+    body:JSON.stringify(body)
+  });
+  return r.json();
+}
+
+// ── INIT ──
+async function init(){
+  if(!checkAuth()) return;
+  // Date
+  var now = new Date();
+  document.getElementById('topbar-date').textContent = now.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
+  // Load restaurant
+  await loadRestaurante();
+  // Load initial data
+  var hoy = now.toISOString().split('T')[0];
+  await Promise.all([loadMetrics(hoy), loadReservasHoy(hoy), loadActividadReciente()]);
+}
+
+async function loadRestaurante(){
+  var d;
+  if(RESTAURANT_ID) d = await sbGet('restaurantes','id=eq.'+RESTAURANT_ID+'&select=*');
+  if(!d||!d[0]){
+    try{
+      var ur = await fetch(SUPABASE_URL+'/auth/v1/user',{headers:{'apikey':SUPABASE_ANON,'Authorization':'Bearer '+TOKEN}});
+      var ud = await ur.json();
+      if(ud&&ud.email) d = await sbGet('restaurantes','email=eq.'+encodeURIComponent(ud.email)+'&select=*');
+    }catch(e){}
+  }
+  if(d&&d[0]){
+    RESTAURANT = d[0];
+    RESTAURANT_ID = RESTAURANT.id;
+    sessionStorage.setItem('reservia_restaurant_id', RESTAURANT_ID);
+    document.getElementById('sidebar-rest-name').textContent = RESTAURANT.nombre || 'Mi Restaurante';
+    // Update calendar status
+    if(RESTAURANT.calendario_google_id){
+      document.getElementById('cal-dot').className='status-dot on';
+      document.getElementById('cal-label').textContent='Conectado';
+      document.getElementById('cal-label').style.color='var(--green)';
+    }
+    // Update briefing status
+    var emails = RESTAURANT.emails_briefing || [];
+    if(emails.length){
+      document.getElementById('briefing-dot').style.background='var(--green)';
+      document.getElementById('briefing-label').textContent=emails.length+' email'+(emails.length>1?'s':'')+' configurado'+(emails.length>1?'s':'');
+      document.getElementById('briefing-label').style.color='var(--green)';
+    }
+  }
+}
+
+// ── METRICS ──
+async function loadMetrics(hoy){
+  try{
+    var resHoy = await sbGet('reservas','restaurant_id=eq.'+RESTAURANT_ID+'&fecha=eq.'+hoy+'&estado=eq.confirmada&select=personas');
+    var paxHoy = resHoy.reduce(function(s,r){return s+(r.personas||0);},0);
+    var aforo = RESTAURANT?RESTAURANT.aforo_maximo||50:50;
+    var pct = Math.round(paxHoy/aforo*100);
+    document.getElementById('metric-hoy').textContent = resHoy.length;
+    document.getElementById('metric-hoy-pax').textContent = paxHoy+' comensales';
+    document.getElementById('metric-ocupacion').textContent = pct+'%';
+    document.getElementById('metric-aforo-sub').textContent = paxHoy+'/'+aforo+' pax';
+
+    var lunes = new Date(); lunes.setDate(lunes.getDate()-lunes.getDay()+1);
+    var resSem = await sbGet('reservas','restaurant_id=eq.'+RESTAURANT_ID+'&fecha=gte.'+lunes.toISOString().split('T')[0]+'&estado=eq.confirmada&select=personas');
+    var paxSem = resSem.reduce(function(s,r){return s+(r.personas||0);},0);
+    document.getElementById('metric-semana').textContent = resSem.length;
+    document.getElementById('metric-semana-sub').textContent = paxSem+' comensales';
+
+    var clientes = await sbGet('clientes','restaurant_id=eq.'+RESTAURANT_ID+'&select=id,es_cliente_vip');
+    document.getElementById('metric-clientes').textContent = clientes.length;
+    var vips = clientes.filter(function(c){return c.es_cliente_vip;}).length;
+    document.getElementById('metric-vip-count').textContent = vips+' VIP';
+  }catch(e){ console.error('loadMetrics',e); }
+}
+
+// ── RESERVAS HOY ──
+async function loadReservasHoy(hoy){
+  var el = document.getElementById('reservas-hoy-content');
+  try{
+    var res = await sbGet('reservas','restaurant_id=eq.'+RESTAURANT_ID+'&fecha=eq.'+hoy+'&order=minutos_inicio.asc&select=nombre,personas,minutos_inicio,notas,estado,origen');
+    if(!res.length){ el.innerHTML='<div class="empty-state"><span class="empty-icon">📅</span><div class="empty-text">Sin reservas hoy</div></div>'; return; }
+    el.innerHTML='<table class="res-table"><thead><tr><th>Hora</th><th>Cliente</th><th>Pax</th><th>Canal</th><th>Estado</th></tr></thead><tbody>'+
+      res.map(function(r){
+        return'<tr><td><span class="hora-pill">'+minToHora(r.minutos_inicio)+'</span></td><td style="font-weight:600">'+r.nombre+'</td><td>'+r.personas+'</td>'+
+          '<td><span class="badge '+(r.origen||'web')+'">'+(r.origen||'web')+'</span></td>'+
+          '<td><span class="badge '+(r.estado||'confirmada')+'">'+(r.estado||'confirmada')+'</span></td></tr>';
+      }).join('')+'</tbody></table>';
+  }catch(e){ el.innerHTML='<div class="empty-state"><span class="empty-text">Error cargando reservas</span></div>'; }
+}
+
+// ── ACTIVIDAD RECIENTE ──
+async function loadActividadReciente(){
+  var el = document.getElementById('actividad-reciente-content');
+  try{
+    var acts = await sbGet('actividad','restaurant_id=eq.'+RESTAURANT_ID+'&order=created_at.desc&limit=8&select=tipo,descripcion,created_at');
+    if(!acts||!acts.length){
+      el.innerHTML='<div class="empty-state"><span class="empty-icon">⚡</span><div class="empty-text">Sin actividad reciente</div></div>';
+      return;
+    }
+    var iconMap={'reserva':'📅','confirmacion':'✅','cancelacion':'❌','noshow':'🚫','ia':'🤖','calendar':'📅'};
+    var clsMap={'reserva':'reserva','confirmacion':'reserva','cancelacion':'cancel','noshow':'noshow','ia':'ia','calendar':'calendar'};
+    el.innerHTML=acts.map(function(a){
+      var icon=iconMap[a.tipo]||'⚡'; var cls=clsMap[a.tipo]||'ia';
+      var ts=new Date(a.created_at).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+      return'<div class="activity-item"><div class="activity-icon '+cls+'">'+icon+'</div>'+
+        '<div class="activity-text"><div class="activity-title">'+(a.descripcion||'Actividad')+'</div>'+
+        '<div class="activity-detail">'+ts+'</div></div></div>';
+    }).join('');
+  }catch(e){ el.innerHTML='<div class="empty-state"><span class="empty-text">Sin actividad registrada aún</span></div>'; }
+}
+
+// ── RESERVAS ──
+async function loadReservas(){
+  var el = document.getElementById('reservas-table-content');
+  el.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  try{
+    var hoy = new Date().toISOString().split('T')[0];
+    var filter='';
+    if(currentResPeriod==='hoy') filter='&fecha=eq.'+hoy;
+    else if(currentResPeriod==='semana'){var l=new Date();l.setDate(l.getDate()-l.getDay()+1);filter='&fecha=gte.'+l.toISOString().split('T')[0];}
+    else if(currentResPeriod==='mes'){var m=new Date(new Date().getFullYear(),new Date().getMonth(),1);filter='&fecha=gte.'+m.toISOString().split('T')[0];}
+    var res = await sbGet('reservas','restaurant_id=eq.'+RESTAURANT_ID+filter+'&order=fecha.desc,minutos_inicio.asc&select=nombre,personas,fecha,minutos_inicio,notas,estado,origen');
+    if(resSearchTerm) res=res.filter(function(r){return r.nombre.toLowerCase().includes(resSearchTerm.toLowerCase());});
+    if(!res.length){ el.innerHTML='<div class="empty-state"><span class="empty-icon">📅</span><div class="empty-text">Sin reservas para este período</div></div>'; return; }
+    el.innerHTML='<table class="res-table"><thead><tr><th>Fecha</th><th>Hora</th><th>Cliente</th><th>Pax</th><th>Notas</th><th>Canal</th><th>Estado</th></tr></thead><tbody>'+
+      res.map(function(r){
+        return'<tr><td style="color:var(--muted2)">'+r.fecha+'</td><td><span class="hora-pill">'+minToHora(r.minutos_inicio)+'</span></td>'+
+          '<td style="font-weight:600">'+r.nombre+'</td><td>'+r.personas+'</td>'+
+          '<td style="color:var(--muted2);font-size:11px;max-width:140px">'+(r.notas||'-')+'</td>'+
+          '<td><span class="badge '+(r.origen||'web')+'">'+(r.origen||'web')+'</span></td>'+
+          '<td><span class="badge '+(r.estado||'confirmada')+'">'+(r.estado||'confirmada')+'</span></td></tr>';
+      }).join('')+'</tbody></table>';
+  }catch(e){ el.innerHTML='<div class="empty-state"><span class="empty-text">Error cargando reservas</span></div>'; }
+}
+
+// ── CLIENTES ──
+async function loadClientes(){
+  var el = document.getElementById('clientes-grid');
+  el.innerHTML='<div class="loading" style="grid-column:1/-1"><div class="spinner"></div></div>';
+  try{
+    var clientes = await sbGet('clientes','restaurant_id=eq.'+RESTAURANT_ID+'&order=total_visitas.desc&select=nombre,telefono,email,total_visitas,es_cliente_vip,es_cliente_frecuente,alergias,preferencias,ultima_visita');
+    document.getElementById('clientes-count').textContent=clientes.length+' clientes';
+    if(cliFilter==='vip') clientes=clientes.filter(function(c){return c.es_cliente_vip;});
+    else if(cliFilter==='frecuentes') clientes=clientes.filter(function(c){return c.es_cliente_frecuente;});
+    else if(cliFilter==='alergias') clientes=clientes.filter(function(c){return c.alergias&&c.alergias.length;});
+    if(cliSearchTerm) clientes=clientes.filter(function(c){return(c.nombre||'').toLowerCase().includes(cliSearchTerm.toLowerCase())||((c.telefono||'').includes(cliSearchTerm));});
+    if(!clientes.length){ el.innerHTML='<div class="empty-state" style="grid-column:1/-1"><span class="empty-icon">👥</span><div class="empty-text">Sin clientes</div></div>'; return; }
+    el.innerHTML=clientes.map(function(c){
+      var av=(c.nombre||'?').substring(0,2).toUpperCase();
+      var tags=[
+        ...(c.es_cliente_vip?['<span class="ctag v">⭐ VIP</span>']:[]),
+        ...(c.es_cliente_frecuente&&!c.es_cliente_vip?['<span class="ctag v">🔄 Frecuente</span>']:[]),
+        ...(c.alergias||[]).map(function(a){return'<span class="ctag a">⚠ '+a+'</span>';}),
+        ...(c.preferencias||[]).slice(0,2).map(function(p){return'<span class="ctag p">'+p+'</span>';}),
+      ].join('');
+      return'<div class="cliente-card"><div class="cliente-header">'+
+        '<div class="cliente-av">'+av+'</div>'+
+        '<div><div class="cliente-nombre">'+(c.nombre||'Sin nombre')+'</div>'+
+        '<div class="cliente-visits">'+(c.total_visitas||0)+' visitas'+(c.ultima_visita?' · '+c.ultima_visita:'')+'</div></div></div>'+
+        '<div class="cliente-tags">'+(tags||'<span style="font-size:10px;color:var(--muted2)">Sin datos</span>')+'</div></div>';
+    }).join('');
+  }catch(e){ el.innerHTML='<div class="empty-state" style="grid-column:1/-1"><span class="empty-text">Error cargando clientes</span></div>'; }
+}
+
+// ── ACTIVIDAD FEED ──
+async function loadActividad(){
+  var el = document.getElementById('actividad-content');
+  el.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  try{
+    var acts = await sbGet('actividad','restaurant_id=eq.'+RESTAURANT_ID+'&order=created_at.desc&limit=50&select=tipo,descripcion,created_at,meta');
+    if(!acts||!acts.length){ el.innerHTML='<div class="empty-state"><span class="empty-icon">⚡</span><div class="empty-text">Sin actividad registrada aún</div></div>'; return; }
+    var iconMap={'reserva':'📅','confirmacion':'✅','cancelacion':'❌','noshow':'🚫','ia':'🤖','calendar':'📅','whatsapp':'💬'};
+    var clsMap={'reserva':'reserva','confirmacion':'reserva','cancelacion':'cancel','noshow':'noshow','ia':'ia','calendar':'calendar','whatsapp':'ia'};
+    el.innerHTML=acts.map(function(a){
+      var icon=iconMap[a.tipo]||'⚡'; var cls=clsMap[a.tipo]||'ia';
+      var ts=new Date(a.created_at).toLocaleString('es-ES',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+      return'<div class="activity-item"><div class="activity-icon '+cls+'">'+icon+'</div>'+
+        '<div class="activity-text"><div class="activity-title">'+(a.descripcion||'Actividad')+'</div>'+
+        '<div class="activity-detail">'+ts+'</div></div></div>';
+    }).join('');
+  }catch(e){ el.innerHTML='<div class="empty-state"><span class="empty-text">Error cargando actividad</span></div>'; }
+}
+
+// ── FACTURACIÓN ──
+async function loadFacturacion(){
+  var el = document.getElementById('facturas-content');
+  el.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  try{
+    var facts = await sbGet('facturas','restaurant_id=eq.'+RESTAURANT_ID+'&order=created_at.desc&select=*');
+    if(!facts||!facts.length){ el.innerHTML='<div class="empty-state"><span class="empty-icon">🧾</span><div class="empty-text">Sin facturas emitidas</div></div>'; return; }
+    el.innerHTML='<table class="res-table"><thead><tr><th>Número</th><th>Concepto</th><th>Fecha</th><th>Importe</th><th></th></tr></thead><tbody>'+
+      facts.map(function(f){
+        return'<tr><td style="font-family:var(--mono);font-size:11px;color:var(--green)">'+(f.numero_factura||'—')+'</td>'+
+          '<td>'+(f.concepto||'Servicio')+'</td>'+
+          '<td style="color:var(--muted2)">'+(f.fecha_factura||'—')+'</td>'+
+          '<td style="font-weight:700">'+(f.total||0)+'€</td>'+
+          '<td><button class="btn-secondary" style="font-size:10px;padding:4px 8px" data-fid="'+f.id+'" onclick="descargarFacturaBtn(this)">PDF</button></td></tr>';
+      }).join('')+'</tbody></table>';
+  }catch(e){ el.innerHTML='<div class="empty-state"><span class="empty-text">Error cargando facturas</span></div>'; }
+}
+
+function descargarFacturaBtn(el){descargarFactura(el.getAttribute('data-fid'));}
+function descargarFactura(id){alert('Factura '+id+' — Próximamente descarga PDF');}
+
+// ── ROI ──
+async function loadROI(){
+  var el = document.getElementById('roi-cards');
+  try{
+    var hoy = new Date().toISOString().split('T')[0];
+    var im = new Date(new Date().getFullYear(),new Date().getMonth(),1);
+    var resMes = await sbGet('reservas','restaurant_id=eq.'+RESTAURANT_ID+'&fecha=gte.'+im.toISOString().split('T')[0]+'&estado=eq.confirmada&select=personas,origen');
+    var totalPax = resMes.reduce(function(s,r){return s+(r.personas||0);},0);
+    var ticket = RESTAURANT?RESTAURANT.ticket_medio||35:35;
+    var ingEstimado = Math.round(totalPax*ticket);
+    var pctIA = resMes.length?Math.round(resMes.filter(function(r){return r.origen==='whatsapp';}).length/resMes.length*100):0;
+    var roi = Math.round((ingEstimado-39.99)/39.99*100);
+    el.innerHTML=
+      '<div class="roi-card"><div class="roi-value">'+resMes.length+'</div><div class="roi-label">Reservas este mes</div></div>'+
+      '<div class="roi-card"><div class="roi-value">'+totalPax+'</div><div class="roi-label">Comensales este mes</div></div>'+
+      '<div class="roi-card"><div class="roi-value">'+ingEstimado+'€</div><div class="roi-label">Ingresos estimados</div></div>'+
+      '<div class="roi-card"><div class="roi-value">39,99€</div><div class="roi-label">Coste ReservIA</div></div>'+
+      '<div class="roi-card"><div class="roi-value roi-positive">'+roi+'%</div><div class="roi-label">ROI del sistema</div></div>'+
+      '<div class="roi-card"><div class="roi-value">'+pctIA+'%</div><div class="roi-label">Reservas vía IA</div></div>';
+    loadChart();
+  }catch(e){ el.innerHTML='<div class="loading"><span>Error cargando métricas</span></div>'; }
+}
+
+// ── CHART ──
+var chartInstance = null;
+async function loadChart(){
+  try{
+    var semanas=[]; var labels=[];
+    for(var i=5;i>=0;i--){
+      var d=new Date(); d.setDate(d.getDate()-i*7);
+      var lun=new Date(d); lun.setDate(d.getDate()-d.getDay()+1);
+      var dom=new Date(lun); dom.setDate(lun.getDate()+6);
+      var res=await sbGet('reservas','restaurant_id=eq.'+RESTAURANT_ID+'&fecha=gte.'+lun.toISOString().split('T')[0]+'&fecha=lte.'+dom.toISOString().split('T')[0]+'&estado=eq.confirmada&select=id');
+      semanas.push(res.length);
+      labels.push('S'+Math.ceil(d.getDate()/7)+' '+d.toLocaleDateString('es-ES',{month:'short'}));
+    }
+    var ctx=document.getElementById('chart-reservas');
+    if(!ctx)return;
+    if(chartInstance)chartInstance.destroy();
+    chartInstance=new Chart(ctx,{
+      type:'bar',
+      data:{labels:labels,datasets:[{data:semanas,backgroundColor:'rgba(0,200,150,0.3)',borderColor:'#00C896',borderWidth:2,borderRadius:4}]},
+      options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'rgba(255,255,255,0.4)',font:{size:10}}},x:{grid:{display:false},ticks:{color:'rgba(255,255,255,0.4)',font:{size:10}}}}}
+    });
+  }catch(e){}
+}
+
+// ── SERVICIOS ──
+function conectarCalendar(){
+  document.getElementById('cal-config-card').style.display='block';
+  if(RESTAURANT&&RESTAURANT.calendario_google_id){
+    document.getElementById('cal-input').value=RESTAURANT.calendario_google_id;
+  }
+}
+
+async function guardarCalendar(){
+  var calId=document.getElementById('cal-input').value.trim();
+  if(!calId){alert('Introduce el ID del calendario');return;}
+  await sbPatch('restaurantes','id=eq.'+RESTAURANT_ID,{calendario_google_id:calId});
+  if(RESTAURANT) RESTAURANT.calendario_google_id=calId;
+  document.getElementById('cal-dot').className='status-dot on';
+  document.getElementById('cal-label').textContent='Conectado';
+  document.getElementById('cal-label').style.color='var(--green)';
+  document.getElementById('cal-config-card').style.display='none';
+  alert('✅ Google Calendar conectado correctamente');
+}
+
+// ── STRIPE PORTAL ──
+async function abrirPortal(){
+  var btn=event&&event.target?event.target:null;
+  if(btn){btn.disabled=true;btn.textContent='Abriendo...';}
+  try{
+    var d=await callFn('stripe-portal',{restaurant_id:RESTAURANT_ID});
+    if(d&&d.url){ window.open(d.url,'_blank'); }
+    else{ alert('No se pudo abrir el portal. Escríbenos a reservia@zevorasystems.com'); }
+  }catch(e){ alert('Error de conexión. Escríbenos a reservia@zevorasystems.com'); }
+  if(btn){btn.disabled=false;btn.textContent='Gestionar en Stripe ↗';}
+}
+
+// ── SUSCRIPCIÓN ──
+async function loadSuscripcion(){
+  var promoEl=document.getElementById('promo-info');
+  var cupon=RESTAURANT?RESTAURANT.cupon_aplicado||'':'';
+  var mesesGratis=cupon.indexOf('BIENVENIDA')!==-1?2:0;
+  if(mesesGratis>0){
+    promoEl.innerHTML='<div style="background:var(--green-dim);border:1px solid rgba(0,200,150,0.2);border-radius:8px;padding:12px;font-size:12px;color:var(--green);font-weight:600">🎉 '+mesesGratis+' meses gratis activos<br><span style="font-size:10px;color:var(--muted2);font-weight:400">Cupón: '+cupon+'</span></div>';
+  }else{
+    promoEl.innerHTML='<div style="font-size:12px;color:var(--muted2)">Sin promoción activa</div>';
+  }
+  renderFacturasSuscripcion();
+}
+
+function renderFacturasSuscripcion(){
+  var el=document.getElementById('facturas-suscripcion-list');
+  if(!RESTAURANT){el.innerHTML='<div class="loading"><div class="spinner"></div></div>';return;}
+  var MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var ahora=new Date();
+  var alta=RESTAURANT.created_at?new Date(RESTAURANT.created_at):ahora;
+  var cupon=RESTAURANT.cupon_aplicado||'';
+  var mesesGratis=cupon.indexOf('BIENVENIDA')!==-1?2:0;
+  var out='';
+  for(var i=0;i<12;i++){
+    var d=new Date(ahora.getFullYear(),ahora.getMonth()-i,1);
+    if(d<new Date(alta.getFullYear(),alta.getMonth(),1))break;
+    var mesNom=MESES[d.getMonth()]; var anioNum=d.getFullYear();
+    var diffMeses=(d.getFullYear()-alta.getFullYear())*12+(d.getMonth()-alta.getMonth());
+    var gratis=diffMeses<mesesGratis;
+    var totalShow=gratis?'0,00':'39,99';
+    var numFac='RESERVIA-'+anioNum+String(d.getMonth()+1).padStart(2,'0')+'-'+(RESTAURANT_ID||'').substr(-4).toUpperCase();
+    var badge=gratis?'<span style="background:rgba(0,200,150,0.1);border:1px solid rgba(0,200,150,0.2);border-radius:20px;padding:2px 8px;font-size:9px;font-weight:700;color:var(--green)">GRATIS</span>':'';
+    out+='<div class="factura-mes">'+
+      '<div><div class="factura-mes-num">'+numFac+'</div>'+
+      '<div class="factura-mes-periodo">'+mesNom+' '+anioNum+' '+badge+'</div>'+
+      '<div class="factura-mes-detalle">ReservIA Plan Base'+(gratis?' · Período promocional gratuito':' · IVA 21% incluido')+'</div></div>'+
+      '<div style="text-align:right"><div class="factura-mes-total">'+totalShow+'€</div>'+
+      '<button class="btn-secondary" style="margin-top:6px;font-size:10px" data-mes="'+mesNom+'" data-anio="'+anioNum+'" data-num="'+numFac+'" data-total="'+(gratis?0:39.99)+'" data-gratis="'+(gratis?1:0)+'" onclick="descargarFacturaMesBtn(this)">⬇️ PDF</button></div></div>';
+  }
+  if(!out)out='<div class="empty-state"><span class="empty-icon">📄</span><div class="empty-text">Sin facturas aún</div></div>';
+  el.innerHTML=out;
+}
+
+function descargarFacturaMesBtn(btn){
+  var mes=btn.getAttribute('data-mes'); var anio=btn.getAttribute('data-anio');
+  var num=btn.getAttribute('data-num'); var total=parseFloat(btn.getAttribute('data-total'));
+  var gratis=btn.getAttribute('data-gratis')==='1';
+  descargarFacturaMes(mes,anio,num,total,gratis);
+}
+
+function descargarFacturaMes(mes,anio,num,totalNum,esGratis){
+  var nombre=RESTAURANT?RESTAURANT.nombre:'Restaurante';
+  var nif=RESTAURANT?RESTAURANT.nif||'':'';
+  var direccion=RESTAURANT?RESTAURANT.direccion||'':'';
+  var total=(totalNum||0).toFixed(2);
+  var base=esGratis?'0.00':(totalNum/1.21).toFixed(2);
+  var iva=esGratis?'0.00':(totalNum-totalNum/1.21).toFixed(2);
+  var fecha=new Date().toLocaleDateString('es-ES');
+  var css='<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;background:white;color:#0B1F3A;-webkit-print-color-adjust:exact}'+
+    '.page{width:210mm;min-height:297mm;margin:0 auto;padding-bottom:50mm;position:relative}'+
+    '.top-bar{height:3mm;background:#00C896}.header{background:#0B1F3A;padding:10mm 15mm 8mm;display:flex;justify-content:space-between;align-items:flex-start}'+
+    '.logo{font-size:26px;font-weight:900;color:white}.logo span{color:#00C896}'+
+    '.fiscal{border-left:1px solid #1B3B6F;padding-left:8mm;margin-left:8mm}'+
+    '.fiscal-lbl{font-size:7px;font-weight:700;text-transform:uppercase;color:#64748B;margin-bottom:4px}'+
+    '.fiscal-name{font-size:11px;font-weight:700;color:white;margin-bottom:3px}'+
+    '.fiscal-det{font-size:8.5px;color:#CBD5E1;line-height:1.7}'+
+    '.inv-title{font-size:32px;font-weight:900;color:#00C896}.inv-meta{font-size:9px;color:#94A3B8;margin-top:4px;line-height:1.9;text-align:right}'+
+    '.client-sec{background:#F8FAFC;padding:6mm 15mm}.lbl{font-size:7px;font-weight:700;text-transform:uppercase;color:#64748B;margin-bottom:5px}'+
+    '.cli-name{font-size:13px;font-weight:700;margin-bottom:3px}.cli-det{font-size:9px;color:#64748B;line-height:1.7}'+
+    '.promo{background:#E8F8F3;border:1px solid #00C896;margin:4mm 15mm;border-radius:6px;padding:4mm 6mm;font-size:9px;color:#00A07A;font-weight:600}'+
+    '.table-sec{padding:6mm 15mm}table{width:100%;border-collapse:collapse}'+
+    'thead tr{background:#0B1F3A}thead th{padding:6px 8px;font-size:8px;font-weight:700;text-transform:uppercase;color:white;text-align:left}'+
+    'thead th:nth-child(2),thead th:nth-child(3),thead th:nth-child(4){text-align:right}'+
+    'tbody td{padding:8px;font-size:9.5px;border-bottom:1px solid #E2E8F0}'+
+    'tbody td:nth-child(2),tbody td:nth-child(3){text-align:right;color:#64748B}tbody td:nth-child(4){text-align:right;font-weight:700}'+
+    '.totals{padding:4mm 15mm;display:flex;justify-content:flex-end}.totals-box{width:65mm}'+
+    '.tot-row{display:flex;justify-content:space-between;padding:4px 0;font-size:9.5px;border-bottom:1px solid #E2E8F0}'+
+    '.tot-row span:first-child{color:#64748B}.tot-row span:last-child{font-weight:600}'+
+    '.tot-final{background:#0B1F3A;border-radius:6px;padding:8px 10px;display:flex;justify-content:space-between;margin-top:6px}'+
+    '.tot-final span:first-child{font-size:10px;font-weight:700;color:white}.tot-final span:last-child{font-size:13px;font-weight:900;color:#00C896}'+
+    '.footer{position:absolute;bottom:0;left:0;right:0;background:#F8FAFC;padding:5mm 15mm 8mm;border-top:1px solid #E2E8F0}'+
+    '.bot-bar{position:absolute;bottom:0;left:0;right:0;height:3mm;background:#00C896}'+
+    '.foot-txt{font-size:8px;color:#64748B;line-height:1.7}.foot-contact{font-size:7.5px;color:#94A3B8;margin-top:4px}'+
+    '@media print{body{margin:0}@page{margin:0;size:A4}}</style>';
+  var h='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>'+num+'</title>'+css+'</head><body><div class="page">';
+  h+='<div class="top-bar"></div><div class="header">';
+  h+='<div style="display:flex;align-items:flex-start;gap:8mm"><div><div class="logo">Reserv<span>IA</span></div></div>';
+  h+='<div class="fiscal"><div class="fiscal-lbl">Datos del emisor</div><div class="fiscal-name">Damian Miguel Herranz Rincon</div>';
+  h+='<div class="fiscal-det">DNI: 70830256P<br>Plaza del Comercio n.1<br>05240 Navalperal de Pinares, Avila<br>reservia@zevorasystems.com</div></div></div>';
+  h+='<div><div class="inv-title">FACTURA</div><div class="inv-meta">N. '+num+'<br>Fecha: '+fecha+'</div></div></div>';
+  h+='<div class="client-sec"><div><div class="lbl">Facturar a</div><div class="cli-name">'+nombre+'</div>';
+  h+='<div class="cli-det">'+(nif?'NIF/CIF: '+nif+'<br>':'')+direccion+'</div></div>';
+  h+='<div style="text-align:right"><div class="lbl">Periodo</div><div style="font-size:13px;font-weight:700">'+mes+' '+anio+'</div></div></div>';
+  if(esGratis)h+='<div class="promo">🎉 Mes promocional gratuito — Oferta de bienvenida. Sin cargo este periodo.</div>';
+  h+='<div class="table-sec"><table><thead><tr><th>Concepto</th><th>Cant.</th><th>P. Unit.</th><th>Importe</th></tr></thead><tbody>';
+  h+='<tr><td>ReservIA — Plan Base ('+mes+' '+anio+')</td><td style="text-align:right">1</td><td style="text-align:right;color:#64748B">'+base+' EUR</td><td style="text-align:right;font-weight:700">'+base+' EUR</td></tr>';
+  h+='</tbody></table></div>';
+  h+='<div class="totals"><div class="totals-box"><div class="tot-row"><span>Base imponible:</span><span>'+base+' EUR</span></div>';
+  h+='<div class="tot-row"><span>IVA (21%):</span><span>'+iva+' EUR</span></div>';
+  if(esGratis)h+='<div class="tot-row"><span>Descuento promo:</span><span style="color:#00C896">-39,99 EUR</span></div>';
+  h+='<div class="tot-final"><span>Total a pagar:</span><span>'+(esGratis?'0,00':total)+' EUR</span></div></div></div>';
+  h+='<div class="footer"><div class="foot-txt">Factura emitida por ReservIA — ZEVORA Systems. Servicio de software SaaS sujeto a IVA 21%.</div>';
+  h+='<div class="foot-contact">reservia@zevorasystems.com | www.zevorasystems.com</div><div class="bot-bar"></div></div>';
+  h+='</div><sc'+'ript>window.onload=function(){window.print();}<'+'/script></body></html>';
+  var v=window.open('','_blank','width=900,height=750');
+  if(v){v.document.write(h);v.document.close();}
+  else{alert('Permite ventanas emergentes para ver la factura.');}
+}
+
+// ── CONFIGURACIÓN ──
+function renderConfigRestaurante(){
+  if(!RESTAURANT)return;
+  var el=document.getElementById('config-restaurante');
+  el.innerHTML=
+    '<div class="config-section"><div class="config-section-title">Datos generales</div>'+
+    '<div class="form-row"><div class="form-group"><label class="form-label">Nombre del restaurante</label>'+
+    '<input class="form-input" id="cfg-nombre" value="'+(RESTAURANT.nombre||'')+'"></div>'+
+    '<div class="form-group"><label class="form-label">Teléfono de contacto</label>'+
+    '<input class="form-input" id="cfg-telefono" value="'+(RESTAURANT.telefono||'')+'"></div></div>'+
+    '<div class="form-group"><label class="form-label">Dirección</label>'+
+    '<input class="form-input" id="cfg-direccion" value="'+(RESTAURANT.direccion||'')+'"></div>'+
+    '<div class="form-row"><div class="form-group"><label class="form-label">Email de contacto</label>'+
+    '<input class="form-input" id="cfg-email" value="'+(RESTAURANT.email||'')+'"></div>'+
+    '<div class="form-group"><label class="form-label">NIF / CIF</label>'+
+    '<input class="form-input" id="cfg-nif" value="'+(RESTAURANT.nif||'')+'"></div></div></div>'+
+
+    '<div class="config-section"><div class="config-section-title">Capacidad y operativa</div>'+
+    '<div class="form-row-3"><div class="form-group"><label class="form-label">Aforo máximo (pax)</label>'+
+    '<input class="form-input" type="number" id="cfg-aforo" value="'+(RESTAURANT.aforo_maximo||50)+'"></div>'+
+    '<div class="form-group"><label class="form-label">Ticket medio (€)</label>'+
+    '<input class="form-input" type="number" id="cfg-ticket" value="'+(RESTAURANT.ticket_medio||35)+'"></div>'+
+    '<div class="form-group"><label class="form-label">Duración turno (min)</label>'+
+    '<input class="form-input" type="number" id="cfg-duracion" value="'+(RESTAURANT.duracion_servicio_minutos||90)+'"></div></div></div>'+
+
+    '<div class="config-section"><div class="config-section-title">Horario de apertura</div>'+
+    '<div style="font-size:11px;color:var(--muted2);margin-bottom:12px">Define los turnos activos para que el agente IA gestione las reservas correctamente.</div>'+
+    '<div class="form-row"><div class="form-group"><label class="form-label">Apertura mediodía</label>'+
+    '<input class="form-input" type="time" id="cfg-hora-med-ini" value="'+(RESTAURANT.hora_apertura_mediodia||'13:00')+'"></div>'+
+    '<div class="form-group"><label class="form-label">Cierre mediodía</label>'+
+    '<input class="form-input" type="time" id="cfg-hora-med-fin" value="'+(RESTAURANT.hora_cierre_mediodia||'16:00')+'"></div></div>'+
+    '<div class="form-row"><div class="form-group"><label class="form-label">Apertura noche</label>'+
+    '<input class="form-input" type="time" id="cfg-hora-noc-ini" value="'+(RESTAURANT.hora_apertura_noche||'20:30')+'"></div>'+
+    '<div class="form-group"><label class="form-label">Cierre noche</label>'+
+    '<input class="form-input" type="time" id="cfg-hora-noc-fin" value="'+(RESTAURANT.hora_cierre_noche||'23:00')+'"></div></div>'+
+    '<div class="form-group"><label class="form-label">Días de apertura</label>'+
+    '<input class="form-input" id="cfg-dias" value="'+(RESTAURANT.dias_apertura||'Martes a Domingo')+'" placeholder="Ej: Martes a Domingo"></div></div>';
+
+  // Load emails briefing
+  var emails=RESTAURANT.emails_briefing||[];
+  document.getElementById('cfg-emails-briefing').value=emails.join(', ');
+}
+
+async function guardarConfigRestaurante(){
+  var updates={
+    nombre:document.getElementById('cfg-nombre').value.trim(),
+    telefono:document.getElementById('cfg-telefono').value.trim(),
+    direccion:document.getElementById('cfg-direccion').value.trim(),
+    nif:document.getElementById('cfg-nif').value.trim()||null,
+    aforo_maximo:parseInt(document.getElementById('cfg-aforo').value)||50,
+    ticket_medio:parseFloat(document.getElementById('cfg-ticket').value)||35,
+    duracion_servicio_minutos:parseInt(document.getElementById('cfg-duracion').value)||90,
+    hora_apertura_mediodia:document.getElementById('cfg-hora-med-ini').value,
+    hora_cierre_mediodia:document.getElementById('cfg-hora-med-fin').value,
+    hora_apertura_noche:document.getElementById('cfg-hora-noc-ini').value,
+    hora_cierre_noche:document.getElementById('cfg-hora-noc-fin').value,
+    dias_apertura:document.getElementById('cfg-dias').value.trim(),
+  };
+  await sbPatch('restaurantes','id=eq.'+RESTAURANT_ID,updates);
+  Object.assign(RESTAURANT,updates);
+  document.getElementById('sidebar-rest-name').textContent=RESTAURANT.nombre;
+  alert('✅ Datos del restaurante actualizados correctamente');
+}
+
+async function guardarEmailsBriefing(){
+  var raw=document.getElementById('cfg-emails-briefing').value;
+  var emails=raw.split(',').map(function(e){return e.trim();}).filter(function(e){return e.includes('@');});
+  await sbPatch('restaurantes','id=eq.'+RESTAURANT_ID,{emails_briefing:emails});
+  if(RESTAURANT)RESTAURANT.emails_briefing=emails;
+  // Update briefing status
+  if(emails.length){
+    document.getElementById('briefing-dot').style.background='var(--green)';
+    document.getElementById('briefing-label').textContent=emails.length+' email'+(emails.length>1?'s':'')+' configurado'+(emails.length>1?'s':'');
+    document.getElementById('briefing-label').style.color='var(--green)';
+  }
+  alert('✅ Emails de briefing guardados: '+emails.join(', '));
+}
+
+// ── ESTADÍSTICAS ──
+async function loadEstadisticas(){
+  try{
+    var resAll=await sbGet('reservas','restaurant_id=eq.'+RESTAURANT_ID+'&estado=eq.confirmada&select=id,origen');
+    var cliAll=await sbGet('clientes','restaurant_id=eq.'+RESTAURANT_ID+'&select=id,es_cliente_vip');
+    document.getElementById('stat-total-reservas').textContent=resAll.length;
+    document.getElementById('stat-total-clientes').textContent=cliAll.length;
+    document.getElementById('stat-vip').textContent=cliAll.filter(function(c){return c.es_cliente_vip;}).length;
+    var pctIA=resAll.length?Math.round(resAll.filter(function(r){return r.origen==='whatsapp';}).length/resAll.length*100):0;
+    document.getElementById('stat-conversion').textContent=pctIA+'%';
+    loadChartStats(resAll);
+  }catch(e){}
+}
+
+var chartStats=null;
+async function loadChartStats(resAll){
+  try{
+    var meses=[]; var labels=[]; var MESES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    for(var i=5;i>=0;i--){
+      var d=new Date(); d.setMonth(d.getMonth()-i);
+      var y=d.getFullYear(); var m=d.getMonth();
+      var count=resAll.filter(function(r){var fd=new Date(r.created_at||'2026-01-01');return fd.getMonth()===m&&fd.getFullYear()===y;}).length;
+      meses.push(count); labels.push(MESES[m]);
+    }
+    var ctx=document.getElementById('chart-stats');
+    if(!ctx)return;
+    if(chartStats)chartStats.destroy();
+    chartStats=new Chart(ctx,{
+      type:'line',
+      data:{labels:labels,datasets:[{data:meses,borderColor:'#00C896',backgroundColor:'rgba(0,200,150,0.1)',tension:0.4,fill:true,pointBackgroundColor:'#00C896'}]},
+      options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'rgba(255,255,255,0.4)',font:{size:10}}},x:{grid:{display:false},ticks:{color:'rgba(255,255,255,0.4)',font:{size:10}}}}}
+    });
+  }catch(e){}
+}
+
+// ── NAV ──
+var sectionTitles={inicio:'Inicio',reservas:'Reservas',clientes:'Clientes',actividad:'Actividad',facturacion:'Facturación',roi:'ROI & Métricas',servicios:'Servicios',suscripcion:'Mi Suscripción',configuracion:'Mi Restaurante',estadisticas:'Estadísticas'};
+
+function showSection(s){
+  document.querySelectorAll('.section-view').forEach(function(v){v.classList.remove('active');});
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
+  var view=document.getElementById('view-'+s);
+  if(view)view.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(function(n){
+    if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+s+"'"))n.classList.add('active');
+  });
+  document.getElementById('topbar-title').textContent=sectionTitles[s]||s;
+  if(s==='reservas')loadReservas();
+  if(s==='clientes')loadClientes();
+  if(s==='actividad')loadActividad();
+  if(s==='facturacion')loadFacturacion();
+  if(s==='roi')loadROI();
+  if(s==='suscripcion')loadSuscripcion();
+  if(s==='configuracion')renderConfigRestaurante();
+  if(s==='estadisticas')loadEstadisticas();
+}
+
+function setTabActive(el){
+  var parent=el.closest('.tabs');
+  if(parent)parent.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  el.classList.add('active');
+}
+
+// ── UTILS ──
+function minToHora(min){
+  if(!min&&min!==0)return'—';
+  return String(Math.floor(min/60)).padStart(2,'0')+':'+String(min%60).padStart(2,'0');
+}
+
+// ── BAJA ──
+async function confirmarBaja(){
+  var motivo=document.getElementById('cancel-reason').value;
+  var comentario=document.getElementById('cancel-comment').value;
+  if(!motivo){alert('Por favor selecciona un motivo');return;}
+  if(!confirm('¿Confirmas que quieres cancelar tu suscripción de ReservIA?'))return;
+  try{
+    await callFn('cancelar-suscripcion',{restaurant_id:RESTAURANT_ID,motivo:motivo,comentario:comentario});
+    alert('Suscripción cancelada. Recibirás un email de confirmación. Acceso disponible hasta fin del período de facturación.');
+    document.getElementById('cancel-modal').style.display='none';
+  }catch(e){ alert('Error al procesar la baja. Escríbenos a reservia@zevorasystems.com'); }
+}
+
+// ── LOGOUT ──
+function cerrarSesion(){
+  sessionStorage.removeItem('reservia_token');
+  sessionStorage.removeItem('reservia_restaurant_id');
+  sessionStorage.removeItem('reservia_email');
+  window.location.href='login-reservia.html';
+}
+
+// ── START ──
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+<div style="text-align:center;padding:10px;font-size:10px;color:rgba(255,255,255,0.2)">
+  <a href="/politica-privacidad.pdf" target="_blank" style="color:rgba(255,255,255,0.25);text-decoration:none">Política de Privacidad</a> · © 2026 ZEVORA Systems
+</div>
+</body>
+</html>
