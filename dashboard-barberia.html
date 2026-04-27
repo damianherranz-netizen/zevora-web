@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BarberIA — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --navy:#1A2F5E;--navy2:#0f1f3d;--navy3:#243a6e;
+  --red:#C0392B;--red2:#96281B;--red3:rgba(192,57,43,0.15);
+  --surface:#0f1626;--surface2:#1a2535;--surface3:#1f2d40;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --text:#F0F4F8;--muted:#64748B;--muted2:#94A3B8;
+  --green:#22C55E;--amber:#F59E0B;--red-err:#EF4444;
+  --font:'Plus Jakarta Sans',sans-serif;
+}
+body{font-family:var(--font);background:var(--surface);color:var(--text);min-height:100vh;display:flex;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:220px;background:var(--navy2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;}
+.sidebar-logo{padding:20px 16px 16px;border-bottom:1px solid var(--border);}
+.sidebar-brand{font-size:20px;font-weight:900;color:var(--text);}
+.sidebar-brand span{color:var(--red);}
+.sidebar-sub{font-size:9px;color:var(--muted2);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;}
+/* Pole decoration */
+.pole-mini{display:flex;gap:2px;margin-top:8px;}
+.pole-mini div{height:4px;border-radius:2px;flex:1;}
+.sidebar-nav{flex:1;padding:12px 8px;overflow-y:auto;}
+.nav-btn{width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:none;background:transparent;color:var(--muted2);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;text-align:left;position:relative;}
+.nav-btn:hover{background:var(--surface3);color:var(--text);}
+.nav-btn.active{background:var(--red3);color:var(--red);}
+.nav-icon{font-size:16px;width:20px;text-align:center;}
+.nav-badge{position:absolute;right:10px;background:var(--red);color:white;font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;min-width:18px;text-align:center;}
+.sidebar-footer{padding:12px;border-top:1px solid var(--border);}
+.barberia-name{font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.barberia-email{font-size:10px;color:var(--muted);}
+.btn-logout{width:100%;margin-top:8px;background:transparent;border:1px solid var(--border2);border-radius:8px;padding:7px;color:var(--muted2);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font);}
+.btn-logout:hover{border-color:var(--red);color:var(--red);}
+
+/* ── MAIN ── */
+.main{margin-left:220px;flex:1;min-height:100vh;padding:24px;}
+
+/* ── HERO METRICS ── */
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.metric-card{background:var(--surface2);border:1px solid var(--border2);border-radius:14px;padding:18px;position:relative;overflow:hidden;}
+.metric-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.metric-card.red::before{background:var(--red);}
+.metric-card.navy::before{background:var(--navy3);}
+.metric-card.green::before{background:var(--green);}
+.metric-card.amber::before{background:var(--amber);}
+.metric-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);margin-bottom:6px;}
+.metric-num{font-size:32px;font-weight:900;color:var(--text);line-height:1;}
+.metric-num span{font-size:14px;font-weight:500;color:var(--muted2);}
+.metric-sub{font-size:11px;color:var(--muted);margin-top:4px;}
+
+/* ── WEEK GRID ── */
+.week-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:24px;}
+.week-day{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;cursor:pointer;transition:all 0.2s;}
+.week-day:hover{border-color:var(--red);}
+.week-day.today{border-color:var(--red);background:var(--red3);}
+.week-day-name{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);}
+.week-day-num{font-size:20px;font-weight:900;color:var(--text);margin:2px 0;}
+.week-day-count{font-size:11px;color:var(--muted);font-weight:600;}
+.week-day.today .week-day-count{color:var(--red);}
+
+/* ── SECCIONES ── */
+.section-view{display:none;}
+.section-view.active{display:block;}
+.section-card{background:var(--surface2);border:1px solid var(--border2);border-radius:16px;margin-bottom:16px;overflow:hidden;}
+.section-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.section-title{font-size:15px;font-weight:800;color:var(--text);}
+.section-body{padding:20px;}
+
+/* ── BOTONES ── */
+.btn-primary{background:var(--red);color:white;border:none;padding:10px 18px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.2s;}
+.btn-primary:hover{background:var(--red2);}
+.btn-secondary{background:var(--surface3);color:var(--text);border:1px solid var(--border2);padding:9px 16px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);}
+
+/* ── CITAS ── */
+.cita-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.cita-item:last-child{border-bottom:none;}
+.cita-hora{font-size:13px;font-weight:800;color:var(--text);min-width:44px;}
+.cita-info{flex:1;}
+.cita-nombre{font-size:13px;font-weight:700;color:var(--text);}
+.cita-detalle{font-size:11px;color:var(--muted2);}
+.cita-estado{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;text-transform:uppercase;}
+.estado-pendiente{background:rgba(245,158,11,0.1);color:var(--amber);}
+.estado-confirmada{background:rgba(34,197,94,0.1);color:var(--green);}
+.estado-realizada{background:rgba(100,116,139,0.1);color:var(--muted2);}
+.estado-cancelada{background:rgba(239,68,68,0.1);color:var(--red-err);}
+.cita-btn{background:var(--surface3);border:1px solid var(--border2);border-radius:7px;padding:5px 10px;font-size:11px;font-weight:700;color:var(--muted2);cursor:pointer;font-family:var(--font);}
+.cita-btn:hover{border-color:var(--red);color:var(--red);}
+.cita-btn.primary{background:var(--red);color:white;border-color:var(--red);}
+
+/* ── CLIENTES ── */
+.client-card{background:var(--surface3);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color 0.2s;}
+.client-card:hover{border-color:var(--red);}
+.client-avatar{width:40px;height:40px;border-radius:50%;background:var(--red3);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--red);flex-shrink:0;}
+.client-info{flex:1;min-width:0;}
+.client-name{font-size:13px;font-weight:700;color:var(--text);}
+.client-detail{font-size:11px;color:var(--muted2);}
+.badge-vip{background:rgba(245,158,11,0.15);color:var(--amber);font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;margin-left:6px;}
+
+/* ── FORMULARIOS ── */
+.form-group{margin-bottom:14px;}
+.form-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);display:block;margin-bottom:5px;}
+.form-input{width:100%;background:var(--surface3);border:1.5px solid var(--border2);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--text);font-family:var(--font);outline:none;transition:border-color 0.2s;}
+.form-input:focus{border-color:var(--red);}
+.form-input::placeholder{color:var(--muted);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-section-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--red);margin:16px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+
+/* ── SERVICIOS CHECKBOXES ── */
+.servicios-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+.servicio-tag{background:var(--surface3);border:1.5px solid var(--border2);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;color:var(--muted2);cursor:pointer;transition:all 0.2s;}
+.servicio-tag.active{background:var(--red3);border-color:var(--red);color:var(--red);}
+
+/* ── MODALES ── */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center;padding:20px;}
+.modal.open{display:flex;}
+.modal-box{background:var(--surface2);border:1px solid var(--border2);border-radius:18px;padding:28px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;}
+.modal-title{font-size:16px;font-weight:800;color:var(--text);margin-bottom:20px;}
+.modal-actions{display:flex;gap:10px;margin-top:20px;}
+
+/* ── BARBEROS ── */
+.barbero-card{background:var(--surface3);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+.barbero-avatar{width:38px;height:38px;border-radius:50%;background:var(--navy3);display:flex;align-items:center;justify-content:center;font-size:18px;}
+.barbero-info{flex:1;}
+.barbero-name{font-size:13px;font-weight:700;color:var(--text);}
+.barbero-detail{font-size:11px;color:var(--muted2);}
+
+/* ── HERRAMIENTAS ── */
+.tool-card{background:var(--surface3);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;}
+.tool-icon{font-size:24px;width:40px;text-align:center;}
+.tool-info{flex:1;}
+.tool-name{font-size:13px;font-weight:700;color:var(--text);}
+.tool-desc{font-size:11px;color:var(--muted2);margin-top:2px;}
+.tool-estado{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;}
+.estado-activo{background:rgba(34,197,94,0.1);color:var(--green);}
+.estado-pendiente-conf{background:rgba(245,158,11,0.1);color:var(--amber);}
+
+/* ── AGENDA NAV ── */
+.agenda-nav{display:flex;align-items:center;gap:8px;}
+.agenda-nav button{background:var(--surface3);border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text);cursor:pointer;font-size:13px;line-height:1;}
+.agenda-nav .btn-hoy{background:var(--red3);border-color:var(--red);color:var(--red);font-size:11px;font-weight:700;}
+
+/* ── EMPTY ── */
+.empty-state{text-align:center;padding:32px;color:var(--muted2);}
+.empty-icon{font-size:36px;display:block;margin-bottom:8px;}
+.empty-text{font-size:13px;}
+
+/* ── LOADING ── */
+.loading{text-align:center;padding:24px;color:var(--muted2);}
+.spinner{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--red);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 8px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ── TOGGLE ── */
+.toggle{width:40px;height:22px;background:var(--surface3);border:1px solid var(--border2);border-radius:11px;cursor:pointer;position:relative;transition:background 0.2s;}
+.toggle.on{background:var(--red);}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:white;border-radius:50%;transition:left 0.2s;}
+.toggle.on::after{left:20px;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-brand">Barber<span>IA</span></div>
+    <div class="sidebar-sub">by ZEVORA Systems</div>
+    <div class="pole-mini">
+      <div style="background:#C0392B"></div>
+      <div style="background:rgba(255,255,255,0.15)"></div>
+      <div style="background:#1A2F5E"></div>
+      <div style="background:rgba(255,255,255,0.15)"></div>
+      <div style="background:#C0392B"></div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <button class="nav-btn active" onclick="showSection('inicio',this)"><span class="nav-icon">🏠</span>Inicio</button>
+    <button class="nav-btn" onclick="showSection('agenda',this)"><span class="nav-icon">📅</span>Agenda<span class="nav-badge" id="badge-hoy">0</span></button>
+    <button class="nav-btn" onclick="showSection('clientes',this)"><span class="nav-icon">👥</span>Clientes</button>
+    <button class="nav-btn" onclick="showSection('barberos',this)"><span class="nav-icon">✂️</span>Barberos</button>
+    <button class="nav-btn" onclick="showSection('herramientas',this)"><span class="nav-icon">🔧</span>Herramientas</button>
+    <button class="nav-btn" onclick="showSection('suscripcion',this)"><span class="nav-icon">💳</span>Mi Suscripción</button>
+    <button class="nav-btn" onclick="showSection('configuracion',this)"><span class="nav-icon">⚙️</span>Configuración</button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="barberia-name" id="sidebar-nombre">Cargando...</div>
+    <div class="barberia-email" id="sidebar-email"></div>
+    <button class="btn-logout" onclick="cerrarSesion()">Cerrar sesión</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- INICIO -->
+  <div class="section-view active" id="view-inicio">
+    <div class="metrics-grid">
+      <div class="metric-card red">
+        <div class="metric-label">Citas hoy</div>
+        <div class="metric-num" id="metric-hoy">0</div>
+        <div class="metric-sub" id="metric-hoy-sub">sin citas</div>
+      </div>
+      <div class="metric-card navy">
+        <div class="metric-label">Esta semana</div>
+        <div class="metric-num" id="metric-semana">0</div>
+        <div class="metric-sub">citas programadas</div>
+      </div>
+      <div class="metric-card green">
+        <div class="metric-label">Clientes activos</div>
+        <div class="metric-num" id="metric-clientes">0</div>
+        <div class="metric-sub">en el sistema</div>
+      </div>
+      <div class="metric-card amber">
+        <div class="metric-label">Barberos</div>
+        <div class="metric-num" id="metric-barberos">0</div>
+        <div class="metric-sub">en plantilla</div>
+      </div>
+    </div>
+
+    <!-- Vista semanal -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-title">📆 Esta semana</div>
+      </div>
+      <div class="section-body" style="padding:16px;">
+        <div class="week-grid" id="week-grid"></div>
+      </div>
+    </div>
+
+    <!-- Citas de hoy -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-title">📋 Citas de hoy</div>
+        <button class="btn-primary" onclick="abrirNuevaCita()">+ Nueva cita</button>
+      </div>
+      <div class="section-body" id="citas-hoy-list"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+  </div>
+
+  <!-- AGENDA -->
+  <div class="section-view" id="view-agenda">
+    <div class="section-card">
+      <div class="section-header">
+        <div style="display:flex;align-items:center;gap:12px;flex:1">
+          <div class="section-title" id="agenda-titulo">📅 Agenda</div>
+          <div class="agenda-nav">
+            <button onclick="cambiarDiaAgenda(-1)">‹</button>
+            <button class="btn-hoy" onclick="irAHoy()">Hoy</button>
+            <button onclick="cambiarDiaAgenda(1)">›</button>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="abrirNuevaCita()">+ Nueva cita</button>
+      </div>
+      <div class="section-body" id="agenda-content"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+  </div>
+
+  <!-- CLIENTES -->
+  <div class="section-view" id="view-clientes">
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-title">👥 Clientes</div>
+        <button class="btn-primary" onclick="abrirNuevoCliente()">+ Nuevo cliente</button>
+      </div>
+      <div class="section-body">
+        <input type="text" class="form-input" id="search-clientes" placeholder="🔍 Buscar por nombre o teléfono..." oninput="filtrarClientes(this.value)" style="margin-bottom:16px;">
+        <div id="clientes-list"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BARBEROS -->
+  <div class="section-view" id="view-barberos">
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-title">✂️ Barberos</div>
+        <button class="btn-primary" onclick="abrirNuevoBarbero()">+ Añadir barbero</button>
+      </div>
+      <div class="section-body" id="barberos-list"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+  </div>
+
+  <!-- HERRAMIENTAS -->
+  <div class="section-view" id="view-herramientas">
+    <div class="section-card">
+      <div class="section-header"><div class="section-title">🔧 Herramientas</div></div>
+      <div class="section-body">
+        <div class="tool-card">
+          <div class="tool-icon">📅</div>
+          <div class="tool-info">
+            <div class="tool-name">Google Calendar</div>
+            <div class="tool-desc">Sincroniza tus citas con Google Calendar automáticamente</div>
+          </div>
+          <span class="tool-estado estado-pendiente-conf" id="cal-estado">Configurar</span>
+        </div>
+        <div style="padding:0 0 16px 54px;">
+          <div class="form-group">
+            <label class="form-label">ID del calendario principal</label>
+            <input type="text" class="form-input" id="cal-id" placeholder="tu@gmail.com o ID del calendario">
+          </div>
+          <button class="btn-primary" onclick="guardarCalendar()">Guardar Calendar</button>
+        </div>
+
+        <div class="tool-card">
+          <div class="tool-icon">💬</div>
+          <div class="tool-info">
+            <div class="tool-name">Agente WhatsApp 24h</div>
+            <div class="tool-desc">Gestiona citas automáticamente por WhatsApp</div>
+          </div>
+          <span class="tool-estado estado-pendiente-conf" id="wa-estado">Pendiente</span>
+        </div>
+        <div style="padding:0 0 16px 54px;font-size:12px;color:var(--muted2);line-height:1.6;">
+          El agente de WhatsApp se activa cuando Meta apruebe la verificación del número. <br>
+          Estado actual: <strong style="color:var(--amber)">Verificación en proceso</strong>
+        </div>
+
+        <div class="tool-card">
+          <div class="tool-icon">🔔</div>
+          <div class="tool-info">
+            <div class="tool-name">Recordatorio proactivo</div>
+            <div class="tool-desc">Avisa a clientes inactivos para que vuelvan</div>
+          </div>
+          <span class="tool-estado estado-activo">Activo</span>
+        </div>
+        <div style="padding:0 0 16px 54px;">
+          <div class="form-group">
+            <label class="form-label">Semanas sin visita para enviar recordatorio</label>
+            <select class="form-input" id="recordatorio-semanas" style="max-width:200px">
+              <option value="3">3 semanas</option>
+              <option value="4" selected>4 semanas</option>
+              <option value="5">5 semanas</option>
+              <option value="6">6 semanas</option>
+              <option value="8">8 semanas</option>
+            </select>
+          </div>
+          <button class="btn-primary" onclick="guardarRecordatorio()">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUSCRIPCIÓN -->
+  <div class="section-view" id="view-suscripcion">
+    <div class="section-card">
+      <div class="section-header"><div class="section-title">💳 Mi Suscripción</div></div>
+      <div class="section-body">
+        <div style="background:var(--navy3);border-radius:12px;padding:20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:15px;font-weight:800;color:var(--text)">BarberIA — Plan Base</div>
+            <div style="font-size:12px;color:var(--muted2);margin-top:4px">Sin permanencia · Cancelación en cualquier momento</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:22px;font-weight:900;color:var(--red)" id="precio-suscripcion">19,99€</div>
+            <div style="font-size:11px;color:var(--muted2)">/mes</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:24px">
+          <button class="btn-primary" onclick="abrirPortal()">💳 Gestionar suscripción</button>
+        </div>
+        <div class="form-section-label">Historial de facturas</div>
+        <div id="facturas-suscripcion-list"><div class="loading"><div class="spinner"></div></div></div>
+        <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border);">
+          <div style="font-size:12px;color:var(--muted2);margin-bottom:12px">¿Quieres cancelar tu suscripción?</div>
+          <button onclick="abrirModalBaja()" style="background:transparent;border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:8px 16px;color:var(--red-err);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font)">Dar de baja el sistema</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIGURACIÓN -->
+  <div class="section-view" id="view-configuracion">
+    <div class="section-card">
+      <div class="section-header"><div class="section-title">⚙️ Configuración</div></div>
+      <div class="section-body" id="config-body"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ══ MODAL NUEVA CITA ══ -->
+<div class="modal" id="modal-cita">
+  <div class="modal-box">
+    <div class="modal-title">✂️ Nueva cita</div>
+    <div class="form-group">
+      <label class="form-label">Cliente *</label>
+      <input type="text" class="form-input" id="cita-cliente" placeholder="Nombre del cliente" autocomplete="off" oninput="autocompleteCliente(this.value)">
+      <input type="hidden" id="cita-cliente-id">
+      <div id="ac-list" style="background:var(--surface3);border:1px solid var(--border2);border-radius:10px;margin-top:4px;display:none;max-height:150px;overflow-y:auto;"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Fecha *</label>
+        <input type="date" class="form-input" id="cita-fecha">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hora *</label>
+        <input type="time" class="form-input" id="cita-hora">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Barbero</label>
+      <select class="form-input" id="cita-barbero">
+        <option value="">Sin asignar</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Servicio</label>
+      <div class="servicios-grid" id="cita-servicios-grid"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notas</label>
+      <input type="text" class="form-input" id="cita-notas" placeholder="Instrucciones especiales...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="cerrarModal('modal-cita')">Cancelar</button>
+      <button class="btn-primary" onclick="crearCita()">Crear cita</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL NUEVO CLIENTE ══ -->
+<div class="modal" id="modal-cliente">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-cliente-titulo">👤 Nuevo cliente</div>
+    <input type="hidden" id="edit-cliente-id">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Nombre *</label>
+        <input type="text" class="form-input" id="edit-nombre" placeholder="Nombre">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Apellidos</label>
+        <input type="text" class="form-input" id="edit-apellidos" placeholder="Apellidos">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Teléfono / WhatsApp *</label>
+        <input type="tel" class="form-input" id="edit-telefono" placeholder="+34 600 000 000">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email (recordatorios)</label>
+        <input type="email" class="form-input" id="edit-email" placeholder="opcional">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Barbero asignado</label>
+      <select class="form-input" id="edit-barbero-asignado">
+        <option value="">Sin asignar</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Servicios habituales</label>
+      <div class="servicios-grid" id="edit-servicios-grid"></div>
+    </div>
+    <div class="form-group" style="display:flex;align-items:center;gap:12px">
+      <label class="form-label" style="margin:0">Cliente VIP</label>
+      <div class="toggle" id="toggle-vip" onclick="toggleVip()"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nota del barbero</label>
+      <input type="text" class="form-input" id="edit-nota" placeholder="Ej: Siempre degradado #2 en laterales">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="cerrarModal('modal-cliente')">Cancelar</button>
+      <button class="btn-primary" onclick="guardarCliente()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL NUEVO BARBERO ══ -->
+<div class="modal" id="modal-barbero">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-barbero-titulo">✂️ Nuevo barbero</div>
+    <input type="hidden" id="edit-barbero-id">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Nombre *</label>
+        <input type="text" class="form-input" id="edit-barbero-nombre">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Apellidos</label>
+        <input type="text" class="form-input" id="edit-barbero-apellidos">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Teléfono</label>
+      <input type="tel" class="form-input" id="edit-barbero-telefono">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Google Calendar ID</label>
+      <input type="text" class="form-input" id="edit-barbero-calendar" placeholder="tu@gmail.com">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="cerrarModal('modal-barbero')">Cancelar</button>
+      <button class="btn-primary" onclick="guardarBarbero()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL BAJA ══ -->
+<div class="modal" id="modal-baja">
+  <div class="modal-box">
+    <div class="modal-title">⚠️ Dar de baja BarberIA</div>
+    <p style="font-size:13px;color:var(--muted2);margin-bottom:16px;line-height:1.6">
+      Si das de baja el sistema, tu suscripción se cancelará y perderás acceso al dashboard, al agente de WhatsApp y a todos los datos en <strong>30 días</strong>.
+    </p>
+    <div class="form-group">
+      <label class="form-label">Escribe "CONFIRMAR" para continuar</label>
+      <input type="text" class="form-input" id="input-baja" placeholder="CONFIRMAR">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="cerrarModal('modal-baja')">Cancelar</button>
+      <button onclick="procesarBaja()" style="background:var(--red-err);color:white;border:none;padding:10px 18px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;">Confirmar baja</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// CONFIGURACIÓN
+// ══════════════════════════════════════════
+var SUPABASE_URL  = 'https://diaojerahjausthokiuv.supabase.co';
+var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRpYW9qZXJhaGphdXN0aG9raXV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczMTY2ODMsImV4cCI6MjA5Mjg5MjY4M30.FMdDgjGc0jeNaSTKP5OHvONJsoILjYBccDX8CcKaqy8';
+
+var TOKEN='', BARBERIA_ID='', BARBERIA=null;
+var CLIENTES=[], CITAS_HOY=[], BARBEROS=[], SERVICIOS=[];
+var FECHA_AGENDA = new Date().toISOString().split('T')[0];
+var VIP_ACTIVO = false;
+
+// ══════════════════════════════════════════
+// AUTH Y BASE
+// ══════════════════════════════════════════
+function checkAuth(){
+  TOKEN = sessionStorage.getItem('barberia_token');
+  BARBERIA_ID = sessionStorage.getItem('barberia_barberia_id');
+  if(!TOKEN){ window.location.href='login-barberia.html'; return false; }
+  return true;
+}
+function hdrs(){ return {'Content-Type':'application/json','apikey':SUPABASE_ANON,'Authorization':'Bearer '+TOKEN}; }
+
+async function sbGet(t,q){
+  var r = await fetch(SUPABASE_URL+'/rest/v1/'+t+'?'+(q||''),{headers:hdrs()});
+  if(r.status===401){ window.location.href='login-barberia.html'; return []; }
+  if(!r.ok){ var err=await r.json().catch(function(){return {};}); console.error('sbGet',t,err); return []; }
+  var j=await r.json(); return Array.isArray(j)?j:[];
+}
+async function sbPost(t,d){
+  var r = await fetch(SUPABASE_URL+'/rest/v1/'+t,{method:'POST',headers:{...hdrs(),'Prefer':'return=representation'},body:JSON.stringify(d)});
+  if(r.status===401){ window.location.href='login-barberia.html'; return null; }
+  if(!r.ok){ var err=await r.json().catch(function(){return {};}); console.error('sbPost',t,err); return {error:err}; }
+  var j=await r.json(); return Array.isArray(j)&&j[0]?j[0]:j;
+}
+async function sbPatch(t,query,d){
+  var r = await fetch(SUPABASE_URL+'/rest/v1/'+t+'?'+query,{method:'PATCH',headers:hdrs(),body:JSON.stringify(d)});
+  if(r.status===401){ window.location.href='login-barberia.html'; return null; }
+  if(!r.ok){ var err=await r.json().catch(function(){return {};}); console.error('sbPatch',t,err); return {error:err}; }
+  return r;
+}
+async function sbDelete(t,query){
+  return fetch(SUPABASE_URL+'/rest/v1/'+t+'?'+query,{method:'DELETE',headers:hdrs()});
+}
+async function callFn(n,b){
+  var r = await fetch(SUPABASE_URL+'/functions/v1/'+n,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},body:JSON.stringify(b)});
+  if(r.status===401){ window.location.href='login-barberia.html'; return {}; }
+  return r.json();
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+async function init(){
+  if(!checkAuth()) return;
+  await loadBarberia();
+  await Promise.all([loadCitasHoy(), loadClientes(), loadBarberos(), loadServicios()]);
+  await renderWeekGrid();
+  if(document.getElementById('view-configuracion').classList.contains('active')) renderConfig();
+}
+
+async function loadBarberia(){
+  var d;
+  if(BARBERIA_ID) d = await sbGet('barberias','id=eq.'+BARBERIA_ID+'&select=*');
+  if(!d||!d[0]){
+    var ur = await fetch(SUPABASE_URL+'/auth/v1/user',{headers:{'apikey':SUPABASE_ANON,'Authorization':'Bearer '+TOKEN}});
+    var ud = await ur.json();
+    if(ud&&ud.email) d = await sbGet('barberias','email=eq.'+encodeURIComponent(ud.email)+'&select=*');
+  }
+  if(d&&d[0]){
+    BARBERIA=d[0]; BARBERIA_ID=BARBERIA.id;
+    sessionStorage.setItem('barberia_barberia_id',BARBERIA_ID);
+    document.getElementById('sidebar-nombre').textContent = BARBERIA.nombre || 'Mi Barbería';
+    document.getElementById('sidebar-email').textContent  = BARBERIA.email || '';
+    // Precio suscripción
+    var cupon = (BARBERIA.cupon_aplicado||'').toUpperCase();
+    var gratisForever = cupon.indexOf('DEMO')!==-1||cupon.indexOf('TEST')!==-1||cupon.indexOf('100')!==-1;
+    document.getElementById('precio-suscripcion').textContent = gratisForever ? '0,00€' : '19,99€';
+  }
+}
+
+async function loadClientes(){
+  var d = await sbGet('clientes','barberia_id=eq.'+BARBERIA_ID+'&order=nombre.asc&select=*');
+  CLIENTES = d||[];
+  document.getElementById('metric-clientes').textContent = CLIENTES.length;
+  renderClientes(CLIENTES);
+}
+
+async function loadBarberos(){
+  var d = await sbGet('barberos','barberia_id=eq.'+BARBERIA_ID+'&eq.activo=true&order=nombre.asc&select=*');
+  BARBEROS = d||[];
+  document.getElementById('metric-barberos').textContent = BARBEROS.length;
+  renderBarberosList();
+  populateBarberoSelects();
+}
+
+async function loadServicios(){
+  var d = await sbGet('servicios_config','barberia_id=eq.'+BARBERIA_ID+'&eq.activo=true&select=*');
+  SERVICIOS = d||[];
+}
+
+async function loadCitasHoy(){
+  var q = 'barberia_id=eq.'+BARBERIA_ID+'&fecha=eq.'+FECHA_AGENDA+'&order=hora_inicio.asc&select=*';
+  var d = await sbGet('citas',q);
+  CITAS_HOY = d||[];
+  renderCitasHoy();
+  renderAgenda();
+  renderWeekGrid();
+  var hoyReal = new Date().toISOString().split('T')[0];
+  document.getElementById('badge-hoy').textContent = FECHA_AGENDA===hoyReal ? CITAS_HOY.length : 0;
+  document.getElementById('metric-hoy').textContent = CITAS_HOY.length;
+  document.getElementById('metric-hoy-sub').textContent = CITAS_HOY.filter(function(c){return c.estado==='pendiente'||c.estado==='confirmada';}).length+' programadas';
+  actualizarTituloAgenda();
+}
+
+// ══════════════════════════════════════════
+// SECCIONES
+// ══════════════════════════════════════════
+function showSection(s, btn){
+  document.querySelectorAll('.section-view').forEach(function(el){el.classList.remove('active');});
+  document.querySelectorAll('.nav-btn').forEach(function(el){el.classList.remove('active');});
+  document.getElementById('view-'+s).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(s==='configuracion') renderConfig();
+  if(s==='suscripcion') renderFacturasSuscripcion();
+}
+
+// ══════════════════════════════════════════
+// AGENDA Y CITAS
+// ══════════════════════════════════════════
+function actualizarTituloAgenda(){
+  var hoy = new Date().toISOString().split('T')[0];
+  var dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  var meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  var fecha = new Date(FECHA_AGENDA+'T00:00:00');
+  var label = FECHA_AGENDA===hoy ? 'Hoy — ' : '';
+  label += dias[fecha.getDay()]+' '+fecha.getDate()+' '+meses[fecha.getMonth()];
+  document.getElementById('agenda-titulo').textContent = '📅 '+label;
+}
+
+async function cambiarDiaAgenda(delta){
+  var f = new Date(FECHA_AGENDA+'T00:00:00');
+  f.setDate(f.getDate()+delta);
+  FECHA_AGENDA = f.toISOString().split('T')[0];
+  await loadCitasHoy();
+}
+
+async function irAHoy(){
+  FECHA_AGENDA = new Date().toISOString().split('T')[0];
+  await loadCitasHoy();
+}
+
+async function irAFechaAgenda(fecha){
+  FECHA_AGENDA = fecha;
+  await loadCitasHoy();
+  showSection('agenda', document.querySelector('[onclick*="agenda"]'));
+}
+
+function renderCitasHoy(){
+  var l = document.getElementById('citas-hoy-list');
+  if(!CITAS_HOY.length){ l.innerHTML='<div class="empty-state"><span class="empty-icon">✅</span><div class="empty-text">Sin citas hoy</div></div>'; return; }
+  l.innerHTML = CITAS_HOY.map(function(c){
+    return '<div class="cita-item"><div class="cita-hora">'+(c.hora_inicio||'')+'</div><div class="cita-info"><div class="cita-nombre">'+(c.nombre_cliente||'Cliente')+'</div><div class="cita-detalle">'+((c.servicios||[]).join(', ')||'Servicio')+(c.barbero?' · '+c.barbero:'')+'</div></div><span class="cita-estado estado-'+(c.estado||'pendiente')+'">'+(c.estado||'pendiente')+'</span><button class="cita-btn primary" onclick="marcarRealizada(\''+c.id+'\')">✓</button><button class="cita-btn" onclick="cancelarCita(\''+c.id+'\')">✕</button></div>';
+  }).join('');
+}
+
+function renderAgenda(){
+  var e = document.getElementById('agenda-content');
+  if(!CITAS_HOY.length){ e.innerHTML='<div class="empty-state"><span class="empty-icon">📅</span><div class="empty-text">Sin citas este día</div></div>'; return; }
+  e.innerHTML = CITAS_HOY.map(function(c){
+    return '<div class="cita-item"><div class="cita-hora">'+(c.hora_inicio||'')+'</div><div class="cita-info"><div class="cita-nombre">'+(c.nombre_cliente||'Cliente')+'</div><div class="cita-detalle">'+((c.servicios||[]).join(', ')||'Servicio')+(c.barbero?' · '+c.barbero:'')+(c.confirmada?' <span style="color:var(--green);font-size:9px">✓ Confirmada</span>':'')+'</div></div><span class="cita-estado estado-'+(c.estado||'pendiente')+'">'+(c.estado||'pendiente')+'</span><button class="cita-btn primary" onclick="marcarRealizada(\''+c.id+'\')">✓ Realizada</button><button class="cita-btn" onclick="cancelarCita(\''+c.id+'\')">✕</button></div>';
+  }).join('');
+}
+
+async function renderWeekGrid(){
+  var hoy = new Date();
+  var dias = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  var ini = new Date(hoy);
+  var offset = hoy.getDay()===0?-6:1-hoy.getDay();
+  ini.setDate(hoy.getDate()+offset);
+  var finSem = new Date(ini); finSem.setDate(ini.getDate()+6);
+  var fIni = ini.toISOString().split('T')[0];
+  var fFin = finSem.toISOString().split('T')[0];
+  var ses = await sbGet('citas','barberia_id=eq.'+BARBERIA_ID+'&fecha=gte.'+fIni+'&fecha=lte.'+fFin+'&select=fecha');
+  var conteo = {};
+  (ses||[]).forEach(function(s){ conteo[s.fecha]=(conteo[s.fecha]||0)+1; });
+  var html='', semCitas=0;
+  for(var i=0;i<6;i++){
+    var d=new Date(ini); d.setDate(ini.getDate()+i);
+    var fStr=d.toISOString().split('T')[0];
+    var esHoy=d.toDateString()===hoy.toDateString();
+    var esActiva=fStr===FECHA_AGENDA;
+    var cnt=conteo[fStr]||0;
+    semCitas+=cnt;
+    var cntStyle=cnt>0?'color:var(--red);font-weight:800':'';
+    html+='<div class="week-day'+(esHoy||esActiva?' today':'')+'" style="cursor:pointer;'+(esActiva?'box-shadow:0 0 0 2px var(--red)':'')+'" onclick="irAFechaAgenda(\''+fStr+'\')"><div class="week-day-name">'+dias[d.getDay()]+'</div><div class="week-day-num">'+d.getDate()+'</div><div class="week-day-count" style="'+cntStyle+'">'+cnt+'</div></div>';
+  }
+  document.getElementById('week-grid').innerHTML=html;
+  document.getElementById('metric-semana').textContent=semCitas;
+}
+
+function abrirNuevaCita(){
+  document.getElementById('cita-fecha').value = FECHA_AGENDA;
+  document.getElementById('cita-hora').value = '';
+  document.getElementById('cita-cliente').value = '';
+  document.getElementById('cita-cliente-id').value = '';
+  document.getElementById('cita-notas').value = '';
+  renderServiciosGrid('cita-servicios-grid');
+  document.getElementById('modal-cita').classList.add('open');
+}
+
+async function crearCita(){
+  var nombre = document.getElementById('cita-cliente').value.trim();
+  var fecha  = document.getElementById('cita-fecha').value;
+  var hora   = document.getElementById('cita-hora').value;
+  if(!nombre||!fecha||!hora){ alert('Rellena cliente, fecha y hora'); return; }
+  var clienteId = document.getElementById('cita-cliente-id').value;
+  // Buscar o usar nombre directo
+  if(!clienteId){
+    var enc = CLIENTES.find(function(c){return (c.nombre+' '+(c.apellidos||'')).toLowerCase().includes(nombre.toLowerCase());});
+    if(enc) clienteId=enc.id;
+  }
+  var serviciosSeleccionados = [];
+  document.querySelectorAll('#cita-servicios-grid .servicio-tag.active').forEach(function(el){ serviciosSeleccionados.push(el.textContent); });
+  var barbero = document.getElementById('cita-barbero').value;
+  var dur = serviciosSeleccionados.length > 0
+    ? (SERVICIOS.find(function(s){return s.nombre===serviciosSeleccionados[0];})||{duracion_min:30}).duracion_min
+    : 30;
+  var [hh,mm] = hora.split(':').map(Number);
+  var finMin = hh*60+mm+dur;
+  var horaFin = String(Math.floor(finMin/60)).padStart(2,'0')+':'+String(finMin%60).padStart(2,'0');
+  var data = {
+    id:'cit_'+Date.now()+'_'+Math.random().toString(36).substr(2,6),
+    barberia_id: BARBERIA_ID,
+    nombre_cliente: nombre,
+    cliente_id: clienteId||null,
+    fecha, hora_inicio:hora, hora_fin:horaFin,
+    barbero: barbero||null,
+    servicios: serviciosSeleccionados,
+    notas: document.getElementById('cita-notas').value.trim()||null,
+    estado:'pendiente'
+  };
+  var res = await sbPost('citas',data);
+  if(res&&res.error){ alert('Error al crear cita: '+JSON.stringify(res.error)); return; }
+  cerrarModal('modal-cita');
+  // Actualizar ultima_visita si hay cliente
+  if(clienteId){ await sbPatch('clientes','id=eq.'+clienteId,{ultima_visita:fecha}); }
+  await loadCitasHoy();
+  alert('✅ Cita creada para el '+fecha+' a las '+hora);
+}
+
+async function marcarRealizada(id){
+  if(!confirm('¿Marcar esta cita como realizada?')) return;
+  var cita = CITAS_HOY.find(function(c){return c.id===id;});
+  await sbPatch('citas','id=eq.'+id,{estado:'realizada'});
+  // Actualizar ultima_visita del cliente
+  if(cita&&cita.cliente_id){
+    await sbPatch('clientes','id=eq.'+cita.cliente_id,{ultima_visita:cita.fecha, recordatorio_enviado:false, total_visitas:((CLIENTES.find(function(c){return c.id===cita.cliente_id;})||{}).total_visitas||0)+1});
+  }
+  await loadCitasHoy();
+  alert('✅ Cita marcada como realizada');
+}
+
+async function cancelarCita(id){
+  if(!confirm('¿Cancelar esta cita?')) return;
+  await sbPatch('citas','id=eq.'+id,{estado:'cancelada',cancelada:true});
+  await loadCitasHoy();
+}
+
+// ══════════════════════════════════════════
+// CLIENTES
+// ══════════════════════════════════════════
+function renderClientes(lista){
+  var e = document.getElementById('clientes-list');
+  if(!lista.length){ e.innerHTML='<div class="empty-state"><span class="empty-icon">👥</span><div class="empty-text">No hay clientes todavía</div></div>'; return; }
+  e.innerHTML = lista.map(function(c){
+    var ini = (c.nombre||'?')[0].toUpperCase();
+    var srvs = (c.servicios_habituales||[]).join(' · ') || '';
+    var vipBadge = c.vip ? '<span class="badge-vip">★ VIP</span>' : '';
+    var ultima = c.ultima_visita ? ' · Última visita: '+c.ultima_visita : '';
+    return '<div class="client-card" onclick="editarCliente(\''+c.id+'\')"><div class="client-avatar">'+ini+'</div><div class="client-info"><div class="client-name">'+c.nombre+' '+(c.apellidos||'')+vipBadge+'</div><div class="client-detail">'+(c.telefono||'')+(srvs?' · '+srvs:'')+ultima+'</div></div></div>';
+  }).join('');
+}
+
+function filtrarClientes(q){
+  if(!q){ renderClientes(CLIENTES); return; }
+  var f = CLIENTES.filter(function(c){ return (c.nombre+' '+(c.apellidos||'')+' '+(c.telefono||'')).toLowerCase().includes(q.toLowerCase()); });
+  renderClientes(f);
+}
+
+function abrirNuevoCliente(){
+  document.getElementById('modal-cliente-titulo').textContent='👤 Nuevo cliente';
+  document.getElementById('edit-cliente-id').value='';
+  ['edit-nombre','edit-apellidos','edit-telefono','edit-email','edit-nota'].forEach(function(id){document.getElementById(id).value='';});
+  VIP_ACTIVO=false; actualizarToggleVip();
+  renderServiciosGrid('edit-servicios-grid');
+  populateBarberoSelects();
+  document.getElementById('modal-cliente').classList.add('open');
+}
+
+function editarCliente(id){
+  var c = CLIENTES.find(function(x){return x.id===id;});
+  if(!c) return;
+  document.getElementById('modal-cliente-titulo').textContent='✏️ Editar cliente';
+  document.getElementById('edit-cliente-id').value=id;
+  document.getElementById('edit-nombre').value=c.nombre||'';
+  document.getElementById('edit-apellidos').value=c.apellidos||'';
+  document.getElementById('edit-telefono').value=c.telefono||'';
+  document.getElementById('edit-email').value=c.email||'';
+  document.getElementById('edit-nota').value=c.nota||'';
+  VIP_ACTIVO=c.vip||false; actualizarToggleVip();
+  renderServiciosGrid('edit-servicios-grid', c.servicios_habituales||[]);
+  populateBarberoSelects(c.barbero_asignado);
+  document.getElementById('modal-cliente').classList.add('open');
+}
+
+async function guardarCliente(){
+  var nombre = document.getElementById('edit-nombre').value.trim();
+  var tel    = document.getElementById('edit-telefono').value.trim();
+  if(!nombre||!tel){ alert('Nombre y teléfono son obligatorios'); return; }
+  var id = document.getElementById('edit-cliente-id').value;
+  var servicios = [];
+  document.querySelectorAll('#edit-servicios-grid .servicio-tag.active').forEach(function(el){servicios.push(el.textContent);});
+  var data = {
+    nombre, apellidos:document.getElementById('edit-apellidos').value.trim()||null,
+    telefono:tel, email:document.getElementById('edit-email').value.trim()||null,
+    barbero_asignado:document.getElementById('edit-barbero-asignado').value||null,
+    servicios_habituales:servicios, vip:VIP_ACTIVO,
+    nota:document.getElementById('edit-nota').value.trim()||null,
+  };
+  if(id){
+    var r = await sbPatch('clientes','id=eq.'+id,data);
+    if(r&&r.error){ alert('Error al guardar'); return; }
+    var idx=CLIENTES.findIndex(function(c){return c.id===id;});
+    if(idx!==-1) Object.assign(CLIENTES[idx],data);
+  } else {
+    data.id='cli_'+Date.now()+'_'+Math.random().toString(36).substr(2,6);
+    data.barberia_id=BARBERIA_ID;
+    var r = await sbPost('clientes',data);
+    if(r&&r.error){ alert('Error al crear cliente'); return; }
+    CLIENTES.push(data);
+  }
+  cerrarModal('modal-cliente');
+  renderClientes(CLIENTES);
+  document.getElementById('metric-clientes').textContent=CLIENTES.length;
+  alert('✅ Cliente guardado');
+}
+
+function toggleVip(){ VIP_ACTIVO=!VIP_ACTIVO; actualizarToggleVip(); }
+function actualizarToggleVip(){ var t=document.getElementById('toggle-vip'); t.classList.toggle('on',VIP_ACTIVO); }
+
+// ══════════════════════════════════════════
+// BARBEROS
+// ══════════════════════════════════════════
+function renderBarberosList(){
+  var e = document.getElementById('barberos-list');
+  if(!BARBEROS.length){ e.innerHTML='<div class="empty-state"><span class="empty-icon">✂️</span><div class="empty-text">Añade tu primer barbero</div></div>'; return; }
+  e.innerHTML = BARBEROS.map(function(b){
+    return '<div class="barbero-card"><div class="barbero-avatar">✂️</div><div class="barbero-info"><div class="barbero-name">'+b.nombre+' '+(b.apellidos||'')+'</div><div class="barbero-detail">'+(b.telefono||'')+(b.calendar_id?' · 📅 Calendar conectado':'')+'</div></div><button class="cita-btn" onclick="editarBarbero(\''+b.id+'\')">✏️</button><button class="cita-btn" onclick="eliminarBarbero(\''+b.id+'\')" style="color:var(--red-err)">🗑️</button></div>';
+  }).join('');
+}
+
+function populateBarberoSelects(seleccionado){
+  ['cita-barbero','edit-barbero-asignado'].forEach(function(sid){
+    var sel=document.getElementById(sid);
+    if(!sel) return;
+    sel.innerHTML='<option value="">Sin asignar</option>';
+    BARBEROS.forEach(function(b){ sel.innerHTML+='<option value="'+b.nombre+(b.apellidos?' '+b.apellidos:'')+'"'+(seleccionado===b.nombre?' selected':'')+'>'+(b.nombre+(b.apellidos?' '+b.apellidos:''))+'</option>'; });
+  });
+}
+
+function abrirNuevoBarbero(){
+  document.getElementById('modal-barbero-titulo').textContent='✂️ Nuevo barbero';
+  document.getElementById('edit-barbero-id').value='';
+  ['edit-barbero-nombre','edit-barbero-apellidos','edit-barbero-telefono','edit-barbero-calendar'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('modal-barbero').classList.add('open');
+}
+
+function editarBarbero(id){
+  var b=BARBEROS.find(function(x){return x.id===id;});
+  if(!b) return;
+  document.getElementById('modal-barbero-titulo').textContent='✏️ Editar barbero';
+  document.getElementById('edit-barbero-id').value=id;
+  document.getElementById('edit-barbero-nombre').value=b.nombre||'';
+  document.getElementById('edit-barbero-apellidos').value=b.apellidos||'';
+  document.getElementById('edit-barbero-telefono').value=b.telefono||'';
+  document.getElementById('edit-barbero-calendar').value=b.calendar_id||'';
+  document.getElementById('modal-barbero').classList.add('open');
+}
+
+async function guardarBarbero(){
+  var nombre=document.getElementById('edit-barbero-nombre').value.trim();
+  if(!nombre){ alert('El nombre es obligatorio'); return; }
+  var id=document.getElementById('edit-barbero-id').value;
+  var data={nombre, apellidos:document.getElementById('edit-barbero-apellidos').value.trim()||null, telefono:document.getElementById('edit-barbero-telefono').value.trim()||null, calendar_id:document.getElementById('edit-barbero-calendar').value.trim()||null, activo:true};
+  if(id){
+    await sbPatch('barberos','id=eq.'+id,data);
+    var idx=BARBEROS.findIndex(function(b){return b.id===id;}); if(idx!==-1) Object.assign(BARBEROS[idx],data);
+  } else {
+    data.id='bar_'+Date.now()+'_'+Math.random().toString(36).substr(2,6);
+    data.barberia_id=BARBERIA_ID;
+    var r=await sbPost('barberos',data);
+    if(r&&r.error){ alert('Error al crear barbero'); return; }
+    BARBEROS.push(data);
+  }
+  cerrarModal('modal-barbero');
+  renderBarberosList(); populateBarberoSelects();
+  document.getElementById('metric-barberos').textContent=BARBEROS.length;
+  alert('✅ Barbero guardado');
+}
+
+async function eliminarBarbero(id){
+  if(!confirm('¿Eliminar este barbero?')) return;
+  await sbPatch('barberos','id=eq.'+id,{activo:false});
+  BARBEROS=BARBEROS.filter(function(b){return b.id!==id;});
+  renderBarberosList(); populateBarberoSelects();
+  document.getElementById('metric-barberos').textContent=BARBEROS.length;
+}
+
+// ══════════════════════════════════════════
+// SERVICIOS
+// ══════════════════════════════════════════
+function renderServiciosGrid(containerId, activos){
+  activos=activos||[];
+  var defaults=['Corte de pelo','Barba','Pelo + Barba','Cejas','Pelo + Barba + Cejas'];
+  var lista = SERVICIOS.length>0 ? SERVICIOS.map(function(s){return s.nombre;}) : defaults;
+  document.getElementById(containerId).innerHTML = lista.map(function(s){
+    var act=activos.includes(s)?'active':'';
+    return '<button type="button" class="servicio-tag '+act+'" onclick="this.classList.toggle(\'active\')">'+s+'</button>';
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// AUTOCOMPLETE CLIENTES EN CITA
+// ══════════════════════════════════════════
+function autocompleteCliente(q){
+  var box=document.getElementById('ac-list');
+  if(!q||q.length<2){ box.style.display='none'; return; }
+  var res=CLIENTES.filter(function(c){return (c.nombre+' '+(c.apellidos||'')+' '+(c.telefono||'')).toLowerCase().includes(q.toLowerCase());}).slice(0,5);
+  if(!res.length){ box.style.display='none'; return; }
+  box.style.display='block';
+  box.innerHTML=res.map(function(c){
+    return '<div style="padding:9px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border)" onmousedown="seleccionarCliente(\''+c.id+'\',\''+c.nombre+' '+(c.apellidos||'')+'\')">'+c.nombre+' '+(c.apellidos||'')+'<span style="color:var(--muted2);font-size:11px"> · '+(c.telefono||'')+'</span></div>';
+  }).join('');
+}
+
+function seleccionarCliente(id,nombre){
+  document.getElementById('cita-cliente').value=nombre.trim();
+  document.getElementById('cita-cliente-id').value=id;
+  document.getElementById('ac-list').style.display='none';
+}
+
+// ══════════════════════════════════════════
+// HERRAMIENTAS
+// ══════════════════════════════════════════
+async function guardarCalendar(){
+  var id=document.getElementById('cal-id').value.trim();
+  if(!id){ alert('Introduce el ID del calendario'); return; }
+  await sbPatch('barberias','id=eq.'+BARBERIA_ID,{calendario_id:id});
+  BARBERIA.calendario_id=id;
+  document.getElementById('cal-estado').textContent='Conectado';
+  document.getElementById('cal-estado').className='tool-estado estado-activo';
+  alert('✅ Google Calendar conectado');
+}
+
+async function guardarRecordatorio(){
+  var sem=document.getElementById('recordatorio-semanas').value;
+  await sbPatch('barberias','id=eq.'+BARBERIA_ID,{recordatorio_semanas:parseInt(sem)});
+  alert('✅ Recordatorio proactivo configurado: '+sem+' semanas');
+}
+
+// ══════════════════════════════════════════
+// CONFIGURACIÓN
+// ══════════════════════════════════════════
+function renderConfig(){
+  if(!BARBERIA) return;
+  var dias=['lunes','martes','miercoles','jueves','viernes','sabado','domingo'];
+  var diasLabels=['L','M','X','J','V','S','D'];
+  var diasActivos=BARBERIA.dias_apertura||['lunes','martes','miercoles','jueves','viernes','sabado'];
+  var diasHtml=dias.map(function(d,i){
+    var act=diasActivos.includes(d)?'active':'';
+    return '<button type="button" class="servicio-tag '+act+'" data-dia="'+d+'" onclick="this.classList.toggle(\'active\')">'+diasLabels[i]+'</button>';
+  }).join('');
+
+  document.getElementById('config-body').innerHTML=
+    '<div class="form-section-label">Datos generales</div>'+
+    '<div class="form-group"><label class="form-label">Nombre de la barbería</label><input class="form-input" id="cfg-nombre" value="'+(BARBERIA.nombre||'')+'"></div>'+
+    '<div class="form-row"><div class="form-group"><label class="form-label">Hora apertura</label><input type="time" class="form-input" id="cfg-apertura" value="'+(BARBERIA.hora_apertura||'09:00')+'"></div><div class="form-group"><label class="form-label">Hora cierre</label><input type="time" class="form-input" id="cfg-cierre" value="'+(BARBERIA.hora_cierre||'20:00')+'"></div></div>'+
+    '<div class="form-group"><label class="form-label">Días de apertura</label><div class="servicios-grid" id="cfg-dias">'+diasHtml+'</div></div>'+
+    '<div class="form-section-label">Datos de facturación (opcionales)</div>'+
+    '<div class="form-row"><div class="form-group"><label class="form-label">Nombre / Razón social</label><input class="form-input" id="cfg-razon" value="'+(BARBERIA.razon_social||'')+'"></div><div class="form-group"><label class="form-label">NIF / CIF</label><input class="form-input" id="cfg-nif" value="'+(BARBERIA.nif||'')+'"></div></div>'+
+    '<div class="form-group"><label class="form-label">Dirección fiscal</label><input class="form-input" id="cfg-dir-fiscal" value="'+(BARBERIA.direccion_fiscal||'')+'"></div>'+
+    '<button class="btn-primary" onclick="guardarConfig()" style="margin-top:8px">Guardar cambios</button>';
+
+  // Cargar semanas recordatorio en herramientas
+  if(BARBERIA.recordatorio_semanas){
+    var sel=document.getElementById('recordatorio-semanas');
+    if(sel) sel.value=BARBERIA.recordatorio_semanas;
+  }
+  // Cargar calendar
+  if(BARBERIA.calendario_id){
+    var calInput=document.getElementById('cal-id');
+    if(calInput) calInput.value=BARBERIA.calendario_id;
+    var calEstado=document.getElementById('cal-estado');
+    if(calEstado){ calEstado.textContent='Conectado'; calEstado.className='tool-estado estado-activo'; }
+  }
+}
+
+async function guardarConfig(){
+  var dias=[];
+  document.querySelectorAll('#cfg-dias .servicio-tag.active').forEach(function(el){dias.push(el.getAttribute('data-dia'));});
+  var u={
+    nombre:document.getElementById('cfg-nombre').value,
+    hora_apertura:document.getElementById('cfg-apertura').value,
+    hora_cierre:document.getElementById('cfg-cierre').value,
+    dias_apertura:dias,
+    razon_social:document.getElementById('cfg-razon').value.trim()||null,
+    nif:document.getElementById('cfg-nif').value.trim()||null,
+    direccion_fiscal:document.getElementById('cfg-dir-fiscal').value.trim()||null,
+  };
+  await sbPatch('barberias','id=eq.'+BARBERIA_ID,u);
+  Object.assign(BARBERIA,u);
+  document.getElementById('sidebar-nombre').textContent=u.nombre||BARBERIA.nombre;
+  alert('✅ Configuración guardada');
+}
+
+// ══════════════════════════════════════════
+// SUSCRIPCIÓN
+// ══════════════════════════════════════════
+function renderFacturasSuscripcion(){
+  var e=document.getElementById('facturas-suscripcion-list');
+  if(!BARBERIA){ e.innerHTML='<div class="loading"><div class="spinner"></div></div>'; return; }
+  var ahora=new Date(), MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var alta=BARBERIA.created_at?new Date(BARBERIA.created_at):ahora;
+  var cupon=(BARBERIA.cupon_aplicado||'').toUpperCase();
+  var mesesGratis=cupon.indexOf('BIENVENIDA')!==-1?2:0;
+  var gratisForever=cupon.indexOf('DEMO')!==-1||cupon.indexOf('TEST')!==-1||cupon.indexOf('100')!==-1;
+  var out='';
+  for(var i=0;i<12;i++){
+    var d=new Date(ahora.getFullYear(),ahora.getMonth()-i,1);
+    if(d<new Date(alta.getFullYear(),alta.getMonth(),1)) break;
+    var diffM=(d.getFullYear()-alta.getFullYear())*12+(d.getMonth()-alta.getMonth());
+    var gratis=gratisForever||diffM<mesesGratis;
+    var total=gratis?'0,00':'19,99';
+    var num='BARB-'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+'-'+(BARBERIA_ID||'').substr(-4).toUpperCase();
+    var badge=gratis?'<span style="background:rgba(34,197,94,0.1);color:var(--green);border-radius:20px;padding:2px 8px;font-size:9px;font-weight:700">GRATIS</span>':'';
+    out+='<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:12px;font-weight:700;color:var(--text)">'+num+' '+badge+'</div><div style="font-size:11px;color:var(--muted2)">'+MESES[d.getMonth()]+' '+d.getFullYear()+' · BarberIA Plan Base</div></div><div style="text-align:right"><div style="font-size:15px;font-weight:800;color:var(--text)">'+total+'€</div></div></div>';
+  }
+  if(!out) out='<div class="empty-state"><span class="empty-icon">📄</span><div class="empty-text">Sin facturas todavía</div></div>';
+  e.innerHTML=out;
+}
+
+async function abrirPortal(){
+  var btn=event&&event.target?event.target:null;
+  if(btn){btn.disabled=true;btn.textContent='Abriendo...';}
+  try{
+    var d=await callFn('stripe-portal-barberia',{barberia_id:BARBERIA_ID});
+    if(d&&d.url) window.open(d.url,'_blank');
+    else alert('No se pudo abrir el portal. Escríbenos a barberia@zevorasystems.com');
+  }catch(e){ alert('Error de conexión'); }
+  if(btn){btn.disabled=false;btn.textContent='💳 Gestionar suscripción';}
+}
+
+function abrirModalBaja(){ document.getElementById('input-baja').value=''; document.getElementById('modal-baja').classList.add('open'); }
+
+async function procesarBaja(){
+  if(document.getElementById('input-baja').value!=='CONFIRMAR'){ alert('Escribe CONFIRMAR para continuar'); return; }
+  await callFn('cancelar-suscripcion-barberia',{barberia_id:BARBERIA_ID});
+  alert('Tu suscripción ha sido cancelada. Tendrás acceso hasta fin del período actual.');
+  cerrarModal('modal-baja');
+}
+
+// ══════════════════════════════════════════
+// MODALES Y UTILS
+// ══════════════════════════════════════════
+function cerrarModal(id){ document.getElementById(id).classList.remove('open'); }
+function cerrarSesion(){
+  sessionStorage.clear();
+  window.location.href='login-barberia.html';
+}
+
+// Cerrar modales al clicar fuera
+document.querySelectorAll('.modal').forEach(function(m){
+  m.addEventListener('click',function(e){ if(e.target===m) m.classList.remove('open'); });
+});
+
+// ══════════════════════════════════════════
+// ARRANCAR
+// ══════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', init);
+</script>
+
+<div style="display:none;text-align:center;padding:8px;font-size:10px;color:rgba(255,255,255,0.2)">
+  <a href="/politica-privacidad.pdf" target="_blank" style="color:rgba(255,255,255,0.2);text-decoration:none">Política de Privacidad</a> · © 2026 ZEVORA Systems
+</div>
+</body>
+</html>
