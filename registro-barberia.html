@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BarberIA — Registro</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --navy:#1A2F5E;--navy-dark:#0f1f3d;--red:#C0392B;--red2:#96281B;
+  --surface:#111827;--surface2:#1A2535;--surface3:#1F2D40;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --text:#F0F4F8;--muted:#64748B;--muted2:#94A3B8;--error:#EF4444;
+  --font:'Plus Jakarta Sans',sans-serif;
+}
+body{font-family:var(--font);background:var(--surface);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 20px;}
+.bg-blob{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0;}
+.blob1{width:400px;height:400px;background:rgba(192,57,43,0.07);top:-100px;right:10%;}
+.blob2{width:300px;height:300px;background:rgba(26,47,94,0.8);bottom:-50px;left:5%;}
+.reg-box{position:relative;z-index:1;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:40px;width:100%;max-width:520px;box-shadow:0 24px 80px rgba(0,0,0,0.4);}
+.logo-area{text-align:center;margin-bottom:28px;}
+.brand{font-size:26px;font-weight:900;color:var(--text);}
+.brand span{color:var(--red);}
+.sub{font-size:10px;color:var(--muted2);letter-spacing:2px;text-transform:uppercase;margin-top:4px;font-weight:600;}
+.tagline{font-size:13px;color:var(--muted2);margin-top:10px;}
+/* Pole decorativo */
+.pole{display:flex;justify-content:center;gap:3px;margin-bottom:20px;}
+.pole-stripe{width:10px;height:40px;border-radius:4px;}
+.form-section{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--red);margin:20px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.form-group{margin-bottom:14px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);display:block;margin-bottom:5px;}
+.form-input{width:100%;background:var(--surface3);border:1.5px solid var(--border2);border-radius:10px;padding:11px 14px;font-size:14px;color:var(--text);font-family:var(--font);outline:none;transition:border-color 0.2s;}
+.form-input:focus{border-color:var(--red);}
+.form-input::placeholder{color:var(--muted);}
+/* Días de apertura */
+.dias-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:4px;}
+.dia-btn{background:var(--surface3);border:1.5px solid var(--border2);border-radius:8px;padding:8px 4px;font-size:11px;font-weight:700;color:var(--muted2);cursor:pointer;text-align:center;transition:all 0.2s;font-family:var(--font);}
+.dia-btn.active{background:rgba(192,57,43,0.15);border-color:var(--red);color:var(--red);}
+/* Botón principal */
+.btn-primary{width:100%;background:var(--red);color:#fff;border:none;padding:14px;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;font-family:var(--font);transition:all 0.2s;margin-top:8px;}
+.btn-primary:hover{background:var(--red2);}
+.btn-primary:disabled{opacity:0.6;cursor:not-allowed;}
+.error-msg{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--error);margin-bottom:14px;display:none;}
+.error-msg.show{display:block;}
+.success-msg{background:rgba(192,57,43,0.1);border:1px solid rgba(192,57,43,0.2);border-radius:8px;padding:14px;font-size:13px;color:#F1948A;margin-top:12px;display:none;text-align:center;line-height:1.6;}
+.success-msg.show{display:block;}
+.divider{height:1px;background:var(--border);margin:20px 0;}
+.login-link{text-align:center;font-size:12px;color:var(--muted2);}
+.login-link a{color:var(--red);text-decoration:none;font-weight:600;}
+.step-indicator{display:flex;justify-content:center;gap:8px;margin-bottom:24px;}
+.step{width:8px;height:8px;border-radius:50%;background:var(--border2);transition:background 0.3s;}
+.step.active{background:var(--red);}
+.step.done{background:rgba(192,57,43,0.4);}
+</style>
+</head>
+<body>
+<div class="bg-blob blob1"></div>
+<div class="bg-blob blob2"></div>
+<div class="reg-box">
+
+  <div class="logo-area">
+    <!-- Poste de barbería decorativo -->
+    <div class="pole">
+      <div class="pole-stripe" style="background:#C0392B"></div>
+      <div class="pole-stripe" style="background:#FFFFFF;opacity:0.15"></div>
+      <div class="pole-stripe" style="background:#1A2F5E"></div>
+      <div class="pole-stripe" style="background:#FFFFFF;opacity:0.15"></div>
+      <div class="pole-stripe" style="background:#C0392B"></div>
+    </div>
+    <div class="brand">Barber<span>IA</span></div>
+    <div class="sub">by ZEVORA Systems</div>
+    <div class="tagline">Tu barbería en piloto automático · 19,99€/mes</div>
+  </div>
+
+  <div class="step-indicator">
+    <div class="step active" id="step1"></div>
+    <div class="step" id="step2"></div>
+    <div class="step" id="step3"></div>
+  </div>
+
+  <div class="error-msg" id="error-msg"></div>
+
+  <!-- PASO 1: Datos del negocio -->
+  <div id="seccion-1">
+    <div class="form-section">1 · Datos de tu barbería</div>
+    <div class="form-group">
+      <label class="form-label">Nombre de la barbería *</label>
+      <input type="text" class="form-input" id="nombre-barberia" placeholder="Ej: Barbería El Maestro" required>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Email *</label>
+        <input type="email" class="form-input" id="email" placeholder="tu@barberia.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Teléfono / WhatsApp *</label>
+        <input type="tel" class="form-input" id="telefono" placeholder="+34 600 000 000" required>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Dirección (opcional)</label>
+      <input type="text" class="form-input" id="direccion" placeholder="Calle, número, ciudad">
+    </div>
+    <button class="btn-primary" onclick="irPaso2()">Continuar →</button>
+  </div>
+
+  <!-- PASO 2: Configuración -->
+  <div id="seccion-2" style="display:none">
+    <div class="form-section">2 · Configuración del servicio</div>
+    <div class="form-group">
+      <label class="form-label">Número de barberos</label>
+      <select class="form-input" id="num-barberos">
+        <option value="1">1 barbero (yo solo)</option>
+        <option value="2">2 barberos</option>
+        <option value="3">3 barberos</option>
+        <option value="4">4 barberos</option>
+        <option value="5">5 o más barberos</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Hora de apertura</label>
+        <input type="time" class="form-input" id="hora-apertura" value="09:00">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hora de cierre</label>
+        <input type="time" class="form-input" id="hora-cierre" value="20:00">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Días de apertura</label>
+      <div class="dias-grid" id="dias-grid">
+        <button type="button" class="dia-btn active" data-dia="lunes">L</button>
+        <button type="button" class="dia-btn active" data-dia="martes">M</button>
+        <button type="button" class="dia-btn active" data-dia="miercoles">X</button>
+        <button type="button" class="dia-btn active" data-dia="jueves">J</button>
+        <button type="button" class="dia-btn active" data-dia="viernes">V</button>
+        <button type="button" class="dia-btn active" data-dia="sabado">S</button>
+        <button type="button" class="dia-btn" data-dia="domingo">D</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn-primary" style="background:var(--surface3);color:var(--muted2);flex:0 0 80px" onclick="irPaso1()">← Volver</button>
+      <button class="btn-primary" style="flex:1" onclick="irPaso3()">Continuar →</button>
+    </div>
+  </div>
+
+  <!-- PASO 3: Pago -->
+  <div id="seccion-3" style="display:none">
+    <div class="form-section">3 · Activar suscripción</div>
+    <div style="background:var(--surface3);border:1px solid var(--border2);border-radius:12px;padding:18px;margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-size:15px;font-weight:700;color:var(--text)">BarberIA — Plan Base</span>
+        <span style="font-size:18px;font-weight:900;color:var(--red)">19,99€/mes</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted2);line-height:1.6">
+        ✓ Agente IA en WhatsApp 24h<br>
+        ✓ Recordatorio proactivo de clientes inactivos<br>
+        ✓ Google Calendar sincronizado<br>
+        ✓ Sin comisiones · Sin permanencia
+      </div>
+      <div style="margin-top:10px;background:rgba(192,57,43,0.1);border:1px solid rgba(192,57,43,0.2);border-radius:8px;padding:8px 12px;font-size:12px;color:#F1948A;font-weight:600;">
+        🎁 2 primeros meses completamente gratis
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Código de cupón (opcional)</label>
+      <input type="text" class="form-input" id="cupon" placeholder="BIENVENIDA-BARBER2M" style="text-transform:uppercase">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="btn-primary" style="background:var(--surface3);color:var(--muted2);flex:0 0 80px" onclick="irPaso2()">← Volver</button>
+      <button class="btn-primary" style="flex:1" id="btn-pago" onclick="procesarRegistro()">Continuar al pago →</button>
+    </div>
+  </div>
+
+  <div class="success-msg" id="success-msg">
+    ✅ Redirigiendo a la pasarela de pago...<br>
+    <span style="font-size:11px;opacity:0.7">Si no te redirige automáticamente, haz clic de nuevo.</span>
+  </div>
+
+  <div class="divider"></div>
+  <div class="login-link">¿Ya tienes cuenta? <a href="login-barberia.html">Iniciar sesión →</a></div>
+</div>
+
+<script>
+var SUPABASE_URL = 'https://diaojerahjausthokiuv.supabase.co';
+var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRpYW9qZXJhaGphdXN0aG9raXV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczMTY2ODMsImV4cCI6MjA5Mjg5MjY4M30.FMdDgjGc0jeNaSTKP5OHvONJsoILjYBccDX8CcKaqy8';
+
+// Días seleccionados
+document.querySelectorAll('.dia-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    this.classList.toggle('active');
+  });
+});
+
+function getDiasSeleccionados(){
+  var dias = [];
+  document.querySelectorAll('.dia-btn.active').forEach(function(btn){
+    dias.push(btn.getAttribute('data-dia'));
+  });
+  return dias;
+}
+
+function mostrarError(msg){
+  var e = document.getElementById('error-msg');
+  e.textContent = msg;
+  e.classList.add('show');
+}
+function ocultarError(){ document.getElementById('error-msg').classList.remove('show'); }
+
+function updateSteps(paso){
+  for(var i=1;i<=3;i++){
+    var s = document.getElementById('step'+i);
+    if(i < paso) s.className='step done';
+    else if(i === paso) s.className='step active';
+    else s.className='step';
+  }
+}
+
+function irPaso1(){
+  document.getElementById('seccion-1').style.display='block';
+  document.getElementById('seccion-2').style.display='none';
+  updateSteps(1); ocultarError();
+}
+
+function irPaso2(){
+  var nombre = document.getElementById('nombre-barberia').value.trim();
+  var email  = document.getElementById('email').value.trim();
+  var tel    = document.getElementById('telefono').value.trim();
+  if(!nombre||!email||!tel){ mostrarError('Rellena nombre, email y teléfono para continuar.'); return; }
+  document.getElementById('seccion-1').style.display='none';
+  document.getElementById('seccion-2').style.display='block';
+  updateSteps(2); ocultarError();
+}
+
+function irPaso3(){
+  var dias = getDiasSeleccionados();
+  if(dias.length === 0){ mostrarError('Selecciona al menos un día de apertura.'); return; }
+  document.getElementById('seccion-2').style.display='none';
+  document.getElementById('seccion-3').style.display='block';
+  updateSteps(3); ocultarError();
+}
+
+async function procesarRegistro(){
+  var btn = document.getElementById('btn-pago');
+  btn.disabled = true;
+  btn.textContent = 'Preparando pago...';
+  ocultarError();
+
+  var body = {
+    nombre_barberia: document.getElementById('nombre-barberia').value.trim(),
+    email:           document.getElementById('email').value.trim(),
+    telefono:        document.getElementById('telefono').value.trim(),
+    whatsapp:        document.getElementById('telefono').value.trim(),
+    direccion:       document.getElementById('direccion').value.trim(),
+    num_barberos:    document.getElementById('num-barberos').value,
+    hora_apertura:   document.getElementById('hora-apertura').value,
+    hora_cierre:     document.getElementById('hora-cierre').value,
+    dias_apertura:   getDiasSeleccionados().join(','),
+    cupon:           document.getElementById('cupon').value.trim().toUpperCase() || 'BIENVENIDA-BARBER2M',
+  };
+
+  try {
+    var res = await fetch(SUPABASE_URL + '/functions/v1/crear-sesion-suscripcion-barberia', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    var data = await res.json();
+    if(data.url){
+      document.getElementById('success-msg').classList.add('show');
+      window.location.href = data.url;
+    } else {
+      mostrarError(data.error || 'Error al crear la sesión de pago. Inténtalo de nuevo.');
+      btn.disabled = false;
+      btn.textContent = 'Continuar al pago →';
+    }
+  } catch(e) {
+    mostrarError('Error de conexión. Inténtalo de nuevo.');
+    btn.disabled = false;
+    btn.textContent = 'Continuar al pago →';
+  }
+}
+</script>
+
+<div style="text-align:center;padding:12px;font-size:10px;color:rgba(255,255,255,0.25)">
+  <a href="/politica-privacidad.pdf" target="_blank" style="color:rgba(255,255,255,0.3);text-decoration:none">Política de Privacidad</a> · © 2026 ZEVORA Systems
+</div>
+</body>
+</html>
