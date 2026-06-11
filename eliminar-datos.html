@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eliminación de datos — ZEVORA Systems</title>
+<meta name="description" content="Solicita la eliminación de tus datos personales de los sistemas ZEVORA Systems.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0B1F3A;
+  --green:#00C896;
+  --green-dim:rgba(0,200,150,0.08);
+  --border:rgba(0,200,150,0.15);
+  --text:#0C1E2A;
+  --muted:#4A6472;
+  --bg:#F5FAFA;
+  --white:#FFFFFF;
+  --font:'Bricolage Grotesque',sans-serif;
+  --font-body:'DM Sans',sans-serif;
+}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+nav{background:var(--navy);padding:1rem 6%;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{font-family:var(--font);font-size:1.2rem;font-weight:800;color:white;text-decoration:none}
+.nav-logo span{color:var(--green)}
+.nav-back{font-size:0.85rem;color:rgba(255,255,255,0.5);text-decoration:none;transition:color 0.2s}
+.nav-back:hover{color:var(--green)}
+.hero{background:var(--navy);padding:4rem 6% 3rem;text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,200,150,0.1);border:1px solid var(--border);border-radius:100px;padding:5px 14px;font-size:0.72rem;font-weight:700;color:var(--green);margin-bottom:1.5rem;letter-spacing:0.08em;text-transform:uppercase}
+.hero h1{font-family:var(--font);font-size:clamp(1.8rem,3vw,2.8rem);font-weight:800;color:white;letter-spacing:-0.02em;margin-bottom:1rem}
+.hero p{color:rgba(255,255,255,0.55);font-size:1rem;max-width:520px;margin:0 auto;font-weight:300}
+.container{max-width:760px;margin:0 auto;padding:4rem 6%}
+.card{background:var(--white);border:1px solid rgba(0,200,150,0.12);border-radius:16px;padding:2rem;margin-bottom:1.5rem;box-shadow:0 4px 20px rgba(11,31,58,0.06)}
+.card-title{font-family:var(--font);font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:1rem;display:flex;align-items:center;gap:10px}
+.card-title .icon{width:36px;height:36px;background:var(--green-dim);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.card p{font-size:0.9rem;color:var(--muted);line-height:1.75;margin-bottom:0.8rem}
+.card p:last-child{margin-bottom:0}
+.steps{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:0.5rem}
+.steps li{display:flex;align-items:flex-start;gap:12px;font-size:0.88rem;color:var(--text);line-height:1.6}
+.step-num{width:24px;height:24px;background:var(--green);color:var(--navy);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:800;flex-shrink:0;margin-top:1px}
+.highlight{background:var(--green-dim);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:0.88rem;color:var(--navy);font-weight:500;margin-top:1rem}
+.highlight a{color:var(--green);text-decoration:none;font-weight:700}
+.highlight a:hover{text-decoration:underline}
+.form-section{background:var(--white);border:2px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
+.form-section::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#00C896,#4ADE80)}
+.form-section h2{font-family:var(--font);font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:1.5rem}
+.form-group{margin-bottom:1.2rem}
+.form-label{display:block;font-size:0.82rem;font-weight:600;color:var(--navy);margin-bottom:6px;letter-spacing:0.02em}
+.form-input{width:100%;padding:10px 14px;border:1px solid rgba(11,31,58,0.15);border-radius:8px;font-size:0.9rem;font-family:var(--font-body);color:var(--text);background:var(--bg);transition:border-color 0.2s;outline:none}
+.form-input:focus{border-color:var(--green)}
+textarea.form-input{resize:vertical;min-height:100px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.btn-submit{width:100%;background:linear-gradient(135deg,#00C896,#4ADE80);color:var(--navy);border:none;border-radius:10px;padding:14px;font-size:0.95rem;font-weight:800;cursor:pointer;font-family:var(--font);transition:all 0.2s;margin-top:0.5rem}
+.btn-submit:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,200,150,0.3)}
+.success-msg{display:none;background:var(--green-dim);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;font-size:0.9rem;color:var(--navy);font-weight:500;margin-top:1rem}
+.timeline{display:flex;flex-direction:column;gap:0}
+.timeline-item{display:flex;gap:16px;padding:12px 0;border-bottom:1px solid rgba(11,31,58,0.06)}
+.timeline-item:last-child{border-bottom:none}
+.timeline-dot{width:10px;height:10px;background:var(--green);border-radius:50%;margin-top:6px;flex-shrink:0}
+.timeline-content h4{font-size:0.88rem;font-weight:700;color:var(--navy);margin-bottom:2px}
+.timeline-content p{font-size:0.82rem;color:var(--muted)}
+footer{background:var(--navy);padding:1.5rem 6%;text-align:center;border-top:1px solid rgba(0,200,150,0.1)}
+footer p{font-size:0.78rem;color:rgba(255,255,255,0.3)}
+footer a{color:var(--green);text-decoration:none}
+@media(max-width:600px){
+  .form-row{grid-template-columns:1fr}
+  .container{padding:2rem 5%}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="https://www.zevorasystems.com" class="nav-logo">ZEVORA<span>.</span></a>
+  <a href="https://www.zevorasystems.com" class="nav-back">← Volver a la web</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">🔒 Privacidad y datos</div>
+  <h1>Eliminación de datos personales</h1>
+  <p>Tienes derecho a solicitar la eliminación completa de tus datos de los sistemas ZEVORA. Procesamos todas las solicitudes en un plazo máximo de 30 días.</p>
+</div>
+
+<div class="container">
+
+  <!-- Qué datos eliminamos -->
+  <div class="card">
+    <div class="card-title"><div class="icon">📋</div>¿Qué datos podemos eliminar?</div>
+    <p>Al procesar tu solicitud eliminaremos permanentemente todos los datos asociados a tu cuenta en los sistemas ZEVORA que correspondan:</p>
+    <ul class="steps" style="margin-top:0.8rem">
+      <li><div class="step-num">✓</div>Datos de tu cuenta de usuario (email, contraseña, perfil)</li>
+      <li><div class="step-num">✓</div>Datos de tu negocio o clínica registrada en el sistema</li>
+      <li><div class="step-num">✓</div>Historial de citas, pacientes y clientes asociados</li>
+      <li><div class="step-num">✓</div>Conversaciones del agente de WhatsApp</li>
+      <li><div class="step-num">✓</div>Facturas y registros de facturación</li>
+      <li><div class="step-num">✓</div>Configuración y preferencias guardadas</li>
+    </ul>
+    <div class="highlight">
+      ⚠️ La eliminación es <strong>permanente e irreversible</strong>. Una vez procesada la solicitud no es posible recuperar los datos eliminados.
+    </div>
+  </div>
+
+  <!-- Cómo funciona -->
+  <div class="card">
+    <div class="card-title"><div class="icon">⏱️</div>Proceso y plazos</div>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h4>Recepción de la solicitud</h4>
+          <p>Confirmaremos la recepción de tu solicitud por email en un plazo de 24-48 horas.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h4>Verificación de identidad</h4>
+          <p>Verificaremos que eres el titular de los datos antes de proceder a la eliminación.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h4>Procesamiento</h4>
+          <p>Eliminaremos todos tus datos de nuestros sistemas en un plazo máximo de 30 días naturales.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h4>Confirmación</h4>
+          <p>Te enviaremos una confirmación por email cuando la eliminación haya sido completada.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulario -->
+  <div class="form-section">
+    <h2>📝 Solicitar eliminación de datos</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Nombre completo *</label>
+        <input type="text" class="form-input" id="nombre" placeholder="Tu nombre y apellidos">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email registrado *</label>
+        <input type="email" class="form-input" id="email" placeholder="email@tuempresa.com">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Sistema ZEVORA *</label>
+      <select class="form-input" id="sistema">
+        <option value="">Selecciona el sistema</option>
+        <option value="FisioIA">FisioIA — Clínicas de fisioterapia</option>
+        <option value="ReservIA">ReservIA — Restaurantes</option>
+        <option value="BarberIA">BarberIA — Barberías</option>
+        <option value="PsicoIA">PsicoIA — Consultas de psicología</option>
+        <option value="Todos">Todos los sistemas</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Motivo de la solicitud (opcional)</label>
+      <textarea class="form-input" id="motivo" placeholder="Puedes indicar el motivo si lo deseas..."></textarea>
+    </div>
+    <button class="btn-submit" onclick="enviarSolicitud()">Enviar solicitud de eliminación →</button>
+    <div class="success-msg" id="success-msg">
+      ✅ Solicitud recibida correctamente. Te enviaremos una confirmación a tu email en las próximas 24-48 horas.
+    </div>
+  </div>
+
+  <!-- Contacto alternativo -->
+  <div class="card">
+    <div class="card-title"><div class="icon">✉️</div>¿Prefieres contactar directamente?</div>
+    <p>Si tienes alguna duda sobre la eliminación de tus datos o prefieres gestionar tu solicitud por email, puedes contactar directamente con nuestro equipo:</p>
+    <div class="highlight">
+      📧 Email: <a href="mailto:hola@zevorasystems.com">hola@zevorasystems.com</a><br>
+      <span style="font-size:0.82rem;color:var(--muted);font-weight:400">Asunto: Solicitud de eliminación de datos — [tu email registrado]</span>
+    </div>
+    <p style="margin-top:1rem">También puedes consultar nuestra <a href="/politica-privacidad.pdf" style="color:var(--green);font-weight:600">Política de Privacidad completa</a> para más información sobre cómo tratamos tus datos.</p>
+  </div>
+
+</div>
+
+<footer>
+  <p>© 2026 ZEVORA Systems · Damián Miguel Herranz Rincón · <a href="/politica-privacidad.pdf">Política de Privacidad</a> · <a href="mailto:hola@zevorasystems.com">hola@zevorasystems.com</a></p>
+</footer>
+
+<script>
+function enviarSolicitud(){
+  var nombre=document.getElementById('nombre').value.trim();
+  var email=document.getElementById('email').value.trim();
+  var sistema=document.getElementById('sistema').value;
+  var motivo=document.getElementById('motivo').value.trim();
+
+  if(!nombre||!email||!sistema){
+    alert('Por favor rellena los campos obligatorios: nombre, email y sistema.');
+    return;
+  }
+
+  // Enviar email via mailto como fallback simple
+  var asunto=encodeURIComponent('Solicitud de eliminación de datos — '+email);
+  var cuerpo=encodeURIComponent(
+    'Nombre: '+nombre+'\n'+
+    'Email: '+email+'\n'+
+    'Sistema: '+sistema+'\n'+
+    'Motivo: '+(motivo||'No indicado')+'\n\n'+
+    'Solicito la eliminación permanente de todos mis datos personales de los sistemas ZEVORA indicados.'
+  );
+
+  window.location.href='mailto:hola@zevorasystems.com?subject='+asunto+'&body='+cuerpo;
+
+  // Mostrar mensaje de éxito
+  document.getElementById('success-msg').style.display='block';
+  document.getElementById('nombre').value='';
+  document.getElementById('email').value='';
+  document.getElementById('sistema').value='';
+  document.getElementById('motivo').value='';
+}
+</script>
+
+</body>
+</html>
